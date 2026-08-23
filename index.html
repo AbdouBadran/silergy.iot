@@ -98,42 +98,42 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   <div class="control-container">
     <div class="control-card">
       <h3>🌀 المروحة (Fan)</h3>
-      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleDevice('fan')"><span class="slider"></span></label></div>
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="fanSwitch" onchange="togglePath('controls/fan')"><span class="slider"></span></label></div>
       <div class="timer-box">
         <div class="timer-inputs">
           <div class="timer-group"><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
           <div class="timer-group"><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
           <div class="timer-group"><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
         </div>
-        <button class="timer-btn" onclick="setTimer('fan')">ابدأ المؤقت</button>
+        <button class="timer-btn" onclick="setTimer('fanHours','fanMins','fanSecs','controls/fan')">ابدأ المؤقت</button>
         <div class="countdown-display" id="fanCountdown">--:--:--</div>
       </div>
     </div>
 
     <div class="control-card">
       <h3>💨 الفواحة (Diffuser)</h3>
-      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleDevice('diffuser')"><span class="slider"></span></label></div>
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="togglePath('controls/diffuser')"><span class="slider"></span></label></div>
       <div class="timer-box">
         <div class="timer-inputs">
           <div class="timer-group"><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
           <div class="timer-group"><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
           <div class="timer-group"><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
         </div>
-        <button class="timer-btn" onclick="setTimer('diffuser')">ابدأ المؤقت</button>
+        <button class="timer-btn" onclick="setTimer('diffHours','diffMins','diffSecs','controls/diffuser')">ابدأ المؤقت</button>
         <div class="countdown-display" id="diffCountdown">--:--:--</div>
       </div>
     </div>
 
     <div class="control-card">
       <h3>💡 الكشافات (LEDs)</h3>
-      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleDevice('leds')"><span class="slider"></span></label></div>
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="ledsSwitch" onchange="togglePath('controls/leds')"><span class="slider"></span></label></div>
       <div class="timer-box">
         <div class="timer-inputs">
           <div class="timer-group"><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
           <div class="timer-group"><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
           <div class="timer-group"><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
         </div>
-        <button class="timer-btn" onclick="setTimer('leds')">ابدأ المؤقت</button>
+        <button class="timer-btn" onclick="setTimer('ledHours','ledMins','ledSecs','controls/leds')">ابدأ المؤقت</button>
         <div class="countdown-display" id="ledCountdown">--:--:--</div>
       </div>
     </div>
@@ -142,11 +142,11 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   <div class="centered-row">
     <div class="control-card">
       <h3>🌡️ حساس البيئة (BME280)</h3>
-      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleSensor('bme280')"><span class="slider"></span></label></div>
+      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="bmeSwitch" onchange="togglePath('sensors/bme280')"><span class="slider"></span></label></div>
     </div>
     <div class="control-card">
       <h3>🎛️ حساس الغاز (Air Quality)</h3>
-      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleSensor('gas')"><span class="slider"></span></label></div>
+      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="gasSwitch" onchange="togglePath('sensors/gas')"><span class="slider"></span></label></div>
     </div>
   </div>
 
@@ -234,21 +234,29 @@ function setGauge(elementId, val, min, max, optimalMin, optimalMax) {
   else bar.style.backgroundColor = "#ef4444";
 }
 
-// الاستماع للبيانات الحية من الفايربيس
+// التغيير الفوري عند ضغط زر التشغيل/الإيقاف
+function togglePath(path) {
+  db.ref(path).once('value').then(snapshot => {
+    let currentVal = snapshot.val();
+    db.ref(path).set(!currentVal);
+  });
+}
+
+// الاستماع للبيانات الحية
 db.ref().on('value', snapshot => {
   const data = snapshot.val() || {};
   const nowStr = new Date().toLocaleTimeString();
 
   // تحديث حالة المحولات (Switches)
-  document.getElementById("gasSwitch").checked = !!data.sensors?.gas;
-  document.getElementById("bmeSwitch").checked = !!data.sensors?.bme280;
-  document.getElementById("fanSwitch").checked = !!data.controls?.fan;
-  document.getElementById("diffuserSwitch").checked = !!data.controls?.diffuser;
-  document.getElementById("ledsSwitch").checked = !!data.controls?.leds;
+  document.getElementById("gasSwitch").checked = Boolean(data.sensors?.gas);
+  document.getElementById("bmeSwitch").checked = Boolean(data.sensors?.bme280);
+  document.getElementById("fanSwitch").checked = Boolean(data.controls?.fan);
+  document.getElementById("diffuserSwitch").checked = Boolean(data.controls?.diffuser);
+  document.getElementById("ledsSwitch").checked = Boolean(data.controls?.leds);
 
-  // تحديث الغاز
+  // تحديث قراءات الغاز
   if(data.sensors?.gas) {
-    let gasVal = data.readings?.gas || 0;
+    let gasVal = data.readings?.gas ?? 0;
     document.getElementById("gas").innerText = gasVal + " ppm";
     setGauge("gasGauge", gasVal, 0, 1000, 0, 300);
     addData(gasChart, nowStr, gasVal);
@@ -259,9 +267,9 @@ db.ref().on('value', snapshot => {
 
   // تحديث BME280 & LDR
   if(data.sensors?.bme280) {
-    let t = data.readings?.temperature || 0;
-    let h = data.readings?.humidity || 0;
-    let l = data.readings?.ldr || 0;
+    let t = data.readings?.temperature ?? 0;
+    let h = data.readings?.humidity ?? 0;
+    let l = data.readings?.ldr ?? 0;
 
     document.getElementById("temp").innerText = Number(t).toFixed(1) + "°C";
     document.getElementById("hum").innerText = Number(h).toFixed(1) + "%";
@@ -284,52 +292,18 @@ db.ref().on('value', snapshot => {
   }
 });
 
-// دالة التحكم في التشغيل والإيقاف
-function toggleDevice(device) {
-  let isChecked = document.getElementById(device + "Switch").checked;
-  db.ref('controls/' + device).set(isChecked);
-}
-
-function toggleSensor(sensor) {
-  let isChecked = document.getElementById(sensor + "Switch").checked;
-  db.ref('sensors/' + sensor).set(isChecked);
-}
-
 // دالة المؤقت
-function setTimer(type) {
-  let h = 0, m = 0, s = 0;
-  if(type === 'fan') {
-    h = parseInt(document.getElementById("fanHours").value) || 0;
-    m = parseInt(document.getElementById("fanMins").value) || 0;
-    s = parseInt(document.getElementById("fanSecs").value) || 0;
-  } else if(type === 'diffuser') {
-    h = parseInt(document.getElementById("diffHours").value) || 0;
-    m = parseInt(document.getElementById("diffMins").value) || 0;
-    s = parseInt(document.getElementById("diffSecs").value) || 0;
-  } else if(type === 'leds') {
-    h = parseInt(document.getElementById("ledHours").value) || 0;
-    m = parseInt(document.getElementById("ledMins").value) || 0;
-    s = parseInt(document.getElementById("ledSecs").value) || 0;
-  }
+function setTimer(hId, mId, sId, targetPath) {
+  let h = parseInt(document.getElementById(hId).value) || 0;
+  let m = parseInt(document.getElementById(mId).value) || 0;
+  let s = parseInt(document.getElementById(sId).value) || 0;
   
   let totalSeconds = (h * 3600) + (m * 60) + s;
   if(totalSeconds > 0) {
-    db.ref('controls/' + type).set(true);
-    let display = document.getElementById(type === 'diffuser' ? 'diffCountdown' : type + 'Countdown');
-    
-    let interval = setInterval(() => {
-      let hrs = Math.floor(totalSeconds / 3600);
-      let mins = Math.floor((totalSeconds % 3600) / 60);
-      let secs = totalSeconds % 60;
-      display.innerText = `${hrs < 10 ? '0'+hrs : hrs}:${mins < 10 ? '0'+mins : mins}:${secs < 10 ? '0'+secs : secs}`;
-      
-      if(totalSeconds <= 0) {
-        clearInterval(interval);
-        db.ref('controls/' + type).set(false);
-        display.innerText = "--:--:--";
-      }
-      totalSeconds--;
-    }, 1000);
+    db.ref(targetPath).set(true);
+    setTimeout(() => {
+      db.ref(targetPath).set(false);
+    }, totalSeconds * 1000);
   }
 }
 </script>
