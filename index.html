@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SILERGY - Smart Environment Control</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Firebase JS SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <style>
 :root {
@@ -98,43 +95,49 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   <div class="control-container">
     <div class="control-card">
       <h3>🌀 المروحة (Fan)</h3>
-      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="fanSwitch" onchange="togglePath('controls/fan')"><span class="slider"></span></label></div>
+      <div class="switch-row">
+        <span class="switch-label">حالة التشغيل</span>
+        <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
+      </div>
       <div class="timer-box">
         <div class="timer-inputs">
           <div class="timer-group"><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
           <div class="timer-group"><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
           <div class="timer-group"><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
         </div>
-        <button class="timer-btn" onclick="setTimer('fanHours','fanMins','fanSecs','controls/fan')">ابدأ المؤقت</button>
-        <div class="countdown-display" id="fanCountdown">--:--:--</div>
+        <button class="timer-btn" onclick="setTimer('fanHours','fanMins','fanSecs','fanEnabled')">ابدأ المؤقت</button>
       </div>
     </div>
 
     <div class="control-card">
       <h3>💨 الفواحة (Diffuser)</h3>
-      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="togglePath('controls/diffuser')"><span class="slider"></span></label></div>
+      <div class="switch-row">
+        <span class="switch-label">حالة التشغيل</span>
+        <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled')"><span class="slider"></span></label>
+      </div>
       <div class="timer-box">
         <div class="timer-inputs">
           <div class="timer-group"><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
           <div class="timer-group"><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
           <div class="timer-group"><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
         </div>
-        <button class="timer-btn" onclick="setTimer('diffHours','diffMins','diffSecs','controls/diffuser')">ابدأ المؤقت</button>
-        <div class="countdown-display" id="diffCountdown">--:--:--</div>
+        <button class="timer-btn" onclick="setTimer('diffHours','diffMins','diffSecs','diffuserEnabled')">ابدأ المؤقت</button>
       </div>
     </div>
 
     <div class="control-card">
       <h3>💡 الكشافات (LEDs)</h3>
-      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="ledsSwitch" onchange="togglePath('controls/leds')"><span class="slider"></span></label></div>
+      <div class="switch-row">
+        <span class="switch-label">حالة التشغيل</span>
+        <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled')"><span class="slider"></span></label>
+      </div>
       <div class="timer-box">
         <div class="timer-inputs">
           <div class="timer-group"><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
           <div class="timer-group"><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
           <div class="timer-group"><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
         </div>
-        <button class="timer-btn" onclick="setTimer('ledHours','ledMins','ledSecs','controls/leds')">ابدأ المؤقت</button>
-        <div class="countdown-display" id="ledCountdown">--:--:--</div>
+        <button class="timer-btn" onclick="setTimer('ledHours','ledMins','ledSecs','ledsEnabled')">ابدأ المؤقت</button>
       </div>
     </div>
   </div>
@@ -142,11 +145,17 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   <div class="centered-row">
     <div class="control-card">
       <h3>🌡️ حساس البيئة (BME280)</h3>
-      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="bmeSwitch" onchange="togglePath('sensors/bme280')"><span class="slider"></span></label></div>
+      <div class="switch-row" style="margin-top: 10px;">
+        <span class="switch-label">تشغيل الحساس</span>
+        <label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bmeEnabled')"><span class="slider"></span></label>
+      </div>
     </div>
     <div class="control-card">
       <h3>🎛️ حساس الغاز (Air Quality)</h3>
-      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="gasSwitch" onchange="togglePath('sensors/gas')"><span class="slider"></span></label></div>
+      <div class="switch-row" style="margin-top: 10px;">
+        <span class="switch-label">تشغيل الحساس</span>
+        <label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasEnabled')"><span class="slider"></span></label>
+      </div>
     </div>
   </div>
 
@@ -173,139 +182,146 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   <footer><div class="author-footer">BY ABDOU BADRAN & OMAR YASSER</div></footer>
 </div>
 
-<script>
-// إعدادات الفايربيس
-const firebaseConfig = {
-  databaseURL: "https://graduatio-2a781-default-rtdb.firebaseio.com/"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-const maxPoints = 20;
-function createChart(ctxId, label, color) {
-  return new Chart(document.getElementById(ctxId).getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: label,
-        data: [],
-        borderColor: color,
-        backgroundColor: color + '22',
-        fill: true,
-        tension: 0.3,
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        x: { display: false },
-        y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+  const firebaseConfig = {
+    apiKey: "AIzaSyBX1PQUhlbiubiQeuY62nN4qjVvMp-NwLI",
+    authDomain: "summer-ca623.firebaseapp.com",
+    databaseURL: "https://summer-ca623-default-rtdb.firebaseio.com",
+    projectId: "summer-ca623",
+    storageBucket: "summer-ca623.firebasestorage.app",
+    messagingSenderId: "798032639895",
+    appId: "1:798032639895:web:7583b8eb505bc30adf36d2",
+    measurementId: "G-9S6PRSR0XM"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const maxPoints = 20;
+  function createChart(ctxId, label, color) {
+    return new Chart(document.getElementById(ctxId).getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: label,
+          data: [],
+          borderColor: color,
+          backgroundColor: color + '22',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2
+        }]
       },
-      plugins: { legend: { labels: { color: '#e2e8f0' } } }
+      options: {
+        responsive: true,
+        scales: {
+          x: { display: false },
+          y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        },
+        plugins: { legend: { labels: { color: '#e2e8f0' } } }
+      }
+    });
+  }
+
+  const gasChart = createChart('gasChart', 'Air Quality', '#38bdf8');
+  const tempChart = createChart('tempChart', 'Temperature (C)', '#f43f5e');
+  const humChart = createChart('humChart', 'Humidity (%)', '#60a5fa');
+  const ldrChart = createChart('ldrChart', 'LDR Level', '#ffc107');
+
+  function addData(chart, label, data) {
+    if (chart.data.labels.length >= maxPoints) {
+      chart.data.labels.shift();
+      chart.data.datasets[0].data.shift();
+    }
+    chart.data.labels.push(label);
+    chart.data.datasets[0].data.push(data);
+    chart.update();
+  }
+
+  function setGauge(elementId, val, min, max, optimalMin, optimalMax) {
+    let bar = document.getElementById(elementId);
+    if (isNaN(val) || val === null) { bar.style.width = "0%"; return; }
+    let pct = ((val - min) / (max - min)) * 100;
+    if(pct < 0) pct = 0; if(pct > 100) pct = 100;
+    bar.style.width = pct + "%";
+    if (val >= optimalMin && val <= optimalMax) bar.style.backgroundColor = "#10b981";
+    else if ((val >= optimalMin - (optimalMax-optimalMin)*0.5 && val < optimalMin) || (val > optimalMax && val <= optimalMax + (optimalMax-optimalMin)*0.5)) bar.style.backgroundColor = "#f59e0b";
+    else bar.style.backgroundColor = "#ef4444";
+  }
+
+  // التغيير التفاعلي للأزرار
+  window.toggleControl = function(path) {
+    const controlRef = ref(db, '/controls/' + path);
+    get(controlRef).then((snapshot) => {
+      const currentVal = snapshot.val();
+      set(controlRef, !currentVal);
+    });
+  };
+
+  // التحكم بالمؤقتات
+  window.setTimer = function(hId, mId, sId, targetPath) {
+    let h = parseInt(document.getElementById(hId).value) || 0;
+    let m = parseInt(document.getElementById(mId).value) || 0;
+    let s = parseInt(document.getElementById(sId).value) || 0;
+    
+    let totalSeconds = (h * 3600) + (m * 60) + s;
+    if(totalSeconds > 0) {
+      set(ref(db, '/controls/' + targetPath), true);
+      setTimeout(() => {
+        set(ref(db, '/controls/' + targetPath), false);
+      }, totalSeconds * 1000);
+    }
+  };
+
+  // متابعة حالة المفاتيح والأزرار
+  onValue(ref(db, '/controls'), (snapshot) => {
+    const data = snapshot.val() || {};
+    document.getElementById("gasSwitch").checked = Boolean(data.gasEnabled);
+    document.getElementById("bmeSwitch").checked = Boolean(data.bmeEnabled);
+    document.getElementById("fanSwitch").checked = Boolean(data.fanEnabled);
+    document.getElementById("diffuserSwitch").checked = Boolean(data.diffuserEnabled);
+    document.getElementById("ledsSwitch").checked = Boolean(data.ledsEnabled);
+  });
+
+  // الاستماع لقراءات الحساسات ورسمها
+  onValue(ref(db, '/readings'), (snapshot) => {
+    const data = snapshot.val();
+    const nowStr = new Date().toLocaleTimeString();
+
+    if (data) {
+      // قراءة الغاز
+      if (data.gas !== undefined) {
+        document.getElementById("gas").innerText = data.gas + " ppm";
+        setGauge("gasGauge", data.gas, 0, 1000, 0, 300);
+        addData(gasChart, nowStr, data.gas);
+      }
+      
+      // قراءة الحرارة
+      if (data.temp !== undefined) {
+        document.getElementById("temp").innerText = data.temp + " °C";
+        setGauge("tempGauge", data.temp, 10, 50, 22, 28);
+        addData(tempChart, nowStr, data.temp);
+      }
+
+      // قراءة الرطوبة
+      if (data.hum !== undefined) {
+        document.getElementById("hum").innerText = data.hum + " %";
+        setGauge("humGauge", data.hum, 0, 100, 50, 70);
+        addData(humChart, nowStr, data.hum);
+      }
+
+      // قراءة LDR
+      if (data.ldr !== undefined) {
+        document.getElementById("ldr").innerText = data.ldr;
+        setGauge("ldrGauge", data.ldr, 0, 4095, 1000, 3000);
+        addData(ldrChart, nowStr, data.ldr);
+      }
     }
   });
-}
-
-const gasChart = createChart('gasChart', 'Air Quality', '#38bdf8');
-const tempChart = createChart('tempChart', 'Temperature (C)', '#f43f5e');
-const humChart = createChart('humChart', 'Humidity (%)', '#60a5fa');
-const ldrChart = createChart('ldrChart', 'LDR Level', '#ffc107');
-
-function addData(chart, label, data) {
-  if (chart.data.labels.length >= maxPoints) {
-    chart.data.labels.shift();
-    chart.data.datasets[0].data.shift();
-  }
-  chart.data.labels.push(label);
-  chart.data.datasets[0].data.push(data);
-  chart.update();
-}
-
-function setGauge(elementId, val, min, max, optimalMin, optimalMax) {
-  let bar = document.getElementById(elementId);
-  if (isNaN(val) || val === null) { bar.style.width = "0%"; return; }
-  let pct = ((val - min) / (max - min)) * 100;
-  if(pct < 0) pct = 0; if(pct > 100) pct = 100;
-  bar.style.width = pct + "%";
-  if (val >= optimalMin && val <= optimalMax) bar.style.backgroundColor = "#10b981";
-  else if ((val >= optimalMin - (optimalMax-optimalMin)*0.5 && val < optimalMin) || (val > optimalMax && val <= optimalMax + (optimalMax-optimalMin)*0.5)) bar.style.backgroundColor = "#f59e0b";
-  else bar.style.backgroundColor = "#ef4444";
-}
-
-// التغيير الفوري عند ضغط زر التشغيل/الإيقاف
-function togglePath(path) {
-  db.ref(path).once('value').then(snapshot => {
-    let currentVal = snapshot.val();
-    db.ref(path).set(!currentVal);
-  });
-}
-
-// الاستماع للبيانات الحية من الفايربيس
-db.ref().on('value', snapshot => {
-  const data = snapshot.val() || {};
-  const nowStr = new Date().toLocaleTimeString();
-
-  // تحديث حالة المحولات (Switches)
-  document.getElementById("gasSwitch").checked = Boolean(data.sensors?.gas);
-  document.getElementById("bmeSwitch").checked = Boolean(data.sensors?.bme280);
-  document.getElementById("fanSwitch").checked = Boolean(data.controls?.fan);
-  document.getElementById("diffuserSwitch").checked = Boolean(data.controls?.diffuser);
-  document.getElementById("ledsSwitch").checked = Boolean(data.controls?.leds);
-
-  // تحديث قراءات الغاز
-  if(data.sensors?.gas) {
-    let gasVal = data.sensor_data?.gas ?? 0;
-    document.getElementById("gas").innerText = gasVal + " ppm";
-    setGauge("gasGauge", gasVal, 0, 1000, 0, 300);
-    addData(gasChart, nowStr, gasVal);
-  } else {
-    document.getElementById("gas").innerText = "متوقف";
-    setGauge("gasGauge", NaN, 0, 100, 0, 0);
-  }
-
-  // تحديث BME280 & LDR
-  if(data.sensors?.bme280) {
-    let t = data.sensor_data?.temperature ?? 0;
-    let h = data.sensor_data?.humidity ?? 0;
-    let l = data.sensor_data?.ldr ?? 0;
-
-    document.getElementById("temp").innerText = Number(t).toFixed(1) + "°C";
-    document.getElementById("hum").innerText = Number(h).toFixed(1) + "%";
-    document.getElementById("ldr").innerText = l;
-
-    setGauge("tempGauge", t, 10, 50, 22, 28);
-    setGauge("humGauge", h, 0, 100, 50, 70);
-    setGauge("ldrGauge", l, 0, 4095, 1000, 3000);
-
-    addData(tempChart, nowStr, t);
-    addData(humChart, nowStr, h);
-    addData(ldrChart, nowStr, l);
-  } else {
-    document.getElementById("temp").innerText = "متوقف";
-    document.getElementById("hum").innerText = "متوقف";
-    document.getElementById("ldr").innerText = "متوقف";
-    setGauge("tempGauge", NaN, 0, 100, 0, 0);
-    setGauge("humGauge", NaN, 0, 100, 0, 0);
-    setGauge("ldrGauge", NaN, 0, 4095, 0, 0);
-  }
-});
-
-// دالة المؤقت
-function setTimer(hId, mId, sId, targetPath) {
-  let h = parseInt(document.getElementById(hId).value) || 0;
-  let m = parseInt(document.getElementById(mId).value) || 0;
-  let s = parseInt(document.getElementById(sId).value) || 0;
-  
-  let totalSeconds = (h * 3600) + (m * 60) + s;
-  if(totalSeconds > 0) {
-    db.ref(targetPath).set(true);
-    setTimeout(() => {
-      db.ref(targetPath).set(false);
-    }, totalSeconds * 1000);
-  }
-}
 </script>
 </body>
 </html>
