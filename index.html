@@ -1,3 +1,1786 @@
+
+Conversation with Gemini
+جيمناي بقلك الوقتي عملت لينك جيت هاب للمشروع iot دا الكود الاساسي
+
+#include <WiFi.h>
+
+#include <WebServer.h>
+
+#include <Wire.h>
+
+#include <Adafruit_Sensor.h>
+
+#include <Adafruit_BME280.h>
+
+#include <Firebase_ESP_Client.h>
+
+#include <addons/TokenHelper.h>
+
+#include <addons/RTDBHelper.h>
+
+#include <TFT_eSPI.h>
+
+
+
+#include "image.h"
+
+#include "index.h"
+
+
+
+// ==========================================
+
+// 1. بيانات WiFi
+
+// ==========================================
+
+const char* ssid = "Badran";        
+
+const char* password = "97002002";
+
+
+
+// ==========================================
+
+// 2. بيانات الفيربيس Firebase
+
+// ==========================================
+
+#define API_KEY "AIzaSyBX1PQUhlbiubiQeuY62nN4qjVvMp-NwLI"
+
+#define DATABASE_URL "https://summer-ca623-default-rtdb.firebaseio.com"
+
+
+
+FirebaseData fbdo;
+
+FirebaseAuth auth;
+
+FirebaseConfig config;
+
+
+
+// ==========================================
+
+// 3. إعدادات الشاشة والمتغيرات اللحظية
+
+// ==========================================
+
+TFT_eSPI tft = TFT_eSPI();
+
+unsigned long sendDataPrevMillis = 0;
+
+const unsigned long timerDelay = 1000;
+
+
+
+// Web Server
+
+WebServer server(80);
+
+
+
+// ==========================================
+
+// 4. إعدادات الأطراف (Pins)
+
+// ==========================================
+
+#define MQ136_PIN 34    
+
+#define FAN_PIN 18      
+
+#define DIFFUSER_PIN 19  
+
+#define LEDS_PIN 23      
+
+#define LDR_PIN 35      
+
+
+
+Adafruit_BME280 bme;
+
+
+
+// متغيرات التحكم
+
+bool isGasEnabled = false;
+
+bool isBmeEnabled = false;
+
+bool isFanEnabled = false;
+
+bool isDiffuserEnabled = false;
+
+bool isLedsEnabled = false;
+
+
+
+// متغيرات التايمر
+
+unsigned long fanTimerDuration = 0;
+
+unsigned long fanStartTime = 0;
+
+bool isFanTimerActive = false;
+
+
+
+unsigned long diffuserTimerDuration = 0;
+
+unsigned long diffuserStartTime = 0;
+
+bool isDiffuserTimerActive = false;
+
+
+
+unsigned long ledsTimerDuration = 0;
+
+unsigned long ledsStartTime = 0;
+
+bool isLedsTimerActive = false;
+
+
+
+// Sensor Values
+
+int gasValue = 0;
+
+float tempValue = 0.0;
+
+float humValue = 0.0;
+
+int ldrValue = 0;
+
+
+
+// ==========================================
+
+// Background image helpers
+
+// ==========================================
+
+#define TFT_W 480
+
+#define TFT_H 320
+
+
+
+void drawBackground() {
+
+  tft.pushImage(0, 0, TFT_W, TFT_H, epd_bitmap_Untitled_design);
+
+}
+
+
+
+void restoreBackground(int x, int y, int w, int h) {
+
+  if (x < 0 || y < 0 || x + w > TFT_W || y + h > TFT_H) return;
+
+  for (int row = 0; row < h; row++) {
+
+    int currentY = y + row;
+
+    tft.pushImage(x, currentY, w, 1, epd_bitmap_Untitled_design + (currentY * TFT_W) + x);
+
+  }
+
+}
+
+
+
+// ==========================================
+
+// رسم مؤشر شريطي (Gauge Bar) عالي التباين
+
+// ==========================================
+
+void drawTFTGauge(int x, int y, int w, int h, float val, float minV, float maxV, float optMin, float optMax) {
+
+  tft.drawRect(x, y, w, h, TFT_WHITE);
+
+  tft.drawRect(x + 1, y + 1, w - 2, h - 2, TFT_BLACK);
+
+ 
+
+  if (isnan(val)) {
+
+    tft.fillRect(x + 2, y + 2, w - 4, h - 4, 0x18C3);
+
+    return;
+
+  }
+
+
+
+  int fillWidth = (int)((val - minV) / (maxV - minV) * (w - 4));
+
+  if (fillWidth < 0) fillWidth = 0;
+
+  if (fillWidth > w - 4) fillWidth = w - 4;
+
+
+
+  uint16_t barColor;
+
+  if (val >= optMin && val <= optMax) {
+
+    barColor = TFT_GREEN;
+
+  } else if ((val >= optMin - (optMax - optMin) * 0.5 && val < optMin) || (val > optMax && val <= optMax + (optMax - optMin) * 0.5)) {
+
+    barColor = TFT_YELLOW;
+
+  } else {
+
+    barColor = TFT_RED;
+
+  }
+
+
+
+  tft.fillRect(x + 2, y + 2, fillWidth, h - 4, barColor);
+
+  tft.fillRect(x + 2 + fillWidth, y + 2, (w - 4) - fillWidth, h - 4, 0x18C3);
+
+}
+
+
+
+// ==========================================
+
+// دالة تحديث حالة الأحمال مع إطار عالي التباين
+
+// ==========================================
+
+void updateLoadStatusTFT(bool isEnabled, int x, int y, String label) {
+
+  tft.drawRoundRect(x, y, 64, 28, 14, TFT_WHITE);
+
+  tft.drawRoundRect(x + 1, y + 1, 62, 26, 13, TFT_BLACK);
+
+
+
+  if (isEnabled) {
+
+    tft.fillRoundRect(x + 2, y + 2, 60, 24, 12, TFT_GREEN);
+
+    tft.setTextColor(TFT_BLACK, TFT_GREEN);
+
+    tft.drawString("ON", x + 18, y + 6, 2);
+
+  } else {
+
+    tft.fillRoundRect(x + 2, y + 2, 60, 24, 12, 0x2104);
+
+    tft.setTextColor(TFT_WHITE, 0x2104);
+
+    tft.drawString("OFF", x + 16, y + 6, 2);
+
+  }
+
+}
+
+
+
+// ==========================================
+
+// عرض تايمر التنازلي على شاشة TFT
+
+// ==========================================
+
+void drawTFTCountdown(int x, int y, unsigned long remainingSecs, bool isActive) {
+
+  restoreBackground(x, y, 110, 20);
+
+  tft.drawRoundRect(x, y, 110, 20, 4, TFT_WHITE);
+
+ 
+
+  if (!isActive || remainingSecs == 0) {
+
+    tft.setTextColor(TFT_DARKGREY);
+
+    tft.drawCentreString("--:--:--", x + 55, y + 3, 2);
+
+    return;
+
+  }
+
+ 
+
+  unsigned long hrs = remainingSecs / 3600;
+
+  unsigned long mins = (remainingSecs % 3600) / 60;
+
+  unsigned long secs = remainingSecs % 60;
+
+ 
+
+  char timeBuf[12];
+
+  sprintf(timeBuf, "%02lu:%02lu:%02lu", hrs, mins, secs);
+
+ 
+
+  tft.setTextColor(TFT_CYAN);
+
+  tft.drawCentreString(timeBuf, x + 55, y + 3, 2);
+
+}
+
+
+
+// ==========================================
+
+// SETUP
+
+// ==========================================
+
+void setup() {
+
+  Serial.begin(115200);
+
+  analogReadResolution(12);
+
+
+
+  pinMode(FAN_PIN, OUTPUT);
+
+  pinMode(DIFFUSER_PIN, OUTPUT);
+
+  pinMode(LEDS_PIN, OUTPUT);
+
+  digitalWrite(FAN_PIN, LOW);
+
+  digitalWrite(DIFFUSER_PIN, LOW);
+
+  digitalWrite(LEDS_PIN, LOW);
+
+
+
+  Wire.begin(21, 22);
+
+  bme.begin(0x76);
+
+
+
+  Serial.print("Connecting to WiFi...");
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+
+    delay(500);
+
+    Serial.print(".");
+
+  }
+
+  Serial.println("\nWiFi Connected!");
+
+  Serial.print("IP Address: ");
+
+  Serial.println(WiFi.localIP());
+
+
+
+  config.api_key = API_KEY;
+
+  config.database_url = DATABASE_URL;
+
+  Firebase.begin(&config, &auth);
+
+
+
+  // إعدادات الشاشة ورسم الواجهة الثابتة
+
+  tft.init();
+
+  tft.setRotation(1);
+
+  tft.setSwapBytes(true);
+
+  drawBackground();
+
+
+
+  // إطارات الكروت الأربعة العلوية مزدوجة السمك
+
+  for (int i = 0; i < 4; i++) {
+
+    int x = 10 + (i * 115);
+
+    tft.drawRoundRect(x, 32, 105, 110, 8, TFT_WHITE);
+
+    tft.drawRoundRect(x + 1, 33, 103, 108, 7, TFT_BLACK);
+
+  }
+
+
+
+  // عناوين الكروت العلوية بلون أبيض واضح
+
+  tft.setTextColor(TFT_WHITE);
+
+  tft.drawString("Air Quality", 14, 40, 2);
+
+  tft.drawString("Temp", 133, 40, 2);
+
+  tft.drawString("Humidity", 248, 40, 2);
+
+  tft.drawString("LDR", 363, 40, 2);
+
+
+
+  // إطارات التحكم السفلية مزدوجة السمك
+
+  tft.drawRoundRect(40, 160, 120, 130, 8, TFT_WHITE);
+
+  tft.drawRoundRect(41, 161, 118, 128, 7, TFT_BLACK);
+
+
+
+  tft.drawRoundRect(180, 160, 120, 130, 8, TFT_WHITE);
+
+  tft.drawRoundRect(181, 161, 118, 128, 7, TFT_BLACK);
+
+
+
+  tft.drawRoundRect(320, 160, 120, 130, 8, TFT_WHITE);
+
+  tft.drawRoundRect(321, 161, 118, 128, 7, TFT_BLACK);
+
+
+
+  // أسماء الأحمال باللون الأصفر
+
+  tft.setTextColor(TFT_YELLOW);
+
+  tft.drawCentreString("LEDs", 100, 168, 2);
+
+  tft.drawCentreString("Diffuser", 240, 168, 2);
+
+  tft.drawCentreString("Fan", 380, 168, 2);
+
+
+
+  // مسارات السيرفر
+
+  server.on("/", []() { server.send(200, "text/html", index_html); });
+
+ 
+
+  server.on("/data", []() {
+
+    unsigned long curMs = millis();
+
+    unsigned long fanRem = (isFanTimerActive && (curMs - fanStartTime < fanTimerDuration)) ? ((fanTimerDuration - (curMs - fanStartTime)) / 1000) : 0;
+
+    unsigned long diffRem = (isDiffuserTimerActive && (curMs - diffuserStartTime < diffuserTimerDuration)) ? ((diffuserTimerDuration - (curMs - diffuserStartTime)) / 1000) : 0;
+
+    unsigned long ledRem = (isLedsTimerActive && (curMs - ledsStartTime < ledsTimerDuration)) ? ((ledsTimerDuration - (curMs - ledsStartTime)) / 1000) : 0;
+
+
+
+    String json = "{";
+
+    json += "\"gasEnabled\":" + String(isGasEnabled ? "true" : "false") + ",";
+
+    json += "\"bmeEnabled\":" + String(isBmeEnabled ? "true" : "false") + ",";
+
+    json += "\"fanEnabled\":" + String(isFanEnabled ? "true" : "false") + ",";
+
+    json += "\"diffuserEnabled\":" + String(isDiffuserEnabled ? "true" : "false") + ",";
+
+    json += "\"ledsEnabled\":" + String(isLedsEnabled ? "true" : "false") + ",";
+
+    json += "\"gas\":" + String(gasValue) + ",";
+
+    json += "\"temp\":" + String(tempValue, 1) + ",";
+
+    json += "\"hum\":" + String(humValue, 1) + ",";
+
+    json += "\"ldr\":" + String(ldrValue) + ",";
+
+    json += "\"fanRem\":" + String(fanRem) + ",";
+
+    json += "\"diffRem\":" + String(diffRem) + ",";
+
+    json += "\"ledRem\":" + String(ledRem);
+
+    json += "}";
+
+    server.send(200, "application/json", json);
+
+  });
+
+
+
+  server.on("/toggleGas", [](){ isGasEnabled = !isGasEnabled; server.send(200, "text/plain", "OK"); });
+
+  server.on("/toggleBme", [](){ isBmeEnabled = !isBmeEnabled; server.send(200, "text/plain", "OK"); });
+
+  server.on("/toggleFan", [](){ isFanEnabled = !isFanEnabled; digitalWrite(FAN_PIN, isFanEnabled ? HIGH : LOW); isFanTimerActive = false; server.send(200, "text/plain", "OK"); });
+
+  server.on("/toggleDiffuser", [](){ isDiffuserEnabled = !isDiffuserEnabled; digitalWrite(DIFFUSER_PIN, isDiffuserEnabled ? HIGH : LOW); isDiffuserTimerActive = false; server.send(200, "text/plain", "OK"); });
+
+  server.on("/toggleLeds", [](){ isLedsEnabled = !isLedsEnabled; digitalWrite(LEDS_PIN, isLedsEnabled ? HIGH : LOW); isLedsTimerActive = false; server.send(200, "text/plain", "OK"); });
+
+
+
+  server.on("/timerFan", []() {
+
+    if (server.hasArg("ms")) {
+
+      fanTimerDuration = server.arg("ms").toInt();
+
+      if(fanTimerDuration > 0) { isFanEnabled = true; digitalWrite(FAN_PIN, HIGH); fanStartTime = millis(); isFanTimerActive = true; }
+
+    }
+
+    server.send(200, "text/plain", "OK");
+
+  });
+
+  server.on("/timerDiffuser", []() {
+
+    if (server.hasArg("ms")) {
+
+      diffuserTimerDuration = server.arg("ms").toInt();
+
+      if(diffuserTimerDuration > 0) { isDiffuserEnabled = true; digitalWrite(DIFFUSER_PIN, HIGH); diffuserStartTime = millis(); isDiffuserTimerActive = true; }
+
+    }
+
+    server.send(200, "text/plain", "OK");
+
+  });
+
+  server.on("/timerLeds", []() {
+
+    if (server.hasArg("ms")) {
+
+      ledsTimerDuration = server.arg("ms").toInt();
+
+      if(ledsTimerDuration > 0) { isLedsEnabled = true; digitalWrite(LEDS_PIN, HIGH); ledsStartTime = millis(); isLedsTimerActive = true; }
+
+    }
+
+    server.send(200, "text/plain", "OK");
+
+  });
+
+
+
+  server.begin();
+
+}
+
+
+
+// ==========================================
+
+// MAIN LOOP
+
+// ==========================================
+
+void loop() {
+
+  server.handleClient();
+
+
+
+  unsigned long currentMillis = millis();
+
+
+
+  if (isFanTimerActive && (currentMillis - fanStartTime >= fanTimerDuration)) { isFanEnabled = false; digitalWrite(FAN_PIN, LOW); isFanTimerActive = false; }
+
+  if (isDiffuserTimerActive && (currentMillis - diffuserStartTime >= diffuserTimerDuration)) { isDiffuserEnabled = false; digitalWrite(DIFFUSER_PIN, LOW); isDiffuserTimerActive = false; }
+
+  if (isLedsTimerActive && (currentMillis - ledsStartTime >= ledsTimerDuration)) { isLedsEnabled = false; digitalWrite(LEDS_PIN, LOW); isLedsTimerActive = false; }
+
+ 
+
+  if (currentMillis - sendDataPrevMillis >= timerDelay) {
+
+    sendDataPrevMillis = currentMillis;
+
+
+
+    if (isGasEnabled) gasValue = analogRead(MQ136_PIN);
+
+    if (isBmeEnabled) {
+
+      tempValue = bme.readTemperature();
+
+      humValue = bme.readHumidity();    
+
+      ldrValue = analogRead(LDR_PIN);
+
+    }
+
+
+
+    // --- طباعة القراءات على Serial Monitor ---
+
+    Serial.println("==========================================");
+
+    Serial.print("Air Quality Gas: ");
+
+    if (isGasEnabled) { Serial.print(gasValue); Serial.println(" ppm"); } else Serial.println("DISABLED");
+
+
+
+    Serial.print("BME280 Temp: ");
+
+    if (isBmeEnabled) { Serial.print(tempValue, 1); Serial.print(" C | Hum: "); Serial.print(humValue, 1); Serial.print(" % | LDR: "); Serial.println(ldrValue); } else Serial.println("DISABLED");
+
+
+
+    Serial.print("Relays Status -> Fan: "); Serial.print(isFanEnabled ? "ON" : "OFF");
+
+    Serial.print(" | Diffuser: "); Serial.print(isDiffuserEnabled ? "ON" : "OFF");
+
+    Serial.print(" | LEDs: "); Serial.println(isLedsEnabled ? "ON" : "OFF");
+
+
+
+    tft.setTextColor(TFT_WHITE);
+
+   
+
+    // Air Quality (MQ136)
+
+    restoreBackground(12, 65, 101, 30);
+
+    tft.drawCentreString(isGasEnabled ? String(gasValue) + " ppm" : "OFF", 62, 70, 2);
+
+    drawTFTGauge(18, 112, 89, 10, isGasEnabled ? gasValue : NAN, 0, 1000, 0, 300);
+
+
+
+    // Temp
+
+    restoreBackground(127, 65, 101, 30);
+
+    tft.drawCentreString(isBmeEnabled ? String(tempValue, 1) + " C" : "OFF", 177, 70, 2);
+
+    drawTFTGauge(133, 112, 89, 10, isBmeEnabled ? tempValue : NAN, 10, 50, 22, 28);
+
+
+
+    // Humidity
+
+    restoreBackground(242, 65, 101, 30);
+
+    tft.drawCentreString(isBmeEnabled ? String(humValue, 1) + " %" : "OFF", 292, 70, 2);
+
+    drawTFTGauge(248, 112, 89, 10, isBmeEnabled ? humValue : NAN, 0, 100, 50, 70);
+
+
+
+    // LDR
+
+    restoreBackground(357, 65, 101, 30);
+
+    tft.drawCentreString(isBmeEnabled ? String(ldrValue) : "OFF", 407, 70, 2);
+
+    drawTFTGauge(363, 112, 89, 10, isBmeEnabled ? ldrValue : NAN, 0, 4095, 1000, 3000);
+
+
+
+    // أزرار حالة الأحمال
+
+    updateLoadStatusTFT(isLedsEnabled, 68, 205, "LEDs");
+
+    updateLoadStatusTFT(isDiffuserEnabled, 208, 205, "Diffuser");
+
+    updateLoadStatusTFT(isFanEnabled, 348, 205, "Fan");
+
+
+
+    // رسم التايمر التنازلي على شاشة TFT لكل حمل
+
+    unsigned long fanSecsRem = (isFanTimerActive && (currentMillis - fanStartTime < fanTimerDuration)) ? ((fanTimerDuration - (currentMillis - fanStartTime)) / 1000) : 0;
+
+    unsigned long diffSecsRem = (isDiffuserTimerActive && (currentMillis - diffuserStartTime < diffuserTimerDuration)) ? ((diffuserTimerDuration - (currentMillis - diffuserStartTime)) / 1000) : 0;
+
+    unsigned long ledSecsRem = (isLedsTimerActive && (currentMillis - ledsStartTime < ledsTimerDuration)) ? ((ledsTimerDuration - (currentMillis - ledsStartTime)) / 1000) : 0;
+
+
+
+    drawTFTCountdown(45, 255, ledSecsRem, isLedsTimerActive);
+
+    drawTFTCountdown(185, 255, diffSecsRem, isDiffuserTimerActive);
+
+    drawTFTCountdown(325, 255, fanSecsRem, isFanTimerActive);
+
+  }
+
+}
+
+ودا كود ال html بتاع الموقع
+
+#ifndef INDEX_H
+
+#define INDEX_H
+
+
+
+#include <pgmspace.h>
+
+
+
+const char index_html[] PROGMEM = R"=====(
+
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SILERGY - Smart Environment Control</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+:root {
+
+  --primary-gold: #ffc107;
+
+  --solar-orange: #ff9800;
+
+  --leaf-green: #10b981;
+
+  --ee-cyan: #06b6d4;
+
+  --card-bg: rgba(6, 20, 38, 0.88);
+
+  --border-glow: rgba(16, 185, 129, 0.25);
+
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+body { min-height: 100vh; color: #e2e8f0; background: #020813; position: relative; overflow-x: hidden; padding: 30px 15px; }
+
+.bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: -1; background: linear-gradient(135deg, rgba(2,8,19,0.95) 0%, rgba(5,26,20,0.92) 100%); overflow: hidden; }
+
+.sun-glow { position: absolute; top: -50px; right: -50px; width: 320px; height: 320px; background: radial-gradient(circle, rgba(255,193,7,0.3) 0%, rgba(255,152,0,0.1) 60%, transparent 75%); border-radius: 50%; filter: blur(25px); }
+
+.container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+
+.header { text-align: center; margin-bottom: 30px; }
+
+h1 { font-size: 34px; font-weight: 800; background: linear-gradient(90deg, #ffc107, #ffffff, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+
+.section-title { font-size: 20px; font-weight: 700; color: var(--leaf-green); margin: 30px 0 15px 0; border-bottom: 2px solid rgba(16, 185, 129, 0.2); padding-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
+
+.card { background: var(--card-bg); border: 1px solid var(--border-glow); border-radius: 20px; padding: 25px 20px; text-align: center; backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+
+.card-title { font-size: 14px; color: #94a3b8; font-weight: 600; margin-bottom: 8px; }
+
+.card-value { font-size: 34px; font-weight: 800; margin-bottom: 12px; }
+
+.gauge-container { width: 100%; background: rgba(255,255,255,0.08); height: 8px; border-radius: 4px; overflow: hidden; position: relative; margin-top: 8px; }
+
+.gauge-bar { height: 100%; width: 0%; transition: width 0.5s ease, background-color 0.5s ease; border-radius: 4px; }
+
+
+
+/* إرجاع المنحنيات للحجم الطبيعي 2x2 */
+
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; margin-bottom: 20px; }
+
+@media(max-width: 500px) { .charts-grid { grid-template-columns: 1fr; } }
+
+.chart-card { background: var(--card-bg); border: 1px solid var(--border-glow); border-radius: 20px; padding: 20px; backdrop-filter: blur(12px); }
+
+.chart-title { font-size: 16px; font-weight: 700; color: #e2e8f0; margin-bottom: 12px; text-align: center; }
+
+
+
+.switch-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+
+.switch-label { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+
+.switch { position: relative; display: inline-block; width: 64px; height: 32px; }
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: #334155; transition: 0.3s; border-radius: 32px; border: 1px solid rgba(255,255,255,0.15); }
+
+.slider:before { position: absolute; content: "OFF"; height: 26px; width: 32px; left: 2px; bottom: 2px; background-color: #cbd5e1; transition: 0.3s; border-radius: 28px; font-size: 10px; font-weight: 800; color: #1e293b; display: flex; align-items: center; justify-content: center; }
+
+input:checked + .slider { background-color: #10b981; }
+
+input:checked + .slider:before { content: "ON"; transform: translateX(28px); background-color: #ffffff; color: #065f46; }
+
+.control-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
+.control-card { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; backdrop-filter: blur(10px); }
+
+.control-card h3 { color: #fff; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+
+.timer-box { margin-top: 12px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+
+.timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; direction: ltr; }
+
+.timer-group { display: flex; flex-direction: column; align-items: center; }
+
+.timer-group label { font-size: 11px; color: #94a3b8; margin-bottom: 3px; direction: rtl; }
+
+.timer-box input { width: 100%; padding: 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15,23,42,0.8); color: #fff; font-size: 13px; text-align: center; }
+
+.timer-btn { width: 100%; padding: 9px; border: none; border-radius: 8px; background: var(--ee-cyan); color: #030a16; font-weight: 700; cursor: pointer; }
+
+.timer-btn:hover { filter: brightness(1.1); }
+
+.countdown-display { margin-top: 10px; padding: 8px; background: rgba(6, 182, 212, 0.1); border: 1px solid var(--ee-cyan); border-radius: 8px; text-align: center; font-family: monospace; font-size: 16px; color: var(--ee-cyan); font-weight: bold; }
+
+.centered-row { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
+
+.centered-row .control-card { flex: 1; max-width: 480px; min-width: 300px; }
+
+footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+
+.author-footer { display: inline-block; font-size: 18px; font-weight: 900; color: var(--primary-gold); padding: 10px 28px; border-radius: 30px; border: 1.5px solid var(--primary-gold); box-shadow: 0 0 15px rgba(255,193,7,0.2); }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="bg-layer"><div class="sun-glow"></div></div>
+
+<div class="container">
+
+  <div class="header">
+
+    <h1>لوحة التحكم البيئية الذكية للطاقة والزراعة</h1>
+
+  </div>
+
+
+
+  <!-- 1. قراءات الحساسات الحية -->
+
+  <div class="section-title">📊 قراءات الحساسات الحية والمؤشرات</div>
+
+  <div class="grid">
+
+    <div class="card">
+
+      <div class="card-title">Air Quality (جودة الهواء)</div>
+
+      <div id="gas" class="card-value" style="color: #38bdf8;">--</div>
+
+      <div class="gauge-container"><div id="gasGauge" class="gauge-bar"></div></div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="card-title">درجة الحرارة</div>
+
+      <div id="temp" class="card-value" style="color: #f43f5e;">--</div>
+
+      <div class="gauge-container"><div id="tempGauge" class="gauge-bar"></div></div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="card-title">الرطوبة</div>
+
+      <div id="hum" class="card-value" style="color: #60a5fa;">--</div>
+
+      <div class="gauge-container"><div id="humGauge" class="gauge-bar"></div></div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="card-title">مستوى الإضاءة (LDR)</div>
+
+      <div id="ldr" class="card-value" style="color: #ffc107;">--</div>
+
+      <div class="gauge-container"><div id="ldrGauge" class="gauge-bar"></div></div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- 2. لوحة التحكم بالأحمال والتايمرات -->
+
+  <div class="section-title">🎛️ لوحة التحكم والأجهزة</div>
+
+  <div class="control-container">
+
+    <div class="control-card">
+
+      <h3>🌀 المروحة (Fan)</h3>
+
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleFan()"><span class="slider"></span></label></div>
+
+      <div class="timer-box">
+
+        <div class="timer-inputs">
+
+          <div class="timer-group"><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
+
+          <div class="timer-group"><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
+
+          <div class="timer-group"><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
+
+        </div>
+
+        <button class="timer-btn" onclick="setFanTimer()">ابدأ المؤقت</button>
+
+        <div class="countdown-display" id="fanCountdown">--:--:--</div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="control-card">
+
+      <h3>💨 الفواحة (Diffuser)</h3>
+
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleDiffuser()"><span class="slider"></span></label></div>
+
+      <div class="timer-box">
+
+        <div class="timer-inputs">
+
+          <div class="timer-group"><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
+
+          <div class="timer-group"><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
+
+          <div class="timer-group"><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
+
+        </div>
+
+        <button class="timer-btn" onclick="setDiffuserTimer()">ابدأ المؤقت</button>
+
+        <div class="countdown-display" id="diffCountdown">--:--:--</div>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="control-card">
+
+      <h3>💡 الكشافات (LEDs)</h3>
+
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleLeds()"><span class="slider"></span></label></div>
+
+      <div class="timer-box">
+
+        <div class="timer-inputs">
+
+          <div class="timer-group"><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
+
+          <div class="timer-group"><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
+
+          <div class="timer-group"><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
+
+        </div>
+
+        <button class="timer-btn" onclick="setLedsTimer()">ابدأ المؤقت</button>
+
+        <div class="countdown-display" id="ledCountdown">--:--:--</div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="centered-row">
+
+    <div class="control-card">
+
+      <h3>🌡️ حساس البيئة (BME280)</h3>
+
+      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleBme()"><span class="slider"></span></label></div>
+
+    </div>
+
+    <div class="control-card">
+
+      <h3>🎛️ حساس الغاز (Air Quality)</h3>
+
+      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleGas()"><span class="slider"></span></label></div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- 3. المنحنيات البيانية أصبحت في القاع -->
+
+  <div class="section-title">📈 التحليل البياني المنفصل للحساسات</div>
+
+  <div class="charts-grid">
+
+    <div class="chart-card">
+
+      <div class="chart-title">Air Quality (جودة الهواء)</div>
+
+      <canvas id="gasChart"></canvas>
+
+    </div>
+
+    <div class="chart-card">
+
+      <div class="chart-title">درجة الحرارة (°C)</div>
+
+      <canvas id="tempChart"></canvas>
+
+    </div>
+
+    <div class="chart-card">
+
+      <div class="chart-title">الرطوبة (%)</div>
+
+      <canvas id="humChart"></canvas>
+
+    </div>
+
+    <div class="chart-card">
+
+      <div class="chart-title">مستوى الإضاءة (LDR)</div>
+
+      <canvas id="ldrChart"></canvas>
+
+    </div>
+
+  </div>
+
+
+
+  <footer><div class="author-footer">BY ABDOU BADRAN & OMAR YASSER</div></footer>
+
+</div>
+
+
+
+<script>
+
+const maxPoints = 20;
+
+function createChart(ctxId, label, color) {
+
+  return new Chart(document.getElementById(ctxId).getContext('2d'), {
+
+    type: 'line',
+
+    data: {
+
+      labels: [],
+
+      datasets: [{
+
+        label: label,
+
+        data: [],
+
+        borderColor: color,
+
+        backgroundColor: color + '22',
+
+        fill: true,
+
+        tension: 0.3,
+
+        borderWidth: 2
+
+      }]
+
+    },
+
+    options: {
+
+      responsive: true,
+
+      scales: {
+
+        x: { display: false },
+
+        y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+
+      },
+
+      plugins: { legend: { labels: { color: '#e2e8f0' } } }
+
+    }
+
+  });
+
+}
+
+
+
+const gasChart = createChart('gasChart', 'Air Quality', '#38bdf8');
+
+const tempChart = createChart('tempChart', 'Temperature (C)', '#f43f5e');
+
+const humChart = createChart('humChart', 'Humidity (%)', '#60a5fa');
+
+const ldrChart = createChart('ldrChart', 'LDR Level', '#ffc107');
+
+
+
+function addData(chart, label, data) {
+
+  if (chart.data.labels.length >= maxPoints) {
+
+    chart.data.labels.shift();
+
+    chart.data.datasets[0].data.shift();
+
+  }
+
+  chart.data.labels.push(label);
+
+  chart.data.datasets[0].data.push(data);
+
+  chart.update();
+
+}
+
+
+
+function formatTime(secs) {
+
+  if (secs <= 0 || isNaN(secs)) return "--:--:--";
+
+  let h = Math.floor(secs / 3600);
+
+  let m = Math.floor((secs % 3600) / 60);
+
+  let s = secs % 60;
+
+  return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+
+}
+
+
+
+function setGauge(elementId, val, min, max, optimalMin, optimalMax) {
+
+  let bar = document.getElementById(elementId);
+
+  if (isNaN(val) || val === null) { bar.style.width = "0%"; return; }
+
+  let pct = ((val - min) / (max - min)) * 100;
+
+  if(pct < 0) pct = 0; if(pct > 100) pct = 100;
+
+  bar.style.width = pct + "%";
+
+  if (val >= optimalMin && val <= optimalMax) bar.style.backgroundColor = "#10b981";
+
+  else if ((val >= optimalMin - (optimalMax-optimalMin)*0.5 && val < optimalMin) || (val > optimalMax && val <= optimalMax + (optimalMax-optimalMin)*0.5)) bar.style.backgroundColor = "#f59e0b";
+
+  else bar.style.backgroundColor = "#ef4444";
+
+}
+
+
+
+function updatePage(data) {
+
+  let nowStr = new Date().toLocaleTimeString();
+
+  document.getElementById("gasSwitch").checked = data.gasEnabled;
+
+  document.getElementById("bmeSwitch").checked = data.bmeEnabled;
+
+  document.getElementById("fanSwitch").checked = data.fanEnabled;
+
+  document.getElementById("diffuserSwitch").checked = data.diffuserEnabled;
+
+  document.getElementById("ledsSwitch").checked = data.ledsEnabled;
+
+
+
+  document.getElementById("fanCountdown").innerText = formatTime(data.fanRem);
+
+  document.getElementById("diffCountdown").innerText = formatTime(data.diffRem);
+
+  document.getElementById("ledCountdown").innerText = formatTime(data.ledRem);
+
+
+
+  if(data.gasEnabled) {
+
+    document.getElementById("gas").innerText = data.gas + " ppm";
+
+    setGauge("gasGauge", data.gas, 0, 1000, 0, 300);
+
+    addData(gasChart, nowStr, data.gas);
+
+  } else {
+
+    document.getElementById("gas").innerText = "متوقف";
+
+    setGauge("gasGauge", NaN, 0, 100, 0, 0);
+
+  }
+
+
+
+  if(data.bmeEnabled) {
+
+    document.getElementById("temp").innerText = Number(data.temp).toFixed(1) + "C";
+
+    document.getElementById("hum").innerText = Number(data.hum).toFixed(1) + "%";
+
+    document.getElementById("ldr").innerText = data.ldr;
+
+    setGauge("tempGauge", data.temp, 10, 50, 22, 28);
+
+    setGauge("humGauge", data.hum, 0, 100, 50, 70);
+
+    setGauge("ldrGauge", data.ldr, 0, 4095, 1000, 3000);
+
+
+
+    addData(tempChart, nowStr, data.temp);
+
+    addData(humChart, nowStr, data.hum);
+
+    addData(ldrChart, nowStr, data.ldr);
+
+  } else {
+
+    document.getElementById("temp").innerText = "متوقف";
+
+    document.getElementById("hum").innerText = "متوقف";
+
+    document.getElementById("ldr").innerText = "متوقف";
+
+    setGauge("tempGauge", NaN, 0, 100, 0, 0);
+
+    setGauge("humGauge", NaN, 0, 100, 0, 0);
+
+    setGauge("ldrGauge", NaN, 0, 4095, 0, 0);
+
+  }
+
+}
+
+
+
+function getData() { fetch("/data?t=" + Date.now()).then(res => res.json()).then(data => updatePage(data)).catch(err => {}); }
+
+function toggleGas() { fetch("/toggleGas?t=" + Date.now()).then(() => getData()); }
+
+function toggleBme() { fetch("/toggleBme?t=" + Date.now()).then(() => getData()); }
+
+function toggleFan() { fetch("/toggleFan?t=" + Date.now()).then(() => getData()); }
+
+function toggleDiffuser() { fetch("/toggleDiffuser?t=" + Date.now()).then(() => getData()); }
+
+function toggleLeds() { fetch("/toggleLeds?t=" + Date.now()).then(() => getData()); }
+
+function setFanTimer() {
+
+  let h = parseInt(document.getElementById("fanHours").value) || 0;
+
+  let m = parseInt(document.getElementById("fanMins").value) || 0;
+
+  let s = parseInt(document.getElementById("fanSecs").value) || 0;
+
+  let ms = (h * 3600 + m * 60 + s) * 1000;
+
+  if(ms > 0) fetch("/timerFan?ms=" + ms + "&t=" + Date.now()).then(() => getData());
+
+}
+
+function setDiffuserTimer() {
+
+  let h = parseInt(document.getElementById("diffHours").value) || 0;
+
+  let m = parseInt(document.getElementById("diffMins").value) || 0;
+
+  let s = parseInt(document.getElementById("diffSecs").value) || 0;
+
+  let ms = (h * 3600 + m * 60 + s) * 1000;
+
+  if(ms > 0) fetch("/timerDiffuser?ms=" + ms + "&t=" + Date.now()).then(() => getData());
+
+}
+
+function setLedsTimer() {
+
+  let h = parseInt(document.getElementById("ledHours").value) || 0;
+
+  let m = parseInt(document.getElementById("ledMins").value) || 0;
+
+  let s = parseInt(document.getElementById("ledSecs").value) || 0;
+
+  let ms = (h * 3600 + m * 60 + s) * 1000;
+
+  if(ms > 0) fetch("/timerLeds?ms=" + ms + "&t=" + Date.now()).then(() => getData());
+
+}
+
+getData(); setInterval(getData, 1000);
+
+</script>
+
+</body>
+
+</html>
+
+)=====";
+
+
+
+#endif
+
+والصفحه معلقه كدا مبتعبتش قرايات ولا بتتحكم ف تشغيل السيسنورات ولا اي حاجه
+
+سبب المشكلة يتضح مباشرة من رابط المتصفح الظاهر في الصورة (abdoubadran.github.io): أنت فتحت الموقع عبر GitHub Pages بدلاً من ESP32.
+
+عند فتح الموقع من GitHub Pages، تحاول الأكواد داخل المتصفح إرسال طلبات مثل /data و /toggleFan إلى سيرفر GitHub نفسه بدلاً من الـ ESP32، مما يؤدي لعدم وجود استجابة متوقعة.
+
+الحلول المتاحة
+1. التشغيل المباشر من الـ ESP32 (بدون GitHub Pages)
+
+افتح الـ Serial Monitor في برنامج Arduino IDE أثناء رفع الكود.
+
+انسخ رقم الـ IP الخاص بالـ ESP32 (مثل 192.168.1.50).
+
+افتح الـ IP مباشرة في المتصفح بينما هاتفك أو حاسوبك متصل بنفس شبكة الواي فاي (Badran).
+
+2. الربط عبر GitHub Pages (إذا كنت تريد فتح الموقع من أي مكان)
+إذا كنت ترغب بالتحكم عبر الموقع المرفوع على GitHub Pages، يجب تعديل كود الـ JavaScript ليوجه الطلبات إلى عنوان الـ IP الخاص بالـ ESP32 أو الاعتماد بالكامل على Firebase RTDB:
+
+تعديل رابط الطلبات في JavaScript:
+استبدل السطر التالي داخل كود الـ HTML:
+
+JavaScript
+// القديم:
+function getData() { fetch("/data?t=" + Date.now())... }
+
+// الجديد (ضع الـ IP الخاص بك مكان 192.168.1.50):
+const espIP = "http://192.168.1.50";
+function getData() { fetch(espIP + "/data?t=" + Date.now())... }
+تفعيل CORS في كود Arduino:
+عند الإجابة على أي طلب في الـ WebServer داخل ESP32، أضف هيدر CORS للسماح لـ GitHub Pages بالاتصال به:
+
+C++
+server.sendHeader("Access-Control-Allow-Origin", "*");
+قم بتعديل كود Arduino وكود HTML المتوفرين لتفعيل CORS والربط بين موقع GitHub Pages و ESP32.
+
+إليك الكود المحدّث لكل من كود الـ Arduino (main.ino) وصفحة الـ HTML (index.h) لتفعيل الـ CORS وإتاحة إدخال IP الـ ESP32 ديناميكياً من داخل موقع GitHub Pages والربط بينهما بنجاح:
+
+1. كود Arduino المحدّث (main.ino)
+تم إضافة server.sendHeader("Access-Control-Allow-Origin", "*") في جميع المسارات للسماح للمتصفح بالتواصل مع ESP32 من أي موقع خارجي مثل GitHub Pages.
+
+C++
+#include <WiFi.h>
+#include <WebServer.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
+#include <Firebase_ESP_Client.h>
+#include <addons/TokenHelper.h>
+#include <addons/RTDBHelper.h>
+#include <TFT_eSPI.h>
+
+#include "image.h"
+#include "index.h"
+
+// ==========================================
+// 1. بيانات WiFi
+// ==========================================
+const char* ssid = "Badran";        
+const char* password = "97002002"; 
+
+// ==========================================
+// 2. بيانات الفيربيس Firebase 
+// ==========================================
+#define API_KEY "AIzaSyBX1PQUhlbiubiQeuY62nN4qjVvMp-NwLI"
+#define DATABASE_URL "https://summer-ca623-default-rtdb.firebaseio.com"
+
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
+// ==========================================
+// 3. إعدادات الشاشة والمتغيرات اللحظية
+// ==========================================
+TFT_eSPI tft = TFT_eSPI();
+unsigned long sendDataPrevMillis = 0;
+const unsigned long timerDelay = 1000; 
+
+// Web Server
+WebServer server(80);
+
+// ==========================================
+// 4. إعدادات الأطراف (Pins)
+// ==========================================
+#define MQ136_PIN 34     
+#define FAN_PIN 18       
+#define DIFFUSER_PIN 19  
+#define LEDS_PIN 23      
+#define LDR_PIN 35       
+
+Adafruit_BME280 bme;
+
+// متغيرات التحكم
+bool isGasEnabled = false;
+bool isBmeEnabled = false;
+bool isFanEnabled = false;
+bool isDiffuserEnabled = false;
+bool isLedsEnabled = false;
+
+// متغيرات التايمر
+unsigned long fanTimerDuration = 0;
+unsigned long fanStartTime = 0;
+bool isFanTimerActive = false;
+
+unsigned long diffuserTimerDuration = 0;
+unsigned long diffuserStartTime = 0;
+bool isDiffuserTimerActive = false;
+
+unsigned long ledsTimerDuration = 0;
+unsigned long ledsStartTime = 0;
+bool isLedsTimerActive = false;
+
+// Sensor Values
+int gasValue = 0;
+float tempValue = 0.0;
+float humValue = 0.0;
+int ldrValue = 0;
+
+// ==========================================
+// Background image helpers
+// ==========================================
+#define TFT_W 480
+#define TFT_H 320
+
+void drawBackground() {
+  tft.pushImage(0, 0, TFT_W, TFT_H, epd_bitmap_Untitled_design);
+}
+
+void restoreBackground(int x, int y, int w, int h) {
+  if (x < 0 || y < 0 || x + w > TFT_W || y + h > TFT_H) return;
+  for (int row = 0; row < h; row++) {
+    int currentY = y + row;
+    tft.pushImage(x, currentY, w, 1, epd_bitmap_Untitled_design + (currentY * TFT_W) + x);
+  }
+}
+
+// ==========================================
+// رسم مؤشر شريطي (Gauge Bar) عالي التباين
+// ==========================================
+void drawTFTGauge(int x, int y, int w, int h, float val, float minV, float maxV, float optMin, float optMax) {
+  tft.drawRect(x, y, w, h, TFT_WHITE);
+  tft.drawRect(x + 1, y + 1, w - 2, h - 2, TFT_BLACK);
+  
+  if (isnan(val)) {
+    tft.fillRect(x + 2, y + 2, w - 4, h - 4, 0x18C3); 
+    return;
+  }
+
+  int fillWidth = (int)((val - minV) / (maxV - minV) * (w - 4));
+  if (fillWidth < 0) fillWidth = 0;
+  if (fillWidth > w - 4) fillWidth = w - 4;
+
+  uint16_t barColor;
+  if (val >= optMin && val <= optMax) {
+    barColor = TFT_GREEN;
+  } else if ((val >= optMin - (optMax - optMin) * 0.5 && val < optMin) || (val > optMax && val <= optMax + (optMax - optMin) * 0.5)) {
+    barColor = TFT_YELLOW;
+  } else {
+    barColor = TFT_RED;
+  }
+
+  tft.fillRect(x + 2, y + 2, fillWidth, h - 4, barColor);
+  tft.fillRect(x + 2 + fillWidth, y + 2, (w - 4) - fillWidth, h - 4, 0x18C3);
+}
+
+// ==========================================
+// دالة تحديث حالة الأحمال مع إطار عالي التباين
+// ==========================================
+void updateLoadStatusTFT(bool isEnabled, int x, int y, String label) {
+  tft.drawRoundRect(x, y, 64, 28, 14, TFT_WHITE);
+  tft.drawRoundRect(x + 1, y + 1, 62, 26, 13, TFT_BLACK);
+
+  if (isEnabled) {
+    tft.fillRoundRect(x + 2, y + 2, 60, 24, 12, TFT_GREEN);
+    tft.setTextColor(TFT_BLACK, TFT_GREEN);
+    tft.drawString("ON", x + 18, y + 6, 2);
+  } else {
+    tft.fillRoundRect(x + 2, y + 2, 60, 24, 12, 0x2104);
+    tft.setTextColor(TFT_WHITE, 0x2104);
+    tft.drawString("OFF", x + 16, y + 6, 2);
+  }
+}
+
+// ==========================================
+// عرض تايمر التنازلي على شاشة TFT
+// ==========================================
+void drawTFTCountdown(int x, int y, unsigned long remainingSecs, bool isActive) {
+  restoreBackground(x, y, 110, 20);
+  tft.drawRoundRect(x, y, 110, 20, 4, TFT_WHITE);
+  
+  if (!isActive || remainingSecs == 0) {
+    tft.setTextColor(TFT_DARKGREY);
+    tft.drawCentreString("--:--:--", x + 55, y + 3, 2);
+    return;
+  }
+  
+  unsigned long hrs = remainingSecs / 3600;
+  unsigned long mins = (remainingSecs % 3600) / 60;
+  unsigned long secs = remainingSecs % 60;
+  
+  char timeBuf[12];
+  sprintf(timeBuf, "%02lu:%02lu:%02lu", hrs, mins, secs);
+  
+  tft.setTextColor(TFT_CYAN);
+  tft.drawCentreString(timeBuf, x + 55, y + 3, 2);
+}
+
+// دالة مساعدة لتفعيل هيدرات CORS إرجاع الإجابة
+void sendCORSResponse(int code, const String& contentType, const String& content) {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "*");
+  server.send(code, contentType, content);
+}
+
+// ==========================================
+// SETUP 
+// ==========================================
+void setup() {
+  Serial.begin(115200);
+  analogReadResolution(12);
+
+  pinMode(FAN_PIN, OUTPUT);
+  pinMode(DIFFUSER_PIN, OUTPUT);
+  pinMode(LEDS_PIN, OUTPUT);
+  digitalWrite(FAN_PIN, LOW);
+  digitalWrite(DIFFUSER_PIN, LOW);
+  digitalWrite(LEDS_PIN, LOW);
+
+  Wire.begin(21, 22);
+  bme.begin(0x76);
+
+  Serial.print("Connecting to WiFi...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi Connected!");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  config.api_key = API_KEY;
+  config.database_url = DATABASE_URL;
+  Firebase.begin(&config, &auth);
+
+  // إعدادات الشاشة ورسم الواجهة الثابتة
+  tft.init();
+  tft.setRotation(1); 
+  tft.setSwapBytes(true);
+  drawBackground();
+
+  // إطارات الكروت الأربعة العلوية مزدوجة السمك
+  for (int i = 0; i < 4; i++) {
+    int x = 10 + (i * 115);
+    tft.drawRoundRect(x, 32, 105, 110, 8, TFT_WHITE);
+    tft.drawRoundRect(x + 1, 33, 103, 108, 7, TFT_BLACK);
+  }
+
+  // عناوين الكروت العلوية بلون أبيض واضح
+  tft.setTextColor(TFT_WHITE);
+  tft.drawString("Air Quality", 14, 40, 2);
+  tft.drawString("Temp", 133, 40, 2);
+  tft.drawString("Humidity", 248, 40, 2);
+  tft.drawString("LDR", 363, 40, 2);
+
+  // إطارات التحكم السفلية مزدوجة السمك
+  tft.drawRoundRect(40, 160, 120, 130, 8, TFT_WHITE);
+  tft.drawRoundRect(41, 161, 118, 128, 7, TFT_BLACK);
+
+  tft.drawRoundRect(180, 160, 120, 130, 8, TFT_WHITE);
+  tft.drawRoundRect(181, 161, 118, 128, 7, TFT_BLACK);
+
+  tft.drawRoundRect(320, 160, 120, 130, 8, TFT_WHITE);
+  tft.drawRoundRect(321, 161, 118, 128, 7, TFT_BLACK);
+
+  // أسماء الأحمال باللون الأصفر
+  tft.setTextColor(TFT_YELLOW);
+  tft.drawCentreString("LEDs", 100, 168, 2);
+  tft.drawCentreString("Diffuser", 240, 168, 2);
+  tft.drawCentreString("Fan", 380, 168, 2);
+
+  // مسارات السيرفر مع إضافة CORS
+  server.on("/", []() { sendCORSResponse(200, "text/html", index_html); });
+  
+  server.on("/data", []() {
+    unsigned long curMs = millis();
+    unsigned long fanRem = (isFanTimerActive && (curMs - fanStartTime < fanTimerDuration)) ? ((fanTimerDuration - (curMs - fanStartTime)) / 1000) : 0;
+    unsigned long diffRem = (isDiffuserTimerActive && (curMs - diffuserStartTime < diffuserTimerDuration)) ? ((diffuserTimerDuration - (curMs - diffuserStartTime)) / 1000) : 0;
+    unsigned long ledRem = (isLedsTimerActive && (curMs - ledsStartTime < ledsTimerDuration)) ? ((ledsTimerDuration - (curMs - ledsStartTime)) / 1000) : 0;
+
+    String json = "{";
+    json += "\"gasEnabled\":" + String(isGasEnabled ? "true" : "false") + ",";
+    json += "\"bmeEnabled\":" + String(isBmeEnabled ? "true" : "false") + ",";
+    json += "\"fanEnabled\":" + String(isFanEnabled ? "true" : "false") + ",";
+    json += "\"diffuserEnabled\":" + String(isDiffuserEnabled ? "true" : "false") + ",";
+    json += "\"ledsEnabled\":" + String(isLedsEnabled ? "true" : "false") + ",";
+    json += "\"gas\":" + String(gasValue) + ",";
+    json += "\"temp\":" + String(tempValue, 1) + ",";
+    json += "\"hum\":" + String(humValue, 1) + ",";
+    json += "\"ldr\":" + String(ldrValue) + ",";
+    json += "\"fanRem\":" + String(fanRem) + ",";
+    json += "\"diffRem\":" + String(diffRem) + ",";
+    json += "\"ledRem\":" + String(ledRem);
+    json += "}";
+    sendCORSResponse(200, "application/json", json);
+  });
+
+  server.on("/toggleGas", [](){ isGasEnabled = !isGasEnabled; sendCORSResponse(200, "text/plain", "OK"); });
+  server.on("/toggleBme", [](){ isBmeEnabled = !isBmeEnabled; sendCORSResponse(200, "text/plain", "OK"); });
+  server.on("/toggleFan", [](){ isFanEnabled = !isFanEnabled; digitalWrite(FAN_PIN, isFanEnabled ? HIGH : LOW); isFanTimerActive = false; sendCORSResponse(200, "text/plain", "OK"); });
+  server.on("/toggleDiffuser", [](){ isDiffuserEnabled = !isDiffuserEnabled; digitalWrite(DIFFUSER_PIN, isDiffuserEnabled ? HIGH : LOW); isDiffuserTimerActive = false; sendCORSResponse(200, "text/plain", "OK"); });
+  server.on("/toggleLeds", [](){ isLedsEnabled = !isLedsEnabled; digitalWrite(LEDS_PIN, isLedsEnabled ? HIGH : LOW); isLedsTimerActive = false; sendCORSResponse(200, "text/plain", "OK"); });
+
+  server.on("/timerFan", []() {
+    if (server.hasArg("ms")) {
+      fanTimerDuration = server.arg("ms").toInt();
+      if(fanTimerDuration > 0) { isFanEnabled = true; digitalWrite(FAN_PIN, HIGH); fanStartTime = millis(); isFanTimerActive = true; }
+    }
+    sendCORSResponse(200, "text/plain", "OK");
+  });
+  server.on("/timerDiffuser", []() {
+    if (server.hasArg("ms")) {
+      diffuserTimerDuration = server.arg("ms").toInt();
+      if(diffuserTimerDuration > 0) { isDiffuserEnabled = true; digitalWrite(DIFFUSER_PIN, HIGH); diffuserStartTime = millis(); isDiffuserTimerActive = true; }
+    }
+    sendCORSResponse(200, "text/plain", "OK");
+  });
+  server.on("/timerLeds", []() {
+    if (server.hasArg("ms")) {
+      ledsTimerDuration = server.arg("ms").toInt();
+      if(ledsTimerDuration > 0) { isLedsEnabled = true; digitalWrite(LEDS_PIN, HIGH); ledsStartTime = millis(); isLedsTimerActive = true; }
+    }
+    sendCORSResponse(200, "text/plain", "OK");
+  });
+
+  server.begin();
+}
+
+// ==========================================
+// MAIN LOOP
+// ==========================================
+void loop() {
+  server.handleClient();
+
+  unsigned long currentMillis = millis();
+
+  if (isFanTimerActive && (currentMillis - fanStartTime >= fanTimerDuration)) { isFanEnabled = false; digitalWrite(FAN_PIN, LOW); isFanTimerActive = false; }
+  if (isDiffuserTimerActive && (currentMillis - diffuserStartTime >= diffuserTimerDuration)) { isDiffuserEnabled = false; digitalWrite(DIFFUSER_PIN, LOW); isDiffuserTimerActive = false; }
+  if (isLedsTimerActive && (currentMillis - ledsStartTime >= ledsTimerDuration)) { isLedsEnabled = false; digitalWrite(LEDS_PIN, LOW); isLedsTimerActive = false; }
+  
+  if (currentMillis - sendDataPrevMillis >= timerDelay) {
+    sendDataPrevMillis = currentMillis;
+
+    if (isGasEnabled) gasValue = analogRead(MQ136_PIN);
+    if (isBmeEnabled) {
+      tempValue = bme.readTemperature(); 
+      humValue = bme.readHumidity();     
+      ldrValue = analogRead(LDR_PIN);
+    }
+
+    // --- طباعة القراءات على Serial Monitor ---
+    Serial.println("==========================================");
+    Serial.print("Air Quality Gas: "); 
+    if (isGasEnabled) { Serial.print(gasValue); Serial.println(" ppm"); } else Serial.println("DISABLED");
+
+    Serial.print("BME280 Temp: "); 
+    if (isBmeEnabled) { Serial.print(tempValue, 1); Serial.print(" C | Hum: "); Serial.print(humValue, 1); Serial.print(" % | LDR: "); Serial.println(ldrValue); } else Serial.println("DISABLED");
+
+    Serial.print("Relays Status -> Fan: "); Serial.print(isFanEnabled ? "ON" : "OFF");
+    Serial.print(" | Diffuser: "); Serial.print(isDiffuserEnabled ? "ON" : "OFF");
+    Serial.print(" | LEDs: "); Serial.println(isLedsEnabled ? "ON" : "OFF");
+
+    tft.setTextColor(TFT_WHITE); 
+    
+    // Air Quality (MQ136)
+    restoreBackground(12, 65, 101, 30);
+    tft.drawCentreString(isGasEnabled ? String(gasValue) + " ppm" : "OFF", 62, 70, 2);
+    drawTFTGauge(18, 112, 89, 10, isGasEnabled ? gasValue : NAN, 0, 1000, 0, 300);
+
+    // Temp
+    restoreBackground(127, 65, 101, 30);
+    tft.drawCentreString(isBmeEnabled ? String(tempValue, 1) + " C" : "OFF", 177, 70, 2);
+    drawTFTGauge(133, 112, 89, 10, isBmeEnabled ? tempValue : NAN, 10, 50, 22, 28);
+
+    // Humidity
+    restoreBackground(242, 65, 101, 30);
+    tft.drawCentreString(isBmeEnabled ? String(humValue, 1) + " %" : "OFF", 292, 70, 2);
+    drawTFTGauge(248, 112, 89, 10, isBmeEnabled ? humValue : NAN, 0, 100, 50, 70);
+
+    // LDR
+    restoreBackground(357, 65, 101, 30);
+    tft.drawCentreString(isBmeEnabled ? String(ldrValue) : "OFF", 407, 70, 2);
+    drawTFTGauge(363, 112, 89, 10, isBmeEnabled ? ldrValue : NAN, 0, 4095, 1000, 3000);
+
+    // أزرار حالة الأحمال
+    updateLoadStatusTFT(isLedsEnabled, 68, 205, "LEDs");
+    updateLoadStatusTFT(isDiffuserEnabled, 208, 205, "Diffuser");
+    updateLoadStatusTFT(isFanEnabled, 348, 205, "Fan");
+
+    // رسم التايمر التنازلي على شاشة TFT لكل حمل
+    unsigned long fanSecsRem = (isFanTimerActive && (currentMillis - fanStartTime < fanTimerDuration)) ? ((fanTimerDuration - (currentMillis - fanStartTime)) / 1000) : 0;
+    unsigned long diffSecsRem = (isDiffuserTimerActive && (currentMillis - diffuserStartTime < diffuserTimerDuration)) ? ((diffuserTimerDuration - (currentMillis - diffuserStartTime)) / 1000) : 0;
+    unsigned long ledSecsRem = (isLedsTimerActive && (currentMillis - ledsStartTime < ledsTimerDuration)) ? ((ledsTimerDuration - (currentMillis - ledsStartTime)) / 1000) : 0;
+
+    drawTFTCountdown(45, 255, ledSecsRem, isLedsTimerActive);
+    drawTFTCountdown(185, 255, diffSecsRem, isDiffuserTimerActive);
+    drawTFTCountdown(325, 255, fanSecsRem, isFanTimerActive);
+  }
+}
+2. كود HTML المحدّث (index.h)
+تمت إضافة مربع إدخال لعنوان الـ IP الخاصة بالـ ESP32 في أعلى الواجهة، مع حفظ الـ IP تلقائياً في المتصفح (localStorage) للاتصال المباشر.
+
+C++
+#ifndef INDEX_H
+#define INDEX_H
+
+#include <pgmspace.h>
+
+const char index_html[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -19,8 +1802,15 @@ body { min-height: 100vh; color: #e2e8f0; background: #020813; position: relativ
 .bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: -1; background: linear-gradient(135deg, rgba(2,8,19,0.95) 0%, rgba(5,26,20,0.92) 100%); overflow: hidden; }
 .sun-glow { position: absolute; top: -50px; right: -50px; width: 320px; height: 320px; background: radial-gradient(circle, rgba(255,193,7,0.3) 0%, rgba(255,152,0,0.1) 60%, transparent 75%); border-radius: 50%; filter: blur(25px); }
 .container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
-.header { text-align: center; margin-bottom: 30px; }
+.header { text-align: center; margin-bottom: 20px; }
 h1 { font-size: 34px; font-weight: 800; background: linear-gradient(90deg, #ffc107, #ffffff, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+
+/* شريط إدخال الـ IP للربط بـ GitHub Pages */
+.ip-config-box { background: rgba(15, 23, 42, 0.8); border: 1px solid var(--ee-cyan); border-radius: 12px; padding: 12px; margin-bottom: 25px; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.ip-config-box label { font-size: 14px; font-weight: 700; color: var(--ee-cyan); }
+.ip-config-box input { padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(2,8,19,0.8); color: #fff; font-size: 14px; direction: ltr; width: 220px; text-align: center; }
+.ip-config-box button { padding: 8px 16px; border: none; border-radius: 6px; background: var(--leaf-green); color: #020813; font-weight: bold; cursor: pointer; }
+
 .section-title { font-size: 20px; font-weight: 700; color: var(--leaf-green); margin: 30px 0 15px 0; border-bottom: 2px solid rgba(16, 185, 129, 0.2); padding-bottom: 8px; display: flex; align-items: center; gap: 10px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
 .card { background: var(--card-bg); border: 1px solid var(--border-glow); border-radius: 20px; padding: 25px 20px; text-align: center; backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
@@ -66,6 +1856,14 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     <h1>لوحة التحكم البيئية الذكية للطاقة والزراعة</h1>
   </div>
 
+  <!-- إعداد IP الخاص بـ ESP32 -->
+  <div class="ip-config-box">
+    <label for="espIp">عنوان IP للـ ESP32:</label>
+    <input type="text" id="espIp" placeholder="مثال: 192.168.1.50">
+    <button onclick="saveIp()">حفظ الاتصال</button>
+  </div>
+
+  <!-- 1. قراءات الحساسات الحية -->
   <div class="section-title">📊 قراءات الحساسات الحية والمؤشرات</div>
   <div class="grid">
     <div class="card">
@@ -90,46 +1888,47 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     </div>
   </div>
 
+  <!-- 2. لوحة التحكم بالأحمال والتايمرات -->
   <div class="section-title">🎛️ لوحة التحكم والأجهزة</div>
   <div class="control-container">
     <div class="control-card">
       <h3>🌀 المروحة (Fan)</h3>
-      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fan')"><span class="slider"></span></label></div>
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleFan()"><span class="slider"></span></label></div>
       <div class="timer-box">
         <div class="timer-inputs">
           <div class="timer-group"><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
           <div class="timer-group"><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
           <div class="timer-group"><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
         </div>
-        <button class="timer-btn" onclick="setTimer('fan')">ابدأ المؤقت</button>
+        <button class="timer-btn" onclick="setFanTimer()">ابدأ المؤقت</button>
         <div class="countdown-display" id="fanCountdown">--:--:--</div>
       </div>
     </div>
 
     <div class="control-card">
       <h3>💨 الفواحة (Diffuser)</h3>
-      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuser')"><span class="slider"></span></label></div>
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleDiffuser()"><span class="slider"></span></label></div>
       <div class="timer-box">
         <div class="timer-inputs">
           <div class="timer-group"><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
           <div class="timer-group"><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
           <div class="timer-group"><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
         </div>
-        <button class="timer-btn" onclick="setTimer('diff')">ابدأ المؤقت</button>
+        <button class="timer-btn" onclick="setDiffuserTimer()">ابدأ المؤقت</button>
         <div class="countdown-display" id="diffCountdown">--:--:--</div>
       </div>
     </div>
 
     <div class="control-card">
       <h3>💡 الكشافات (LEDs)</h3>
-      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('leds')"><span class="slider"></span></label></div>
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleLeds()"><span class="slider"></span></label></div>
       <div class="timer-box">
         <div class="timer-inputs">
           <div class="timer-group"><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
           <div class="timer-group"><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
           <div class="timer-group"><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
         </div>
-        <button class="timer-btn" onclick="setTimer('leds')">ابدأ المؤقت</button>
+        <button class="timer-btn" onclick="setLedsTimer()">ابدأ المؤقت</button>
         <div class="countdown-display" id="ledCountdown">--:--:--</div>
       </div>
     </div>
@@ -138,14 +1937,15 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   <div class="centered-row">
     <div class="control-card">
       <h3>🌡️ حساس البيئة (BME280)</h3>
-      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bme')"><span class="slider"></span></label></div>
+      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleBme()"><span class="slider"></span></label></div>
     </div>
     <div class="control-card">
       <h3>🎛️ حساس الغاز (Air Quality)</h3>
-      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasSensor')"><span class="slider"></span></label></div>
+      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleGas()"><span class="slider"></span></label></div>
     </div>
   </div>
 
+  <!-- 3. المنحنيات البيانية -->
   <div class="section-title">📈 التحليل البياني المنفصل للحساسات</div>
   <div class="charts-grid">
     <div class="chart-card">
@@ -170,9 +1970,25 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
 </div>
 
 <script>
-const DB_URL = "https://summer-ca623-default-rtdb.firebaseio.com";
-const maxPoints = 20;
+let baseUrl = localStorage.getItem("esp32_ip") || "";
+document.getElementById("espIp").value = baseUrl;
 
+function saveIp() {
+  let ip = document.getElementById("espIp").value.trim();
+  if (ip && !ip.startsWith("http://") && !ip.startsWith("https://")) {
+    ip = "http://" + ip;
+  }
+  localStorage.setItem("esp32_ip", ip);
+  baseUrl = ip;
+  alert("تم حفظ الـ IP بنجاح: " + baseUrl);
+}
+
+function getApiUrl(endpoint) {
+  if (!baseUrl) return endpoint;
+  return baseUrl.endsWith("/") ? baseUrl.slice(0, -1) + endpoint : baseUrl + endpoint;
+}
+
+const maxPoints = 20;
 function createChart(ctxId, label, color) {
   return new Chart(document.getElementById(ctxId).getContext('2d'), {
     type: 'line',
@@ -224,7 +2040,6 @@ function formatTime(secs) {
 
 function setGauge(elementId, val, min, max, optimalMin, optimalMax) {
   let bar = document.getElementById(elementId);
-  if (!bar) return;
   if (isNaN(val) || val === null) { bar.style.width = "0%"; return; }
   let pct = ((val - min) / (max - min)) * 100;
   if(pct < 0) pct = 0; if(pct > 100) pct = 100;
@@ -235,55 +2050,37 @@ function setGauge(elementId, val, min, max, optimalMin, optimalMax) {
 }
 
 function updatePage(data) {
-  if (!data) return;
   let nowStr = new Date().toLocaleTimeString();
+  document.getElementById("gasSwitch").checked = data.gasEnabled;
+  document.getElementById("bmeSwitch").checked = data.bmeEnabled;
+  document.getElementById("fanSwitch").checked = data.fanEnabled;
+  document.getElementById("diffuserSwitch").checked = data.diffuserEnabled;
+  document.getElementById("ledsSwitch").checked = data.ledsEnabled;
 
-  let controls = data.controls || {};
-  let sensors = data.sensors || {};
-  let timers = data.timers || {};
+  document.getElementById("fanCountdown").innerText = formatTime(data.fanRem);
+  document.getElementById("diffCountdown").innerText = formatTime(data.diffRem);
+  document.getElementById("ledCountdown").innerText = formatTime(data.ledRem);
 
-  let gasEnabled = controls.gasSensor !== false;
-  let bmeEnabled = controls.bme !== false;
-  let fanEnabled = !!controls.fan;
-  let diffuserEnabled = !!controls.diffuser;
-  let ledsEnabled = !!controls.leds;
-
-  document.getElementById("gasSwitch").checked = gasEnabled;
-  document.getElementById("bmeSwitch").checked = bmeEnabled;
-  document.getElementById("fanSwitch").checked = fanEnabled;
-  document.getElementById("diffuserSwitch").checked = diffuserEnabled;
-  document.getElementById("ledsSwitch").checked = ledsEnabled;
-
-  document.getElementById("fanCountdown").innerText = formatTime(timers.fanRem || 0);
-  document.getElementById("diffCountdown").innerText = formatTime(timers.diffRem || 0);
-  document.getElementById("ledCountdown").innerText = formatTime(timers.ledRem || 0);
-
-  if(gasEnabled) {
-    let gasVal = sensors.gas || 0;
-    document.getElementById("gas").innerText = gasVal + " ppm";
-    setGauge("gasGauge", gasVal, 0, 1000, 0, 300);
-    addData(gasChart, nowStr, gasVal);
+  if(data.gasEnabled) {
+    document.getElementById("gas").innerText = data.gas + " ppm";
+    setGauge("gasGauge", data.gas, 0, 1000, 0, 300);
+    addData(gasChart, nowStr, data.gas);
   } else {
     document.getElementById("gas").innerText = "متوقف";
     setGauge("gasGauge", NaN, 0, 100, 0, 0);
   }
 
-  if(bmeEnabled) {
-    let tempVal = sensors.temp || 0;
-    let humVal = sensors.hum || 0;
-    let ldrVal = sensors.ldr || 0;
+  if(data.bmeEnabled) {
+    document.getElementById("temp").innerText = Number(data.temp).toFixed(1) + "C";
+    document.getElementById("hum").innerText = Number(data.hum).toFixed(1) + "%";
+    document.getElementById("ldr").innerText = data.ldr;
+    setGauge("tempGauge", data.temp, 10, 50, 22, 28);
+    setGauge("humGauge", data.hum, 0, 100, 50, 70);
+    setGauge("ldrGauge", data.ldr, 0, 4095, 1000, 3000);
 
-    document.getElementById("temp").innerText = Number(tempVal).toFixed(1) + "C";
-    document.getElementById("hum").innerText = Number(humVal).toFixed(1) + "%";
-    document.getElementById("ldr").innerText = ldrVal;
-
-    setGauge("tempGauge", tempVal, 10, 50, 22, 28);
-    setGauge("humGauge", humVal, 0, 100, 50, 70);
-    setGauge("ldrGauge", ldrVal, 0, 4095, 1000, 3000);
-
-    addData(tempChart, nowStr, tempVal);
-    addData(humChart, nowStr, humVal);
-    addData(ldrChart, nowStr, ldrVal);
+    addData(tempChart, nowStr, data.temp);
+    addData(humChart, nowStr, data.hum);
+    addData(ldrChart, nowStr, data.ldr);
   } else {
     document.getElementById("temp").innerText = "متوقف";
     document.getElementById("hum").innerText = "متوقف";
@@ -294,50 +2091,464 @@ function updatePage(data) {
   }
 }
 
-function getData() {
-  fetch(`${DB_URL}/.json`, {
-    method: 'GET',
-    headers: { 'Accept': 'application/json' }
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("Network response was not ok");
-      return res.json();
-    })
-    .then(data => updatePage(data))
-    .catch(err => console.log("Firebase Fetch Error: ", err));
-}
-
-function toggleControl(device) {
-  let isChecked = document.getElementById(device + "Switch").checked;
-  if(device === 'gasSensor') isChecked = document.getElementById("gasSwitch").checked;
-  
-  fetch(`${DB_URL}/controls/${device}.json`, {
-    method: 'PUT',
-    body: JSON.stringify(isChecked)
-  }).then(() => getData());
-}
-
-function setTimer(device) {
-  let hId = device === 'fan' ? 'fanHours' : (device === 'diff' ? 'diffHours' : 'ledHours');
-  let mId = device === 'fan' ? 'fanMins' : (device === 'diff' ? 'diffMins' : 'ledMins');
-  let sId = device === 'fan' ? 'fanSecs' : (device === 'diff' ? 'diffSecs' : 'ledSecs');
-
-  let h = parseInt(document.getElementById(hId).value) || 0;
-  let m = parseInt(document.getElementById(mId).value) || 0;
-  let s = parseInt(document.getElementById(sId).value) || 0;
+function getData() { fetch(getApiUrl("/data?t=" + Date.now())).then(res => res.json()).then(data => updatePage(data)).catch(err => {}); }
+function toggleGas() { fetch(getApiUrl("/toggleGas?t=" + Date.now())).then(() => getData()); }
+function toggleBme() { fetch(getApiUrl("/toggleBme?t=" + Date.now())).then(() => getData()); }
+function toggleFan() { fetch(getApiUrl("/toggleFan?t=" + Date.now())).then(() => getData()); }
+function toggleDiffuser() { fetch(getApiUrl("/toggleDiffuser?t=" + Date.now())).then(() => getData()); }
+function toggleLeds() { fetch(getApiUrl("/toggleLeds?t=" + Date.now())).then(() => getData()); }
+function setFanTimer() {
+  let h = parseInt(document.getElementById("fanHours").value) || 0;
+  let m = parseInt(document.getElementById("fanMins").value) || 0;
+  let s = parseInt(document.getElementById("fanSecs").value) || 0;
   let ms = (h * 3600 + m * 60 + s) * 1000;
-
-  if(ms > 0) {
-    let pathKey = device === 'fan' ? 'fanDuration' : (device === 'diff' ? 'diffDuration' : 'ledsDuration');
-    fetch(`${DB_URL}/timers/${pathKey}.json`, {
-      method: 'PUT',
-      body: JSON.stringify(ms)
-    }).then(() => alert("تم إرسال المؤقت بنجاح!"));
-  }
+  if(ms > 0) fetch(getApiUrl("/timerFan?ms=" + ms + "&t=" + Date.now())).then(() => getData());
 }
-
-getData(); 
-setInterval(getData, 1500);
+function setDiffuserTimer() {
+  let h = parseInt(document.getElementById("diffHours").value) || 0;
+  let m = parseInt(document.getElementById("diffMins").value) || 0;
+  let s = parseInt(document.getElementById("diffSecs").value) || 0;
+  let ms = (h * 3600 + m * 60 + s) * 1000;
+  if(ms > 0) fetch(getApiUrl("/timerDiffuser?ms=" + ms + "&t=" + Date.now())).then(() => getData());
+}
+function setLedsTimer() {
+  let h = parseInt(document.getElementById("ledHours").value) || 0;
+  let m = parseInt(document.getElementById("ledMins").value) || 0;
+  let s = parseInt(document.getElementById("ledSecs").value) || 0;
+  let ms = (h * 3600 + m * 60 + s) * 1000;
+  if(ms > 0) fetch(getApiUrl("/timerLeds?ms=" + ms + "&t=" + Date.now())).then(() => getData());
+}
+getData(); setInterval(getData, 1000);
 </script>
 </body>
 </html>
+)=====";
+
+#endif
+خطوات الاستخدام بعد التعديل:
+قم برفع الكود إلى شريحة ESP32.
+
+افتح الـ Serial Monitor للتعرف على الـ IP المحلي الذي حصلت عليه الشريحة (مثال: 192.168.1.50).
+
+ارفع الملفات المحدثة إلى GitHub Pages وافتح رابط موقعك.
+
+أدخل عنوان الـ IP في المربع أعلى الموقع وقم بالضغط على حفظ الاتصال.
+
+ف حاجه المفروض تتعدل ف ملف ال html بتاع جيت هاب صح
+
+نعم، توجد قيود وضوابط محددة من جيت هاب عند كتابة أوسام HTML داخل ملفات المنصة (مثل README.md أو البروفايل).
+
+لكي أساعدك في تحديد التعديل المطلوب بدقة، هل يمكنك مشاركة كود الـ HTML الحالي أو توضيح المشكلة التي تظهر لك؟
+
+في الغالب، يكون السسبب أحد النقاط التالية:
+
+1. استخدام وسم أو خاصية غير مدعومة (أمان جيت هاب)
+جيت هاب يفلتر ويحذف أكثر أوسام الـ HTML لأسباب أمنية.
+
+❌ غير مدعوم: <script>, <style>, <iframe>, <form>, <input>.
+
+❌ الخصائص المباشرة (Inline CSS): معظم خصائص style="..." يتم تجاهلها وتحذَف أثناء العرض.
+
+✅ الأوسام المتاحة: الأوسام الأساسية مثل <p>, <h1>–<h6>, <a>, <img>, <table>, <div>, <details>, <summary>.
+
+2. محاذاة العناصر وتنسيقها (Alignment)
+إذا كنت تحاول محاذاة النص أو الصور في المنتصف:
+
+❌ لا تستخدم الوسم القديم المكتوب به الشكل: <center>...</center> (لأنه ملغى في معايير الـ HTML الحديثة).
+
+✅ الطريقة الصحيحة:
+
+HTML
+<div align="center">
+  <h1>مرحباً بك</h1>
+  <img src="your-image.png" width="300" />
+</div>
+3. اسم امتداد الملف
+إذا كان اسم الملف عندك README.html بدلاً من README.md، فإن جيت هاب لن يقوم برندرته (تجسيده) كصفحة موقع بل سيعرضه ككود نصي عادي.
+
+الحل: اجعل الملف باسم README.md واكتب كود الـ HTML المسموح داخل هذا الملف مباشرة.
+
+أرسل الجزء الذي تريد تعديله، وسأصلحه لك فوراً!
+
+طب ابعتلي الكود ارفعه
+
+هذا هو كود صفحة الواجهة بلغة HTML المصممة للعمل كصفحة رئيسية ومناسبة للرفع المباشر على GitHub Pages:
+
+HTML icon
+index
+ HTML 
+Open
+📝 خطوات الرفع على GitHub لتشغيل الصفحة (GitHub Pages):
+قم بحفظ الكود أعلاه داخل ملف باسم index.html على جهازك.
+
+ارفعه إلى المستودع الخاص بك على جيت هاب (GitHub Repository).
+
+ادخل إلى Settings الخاصة بالمستودع على GitHub.
+
+اذهب إلى قسم Pages من القائمة الجانبية اليسرى.
+
+في قسم Branch اختر main (أو master) ثم اضغط Save.
+
+ستحصل على رابط مباشر للوحة التحكم البيئية ومزودة بحقل لإدخال عنوان IP الخاص بقطعة الـ ESP32 للتحكم المباشر بها.
+
+ينفع انسخ الكود ال انت بعته دا واحطه هنا
+
+نعم، ينفع جداً وهو المكان الصح تماماً.
+
+الملف المفتوح في الصورة هو index.html داخل مستودع جيت هاب الخاص بك:
+
+قم بتحديد كل الكود القديم المظلل بالأزرق ومسحه.
+
+احقن/انسخ الكود الجديد كاملاً في نفس المكان.
+
+اضغط على الزر الأخضر في الأعلى Commit changes... للحفظ.
+
+
+
+
+Your Damietta University chats aren’t used to improve our models. Gemini is AI and can make mistakes. Your privacy & GeminiOpens in a new window
+
+Loading index.html.
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SILERGY - Smart Environment Control</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --primary-gold: #ffc107;
+  --solar-orange: #ff9800;
+  --leaf-green: #10b981;
+  --ee-cyan: #06b6d4;
+  --card-bg: rgba(6, 20, 38, 0.88);
+  --border-glow: rgba(16, 185, 129, 0.25);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { min-height: 100vh; color: #e2e8f0; background: #020813; position: relative; overflow-x: hidden; padding: 30px 15px; }
+.bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: -1; background: linear-gradient(135deg, rgba(2,8,19,0.95) 0%, rgba(5,26,20,0.92) 100%); overflow: hidden; }
+.sun-glow { position: absolute; top: -50px; right: -50px; width: 320px; height: 320px; background: radial-gradient(circle, rgba(255,193,7,0.3) 0%, rgba(255,152,0,0.1) 60%, transparent 75%); border-radius: 50%; filter: blur(25px); }
+.container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+.header { text-align: center; margin-bottom: 20px; }
+h1 { font-size: 34px; font-weight: 800; background: linear-gradient(90deg, #ffc107, #ffffff, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+
+/* شريط إدخال الـ IP للربط بـ GitHub Pages */
+.ip-config-box { background: rgba(15, 23, 42, 0.8); border: 1px solid var(--ee-cyan); border-radius: 12px; padding: 12px; margin-bottom: 25px; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.ip-config-box label { font-size: 14px; font-weight: 700; color: var(--ee-cyan); }
+.ip-config-box input { padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(2,8,19,0.8); color: #fff; font-size: 14px; direction: ltr; width: 220px; text-align: center; }
+.ip-config-box button { padding: 8px 16px; border: none; border-radius: 6px; background: var(--leaf-green); color: #020813; font-weight: bold; cursor: pointer; }
+
+.section-title { font-size: 20px; font-weight: 700; color: var(--leaf-green); margin: 30px 0 15px 0; border-bottom: 2px solid rgba(16, 185, 129, 0.2); padding-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
+.card { background: var(--card-bg); border: 1px solid var(--border-glow); border-radius: 20px; padding: 25px 20px; text-align: center; backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+.card-title { font-size: 14px; color: #94a3b8; font-weight: 600; margin-bottom: 8px; }
+.card-value { font-size: 34px; font-weight: 800; margin-bottom: 12px; }
+.gauge-container { width: 100%; background: rgba(255,255,255,0.08); height: 8px; border-radius: 4px; overflow: hidden; position: relative; margin-top: 8px; }
+.gauge-bar { height: 100%; width: 0%; transition: width 0.5s ease, background-color 0.5s ease; border-radius: 4px; }
+
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; margin-bottom: 20px; }
+@media(max-width: 500px) { .charts-grid { grid-template-columns: 1fr; } }
+.chart-card { background: var(--card-bg); border: 1px solid var(--border-glow); border-radius: 20px; padding: 20px; backdrop-filter: blur(12px); }
+.chart-title { font-size: 16px; font-weight: 700; color: #e2e8f0; margin-bottom: 12px; text-align: center; }
+
+.switch-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+.switch-label { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+.switch { position: relative; display: inline-block; width: 64px; height: 32px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: #334155; transition: 0.3s; border-radius: 32px; border: 1px solid rgba(255,255,255,0.15); }
+.slider:before { position: absolute; content: "OFF"; height: 26px; width: 32px; left: 2px; bottom: 2px; background-color: #cbd5e1; transition: 0.3s; border-radius: 28px; font-size: 10px; font-weight: 800; color: #1e293b; display: flex; align-items: center; justify-content: center; }
+input:checked + .slider { background-color: #10b981; }
+input:checked + .slider:before { content: "ON"; transform: translateX(28px); background-color: #ffffff; color: #065f46; }
+.control-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.control-card { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; backdrop-filter: blur(10px); }
+.control-card h3 { color: #fff; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+.timer-box { margin-top: 12px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+.timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; direction: ltr; }
+.timer-group { display: flex; flex-direction: column; align-items: center; }
+.timer-group label { font-size: 11px; color: #94a3b8; margin-bottom: 3px; direction: rtl; }
+.timer-box input { width: 100%; padding: 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15,23,42,0.8); color: #fff; font-size: 13px; text-align: center; }
+.timer-btn { width: 100%; padding: 9px; border: none; border-radius: 8px; background: var(--ee-cyan); color: #030a16; font-weight: 700; cursor: pointer; }
+.timer-btn:hover { filter: brightness(1.1); }
+.countdown-display { margin-top: 10px; padding: 8px; background: rgba(6, 182, 212, 0.1); border: 1px solid var(--ee-cyan); border-radius: 8px; text-align: center; font-family: monospace; font-size: 16px; color: var(--ee-cyan); font-weight: bold; }
+.centered-row { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
+.centered-row .control-card { flex: 1; max-width: 480px; min-width: 300px; }
+footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+.author-footer { display: inline-block; font-size: 18px; font-weight: 900; color: var(--primary-gold); padding: 10px 28px; border-radius: 30px; border: 1.5px solid var(--primary-gold); box-shadow: 0 0 15px rgba(255,193,7,0.2); }
+</style>
+</head>
+<body>
+<div class="bg-layer"><div class="sun-glow"></div></div>
+<div class="container">
+  <div class="header">
+    <h1>لوحة التحكم البيئية الذكية للطاقة والزراعة</h1>
+  </div>
+
+  <!-- إعداد IP الخاص بـ ESP32 -->
+  <div class="ip-config-box">
+    <label for="espIp">عنوان IP للـ ESP32:</label>
+    <input type="text" id="espIp" placeholder="مثال: 192.168.1.50">
+    <button onclick="saveIp()">حفظ الاتصال</button>
+  </div>
+
+  <!-- 1. قراءات الحساسات الحية -->
+  <div class="section-title">📊 قراءات الحساسات الحية والمؤشرات</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Air Quality (جودة الهواء)</div>
+      <div id="gas" class="card-value" style="color: #38bdf8;">--</div>
+      <div class="gauge-container"><div id="gasGauge" class="gauge-bar"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">درجة الحرارة</div>
+      <div id="temp" class="card-value" style="color: #f43f5e;">--</div>
+      <div class="gauge-container"><div id="tempGauge" class="gauge-bar"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">الرطوبة</div>
+      <div id="hum" class="card-value" style="color: #60a5fa;">--</div>
+      <div class="gauge-container"><div id="humGauge" class="gauge-bar"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">مستوى الإضاءة (LDR)</div>
+      <div id="ldr" class="card-value" style="color: #ffc107;">--</div>
+      <div class="gauge-container"><div id="ldrGauge" class="gauge-bar"></div></div>
+    </div>
+  </div>
+
+  <!-- 2. لوحة التحكم بالأحمال والتايمرات -->
+  <div class="section-title">🎛️ لوحة التحكم والأجهزة</div>
+  <div class="control-container">
+    <div class="control-card">
+      <h3>🌀 المروحة (Fan)</h3>
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleFan()"><span class="slider"></span></label></div>
+      <div class="timer-box">
+        <div class="timer-inputs">
+          <div class="timer-group"><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
+          <div class="timer-group"><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
+          <div class="timer-group"><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
+        </div>
+        <button class="timer-btn" onclick="setFanTimer()">ابدأ المؤقت</button>
+        <div class="countdown-display" id="fanCountdown">--:--:--</div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <h3>💨 الفواحة (Diffuser)</h3>
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleDiffuser()"><span class="slider"></span></label></div>
+      <div class="timer-box">
+        <div class="timer-inputs">
+          <div class="timer-group"><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
+          <div class="timer-group"><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
+          <div class="timer-group"><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
+        </div>
+        <button class="timer-btn" onclick="setDiffuserTimer()">ابدأ المؤقت</button>
+        <div class="countdown-display" id="diffCountdown">--:--:--</div>
+      </div>
+    </div>
+
+    <div class="control-card">
+      <h3>💡 الكشافات (LEDs)</h3>
+      <div class="switch-row"><span class="switch-label">حالة التشغيل</span><label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleLeds()"><span class="slider"></span></label></div>
+      <div class="timer-box">
+        <div class="timer-inputs">
+          <div class="timer-group"><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
+          <div class="timer-group"><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
+          <div class="timer-group"><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
+        </div>
+        <button class="timer-btn" onclick="setLedsTimer()">ابدأ المؤقت</button>
+        <div class="countdown-display" id="ledCountdown">--:--:--</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="centered-row">
+    <div class="control-card">
+      <h3>🌡️ حساس البيئة (BME280)</h3>
+      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleBme()"><span class="slider"></span></label></div>
+    </div>
+    <div class="control-card">
+      <h3>🎛️ حساس الغاز (Air Quality)</h3>
+      <div class="switch-row" style="margin-top: 10px;"><span class="switch-label">تشغيل الحساس</span><label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleGas()"><span class="slider"></span></label></div>
+    </div>
+  </div>
+
+  <!-- 3. المنحنيات البيانية -->
+  <div class="section-title">📈 التحليل البياني المنفصل للحساسات</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">Air Quality (جودة الهواء)</div>
+      <canvas id="gasChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">درجة الحرارة (°C)</div>
+      <canvas id="tempChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">الرطوبة (%)</div>
+      <canvas id="humChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">مستوى الإضاءة (LDR)</div>
+      <canvas id="ldrChart"></canvas>
+    </div>
+  </div>
+
+  <footer><div class="author-footer">BY ABDOU BADRAN & OMAR YASSER</div></footer>
+</div>
+
+<script>
+let baseUrl = localStorage.getItem("esp32_ip") || "";
+document.getElementById("espIp").value = baseUrl;
+
+function saveIp() {
+  let ip = document.getElementById("espIp").value.trim();
+  if (ip && !ip.startsWith("http://") && !ip.startsWith("https://")) {
+    ip = "http://" + ip;
+  }
+  localStorage.setItem("esp32_ip", ip);
+  baseUrl = ip;
+  alert("تم حفظ الـ IP بنجاح: " + baseUrl);
+}
+
+function getApiUrl(endpoint) {
+  if (!baseUrl) return endpoint;
+  return baseUrl.endsWith("/") ? baseUrl.slice(0, -1) + endpoint : baseUrl + endpoint;
+}
+
+const maxPoints = 20;
+function createChart(ctxId, label, color) {
+  return new Chart(document.getElementById(ctxId).getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: label,
+        data: [],
+        borderColor: color,
+        backgroundColor: color + '22',
+        fill: true,
+        tension: 0.3,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { display: false },
+        y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      },
+      plugins: { legend: { labels: { color: '#e2e8f0' } } }
+    }
+  });
+}
+
+const gasChart = createChart('gasChart', 'Air Quality', '#38bdf8');
+const tempChart = createChart('tempChart', 'Temperature (C)', '#f43f5e');
+const humChart = createChart('humChart', 'Humidity (%)', '#60a5fa');
+const ldrChart = createChart('ldrChart', 'LDR Level', '#ffc107');
+
+function addData(chart, label, data) {
+  if (chart.data.labels.length >= maxPoints) {
+    chart.data.labels.shift();
+    chart.data.datasets[0].data.shift();
+  }
+  chart.data.labels.push(label);
+  chart.data.datasets[0].data.push(data);
+  chart.update();
+}
+
+function formatTime(secs) {
+  if (secs <= 0 || isNaN(secs)) return "--:--:--";
+  let h = Math.floor(secs / 3600);
+  let m = Math.floor((secs % 3600) / 60);
+  let s = secs % 60;
+  return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+}
+
+function setGauge(elementId, val, min, max, optimalMin, optimalMax) {
+  let bar = document.getElementById(elementId);
+  if (isNaN(val) || val === null) { bar.style.width = "0%"; return; }
+  let pct = ((val - min) / (max - min)) * 100;
+  if(pct < 0) pct = 0; if(pct > 100) pct = 100;
+  bar.style.width = pct + "%";
+  if (val >= optimalMin && val <= optimalMax) bar.style.backgroundColor = "#10b981";
+  else if ((val >= optimalMin - (optimalMax-optimalMin)*0.5 && val < optimalMin) || (val > optimalMax && val <= optimalMax + (optimalMax-optimalMin)*0.5)) bar.style.backgroundColor = "#f59e0b";
+  else bar.style.backgroundColor = "#ef4444";
+}
+
+function updatePage(data) {
+  let nowStr = new Date().toLocaleTimeString();
+  document.getElementById("gasSwitch").checked = data.gasEnabled;
+  document.getElementById("bmeSwitch").checked = data.bmeEnabled;
+  document.getElementById("fanSwitch").checked = data.fanEnabled;
+  document.getElementById("diffuserSwitch").checked = data.diffuserEnabled;
+  document.getElementById("ledsSwitch").checked = data.ledsEnabled;
+
+  document.getElementById("fanCountdown").innerText = formatTime(data.fanRem);
+  document.getElementById("diffCountdown").innerText = formatTime(data.diffRem);
+  document.getElementById("ledCountdown").innerText = formatTime(data.ledRem);
+
+  if(data.gasEnabled) {
+    document.getElementById("gas").innerText = data.gas + " ppm";
+    setGauge("gasGauge", data.gas, 0, 1000, 0, 300);
+    addData(gasChart, nowStr, data.gas);
+  } else {
+    document.getElementById("gas").innerText = "متوقف";
+    setGauge("gasGauge", NaN, 0, 100, 0, 0);
+  }
+
+  if(data.bmeEnabled) {
+    document.getElementById("temp").innerText = Number(data.temp).toFixed(1) + "C";
+    document.getElementById("hum").innerText = Number(data.hum).toFixed(1) + "%";
+    document.getElementById("ldr").innerText = data.ldr;
+    setGauge("tempGauge", data.temp, 10, 50, 22, 28);
+    setGauge("humGauge", data.hum, 0, 100, 50, 70);
+    setGauge("ldrGauge", data.ldr, 0, 4095, 1000, 3000);
+
+    addData(tempChart, nowStr, data.temp);
+    addData(humChart, nowStr, data.hum);
+    addData(ldrChart, nowStr, data.ldr);
+  } else {
+    document.getElementById("temp").innerText = "متوقف";
+    document.getElementById("hum").innerText = "متوقف";
+    document.getElementById("ldr").innerText = "متوقف";
+    setGauge("tempGauge", NaN, 0, 100, 0, 0);
+    setGauge("humGauge", NaN, 0, 100, 0, 0);
+    setGauge("ldrGauge", NaN, 0, 4095, 0, 0);
+  }
+}
+
+function getData() { fetch(getApiUrl("/data?t=" + Date.now())).then(res => res.json()).then(data => updatePage(data)).catch(err => {}); }
+function toggleGas() { fetch(getApiUrl("/toggleGas?t=" + Date.now())).then(() => getData()); }
+function toggleBme() { fetch(getApiUrl("/toggleBme?t=" + Date.now())).then(() => getData()); }
+function toggleFan() { fetch(getApiUrl("/toggleFan?t=" + Date.now())).then(() => getData()); }
+function toggleDiffuser() { fetch(getApiUrl("/toggleDiffuser?t=" + Date.now())).then(() => getData()); }
+function toggleLeds() { fetch(getApiUrl("/toggleLeds?t=" + Date.now())).then(() => getData()); }
+function setFanTimer() {
+  let h = parseInt(document.getElementById("fanHours").value) || 0;
+  let m = parseInt(document.getElementById("fanMins").value) || 0;
+  let s = parseInt(document.getElementById("fanSecs").value) || 0;
+  let ms = (h * 3600 + m * 60 + s) * 1000;
+  if(ms > 0) fetch(getApiUrl("/timerFan?ms=" + ms + "&t=" + Date.now())).then(() => getData());
+}
+function setDiffuserTimer() {
+  let h = parseInt(document.getElementById("diffHours").value) || 0;
+  let m = parseInt(document.getElementById("diffMins").value) || 0;
+  let s = parseInt(document.getElementById("diffSecs").value) || 0;
+  let ms = (h * 3600 + m * 60 + s) * 1000;
+  if(ms > 0) fetch(getApiUrl("/timerDiffuser?ms=" + ms + "&t=" + Date.now())).then(() => getData());
+}
+function setLedsTimer() {
+  let h = parseInt(document.getElementById("ledHours").value) || 0;
+  let m = parseInt(document.getElementById("ledMins").value) || 0;
+  let s = parseInt(document.getElementById("ledSecs").value) || 0;
+  let ms = (h * 3600 + m * 60 + s) * 1000;
+  if(ms > 0) fetch(getApiUrl("/timerLeds?ms=" + ms + "&t=" + Date.now())).then(() => getData());
+}
+getData(); setInterval(getData, 1000);
+</script>
+</body>
+</html>
+index.html
+Displaying index.html.
