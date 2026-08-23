@@ -224,6 +224,7 @@ function formatTime(secs) {
 
 function setGauge(elementId, val, min, max, optimalMin, optimalMax) {
   let bar = document.getElementById(elementId);
+  if (!bar) return;
   if (isNaN(val) || val === null) { bar.style.width = "0%"; return; }
   let pct = ((val - min) / (max - min)) * 100;
   if(pct < 0) pct = 0; if(pct > 100) pct = 100;
@@ -294,10 +295,16 @@ function updatePage(data) {
 }
 
 function getData() {
-  fetch(`${DB_URL}/.json`)
-    .then(res => res.json())
+  fetch(`${DB_URL}/.json`, {
+    method: 'GET',
+    headers: { 'Accept': 'application/json' }
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Network response was not ok");
+      return res.json();
+    })
     .then(data => updatePage(data))
-    .catch(err => console.log(err));
+    .catch(err => console.log("Firebase Fetch Error: ", err));
 }
 
 function toggleControl(device) {
