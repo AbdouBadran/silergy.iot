@@ -242,7 +242,7 @@ function togglePath(path) {
   });
 }
 
-// الاستماع للبيانات الحية
+// الاستماع للبيانات الحية من الفايربيس
 db.ref().on('value', snapshot => {
   const data = snapshot.val() || {};
   const nowStr = new Date().toLocaleTimeString();
@@ -256,7 +256,7 @@ db.ref().on('value', snapshot => {
 
   // تحديث قراءات الغاز
   if(data.sensors?.gas) {
-    let gasVal = data.readings?.gas ?? 0;
+    let gasVal = data.sensor_data?.gas ?? 0;
     document.getElementById("gas").innerText = gasVal + " ppm";
     setGauge("gasGauge", gasVal, 0, 1000, 0, 300);
     addData(gasChart, nowStr, gasVal);
@@ -267,9 +267,9 @@ db.ref().on('value', snapshot => {
 
   // تحديث BME280 & LDR
   if(data.sensors?.bme280) {
-    let t = data.readings?.temperature ?? 0;
-    let h = data.readings?.humidity ?? 0;
-    let l = data.readings?.ldr ?? 0;
+    let t = data.sensor_data?.temperature ?? 0;
+    let h = data.sensor_data?.humidity ?? 0;
+    let l = data.sensor_data?.ldr ?? 0;
 
     document.getElementById("temp").innerText = Number(t).toFixed(1) + "°C";
     document.getElementById("hum").innerText = Number(h).toFixed(1) + "%";
