@@ -19,8 +19,17 @@ body { min-height: 100vh; color: #e2e8f0; background: #020813; position: relativ
 .bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: -1; background: linear-gradient(135deg, rgba(2,8,19,0.95) 0%, rgba(5,26,20,0.92) 100%); overflow: hidden; }
 .sun-glow { position: absolute; top: -50px; right: -50px; width: 320px; height: 320px; background: radial-gradient(circle, rgba(255,193,7,0.3) 0%, rgba(255,152,0,0.1) 60%, transparent 75%); border-radius: 50%; filter: blur(25px); }
 .container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
-.header { text-align: center; margin-bottom: 30px; }
+.header { text-align: center; margin-bottom: 20px; }
 h1 { font-size: 34px; font-weight: 800; background: linear-gradient(90deg, #ffc107, #ffffff, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+
+/* IP Bar Style */
+.ip-card { background: var(--card-bg); border: 1px solid var(--ee-cyan); border-radius: 15px; padding: 15px 20px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; box-shadow: 0 4px 20px rgba(6, 182, 212, 0.15); }
+.ip-card label { font-weight: 700; color: var(--ee-cyan); font-size: 15px; }
+.ip-card input { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 15px; color: #fff; font-size: 15px; text-align: center; direction: ltr; width: 220px; outline: none; }
+.ip-card input:focus { border-color: var(--ee-cyan); }
+.ip-card button { background: var(--ee-cyan); color: #020813; font-weight: 800; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+.ip-card button:hover { filter: brightness(1.2); }
+
 .section-title { font-size: 20px; font-weight: 700; color: var(--leaf-green); margin: 30px 0 15px 0; border-bottom: 2px solid rgba(16, 185, 129, 0.2); padding-bottom: 8px; display: flex; align-items: center; gap: 10px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
 .card { background: var(--card-bg); border: 1px solid var(--border-glow); border-radius: 20px; padding: 25px 20px; text-align: center; backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
@@ -64,6 +73,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
 <div class="container">
   <div class="header">
     <h1>لوحة التحكم البيئية الذكية للطاقة والزراعة</h1>
+  </div>
+
+  <!-- IP Configuration Bar -->
+  <div class="ip-card">
+    <label for="espIp">عنوان IP لـ ESP32:</label>
+    <input type="text" id="espIp" placeholder="مثال: 192.168.1.50">
+    <button onclick="saveIp()">حفظ الاتصال</button>
   </div>
 
   <div class="section-title">📊 قراءات الحساسات الحية والمؤشرات</div>
@@ -170,6 +186,30 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
 </div>
 
 <script>
+let baseUrl = "";
+
+// Load IP from local storage
+window.addEventListener("DOMContentLoaded", () => {
+  let savedIp = localStorage.getItem("esp_ip");
+  if(savedIp) {
+    document.getElementById("espIp").value = savedIp;
+    baseUrl = "http://" + savedIp;
+  }
+});
+
+function saveIp() {
+  let ip = document.getElementById("espIp").value.trim();
+  if(ip) {
+    localStorage.setItem("esp_ip", ip);
+    baseUrl = "http://" + ip;
+    alert("تم حفظ IP: " + ip);
+    getData();
+  } else {
+    baseUrl = "";
+    localStorage.removeItem("esp_ip");
+  }
+}
+
 const maxPoints = 20;
 function createChart(ctxId, label, color) {
   return new Chart(document.getElementById(ctxId).getContext('2d'), {
@@ -273,34 +313,48 @@ function updatePage(data) {
   }
 }
 
-function getData() { fetch("/data?t=" + Date.now()).then(res => res.json()).then(data => updatePage(data)).catch(err => {}); }
-function toggleGas() { fetch("/toggleGas?t=" + Date.now()).then(() => getData()); }
-function toggleBme() { fetch("/toggleBme?t=" + Date.now()).then(() => getData()); }
-function toggleFan() { fetch("/toggleFan?t=" + Date.now()).then(() => getData()); }
-function toggleDiffuser() { fetch("/toggleDiffuser?t=" + Date.now()).then(() => getData()); }
-function toggleLeds() { fetch("/toggleLeds?t=" + Date.now()).then(() => getData()); }
+function getData() { 
+  let url = (baseUrl ? baseUrl : "") + "/data?t=" + Date.now();
+  fetch(url).then(res => res.json()).then(data => updatePage(data)).catch(err => {}); 
+}
+
+function sendCmd(endpoint) {
+  let url = (baseUrl ? baseUrl : "") + endpoint;
+  fetch(url).then(() => getData());
+}
+
+function toggleGas() { sendCmd("/toggleGas?t=" + Date.now()); }
+function toggleBme() { sendCmd("/toggleBme?t=" + Date.now()); }
+function toggleFan() { sendCmd("/toggleFan?t=" + Date.now()); }
+function toggleDiffuser() { sendCmd("/toggleDiffuser?t=" + Date.now()); }
+function toggleLeds() { sendCmd("/toggleLeds?t=" + Date.now()); }
+
 function setFanTimer() {
   let h = parseInt(document.getElementById("fanHours").value) || 0;
   let m = parseInt(document.getElementById("fanMins").value) || 0;
   let s = parseInt(document.getElementById("fanSecs").value) || 0;
   let ms = (h * 3600 + m * 60 + s) * 1000;
-  if(ms > 0) fetch("/timerFan?ms=" + ms + "&t=" + Date.now()).then(() => getData());
+  if(ms > 0) sendCmd("/timerFan?ms=" + ms + "&t=" + Date.now());
 }
+
 function setDiffuserTimer() {
   let h = parseInt(document.getElementById("diffHours").value) || 0;
   let m = parseInt(document.getElementById("diffMins").value) || 0;
   let s = parseInt(document.getElementById("diffSecs").value) || 0;
   let ms = (h * 3600 + m * 60 + s) * 1000;
-  if(ms > 0) fetch("/timerDiffuser?ms=" + ms + "&t=" + Date.now()).then(() => getData());
+  if(ms > 0) sendCmd("/timerDiffuser?ms=" + ms + "&t=" + Date.now());
 }
+
 function setLedsTimer() {
   let h = parseInt(document.getElementById("ledHours").value) || 0;
   let m = parseInt(document.getElementById("ledMins").value) || 0;
   let s = parseInt(document.getElementById("ledSecs").value) || 0;
   let ms = (h * 3600 + m * 60 + s) * 1000;
-  if(ms > 0) fetch("/timerLeds?ms=" + ms + "&t=" + Date.now()).then(() => getData());
+  if(ms > 0) sendCmd("/timerLeds?ms=" + ms + "&t=" + Date.now());
 }
-getData(); setInterval(getData, 1000);
+
+getData(); 
+setInterval(getData, 1000);
 </script>
 </body>
 </html>
