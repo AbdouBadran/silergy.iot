@@ -264,7 +264,7 @@ function updatePage(data) {
     addData(humChart, nowStr, data.hum);
     addData(ldrChart, nowStr, data.ldr);
   } else {
-    document.getElementById("temp").innerText.innerText = "متوقف";
+    document.getElementById("temp").innerText = "متوقف";
     document.getElementById("hum").innerText = "متوقف";
     document.getElementById("ldr").innerText = "متوقف";
     setGauge("tempGauge", NaN, 0, 100, 0, 0);
