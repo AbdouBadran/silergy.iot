@@ -126,6 +126,24 @@ body { min-height: 100vh; color: #e2e8f0; background: #020813; position: relativ
   margin-bottom: 6px;
   font-weight: 600;
 }
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-wrapper input {
+  padding-right: 45px !important;
+}
+.toggle-password {
+  position: absolute;
+  right: 14px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 18px;
+  color: #94a3b8;
+  transition: 0.2s;
+}
+.toggle-password:hover { color: var(--ee-cyan); }
 .input-group input {
   width: 100%;
   padding: 12px 16px;
@@ -253,7 +271,10 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
       </div>
       <div class="input-group">
         <label>Password</label>
-        <input type="password" id="passwordInput" placeholder="Enter Password..." required>
+        <div class="password-wrapper">
+          <input type="password" id="passwordInput" placeholder="Enter Password..." required>
+          <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+        </div>
       </div>
       <button type="submit" class="login-btn">تسجيل الدخول</button>
       <div id="errorMsg" class="error-msg">⚠️ Invalid Username or Password!</div>
@@ -401,11 +422,26 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   </div>
 </div>
 
+<script>
+  function togglePasswordVisibility() {
+    const passwordInput = document.getElementById("passwordInput");
+    const toggleBtn = document.querySelector(".toggle-password");
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      toggleBtn.textContent = "🙈";
+    } else {
+      passwordInput.type = "password";
+      toggleBtn.textContent = "👁️";
+    }
+  }
+</script>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const allowedUsers = {
+    "DR Abdullah": "drabdullah",
     "Abdou Badran": "970020002",
     "Haneen Yasser": "24200242",
     "Omar Yasser": "omarlabw",
@@ -427,7 +463,6 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
       errorMsg.style.display = "none";
       localStorage.setItem("silergy_user", user);
       
-      // تشغيل أنيميشن الترحيب قبل الانتقال
       playWelcomeAnimation(user);
     } else {
       errorMsg.style.display = "block";
