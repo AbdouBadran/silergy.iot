@@ -43,7 +43,7 @@ body { min-height: 100vh; color: #f8fafc; background: var(--bg-dark); position: 
 .user-welcome-badge { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 6px 16px; border-radius: 30px; direction: ltr; }
 .user-welcome-text { font-size: 14px; font-weight: 700; color: var(--ee-cyan); }
 .logout-btn { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger-red); color: var(--danger-red); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-.logout-btn:hover { background: var(--danger-red); color: #fff; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+.logout-btn:hover { background: var(--danger-red); color: #fff; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); transform: scale(1.05); }
 
 #login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 1; transition: opacity 0.5s ease; }
 .login-card {
@@ -76,10 +76,9 @@ body { min-height: 100vh; color: #f8fafc; background: var(--bg-dark); position: 
 .welcome-anim-text { font-size: 42px; font-weight: 900; background: linear-gradient(90deg, var(--primary-gold), var(--ee-cyan), var(--leaf-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulseScale 1.5s infinite ease-in-out; text-align: center; padding: 0 20px; }
 @keyframes pulseScale { 0%, 100% { transform: scale(0.98); filter: drop-shadow(0 0 15px rgba(6,182,212,0.4)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(16,185,129,0.7)); } }
 
-#dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease; }
-#dashboard-screen.animate-enter { opacity: 1; }
-#dashboard-screen.animate-exit { animation: dashExit 0.5s ease forwards; }
-@keyframes dashExit { 0% { opacity: 1; transform: scale(1); filter: blur(0px); } 100% { opacity: 0; transform: scale(0.95); filter: blur(10px); } }
+#dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease; }
+#dashboard-screen.animate-enter { opacity: 1; transform: scale(1); filter: blur(0px); }
+#dashboard-screen.animate-exit { opacity: 0; transform: scale(0.95); filter: blur(10px); }
 
 .container { max-width: 1140px; margin: 30px auto 0 auto; position: relative; z-index: 1; padding: 0 20px; }
 .header { text-align: center; margin-bottom: 35px; }
@@ -353,7 +352,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       </div>
     </div>
 
-    <footer><div class="author-footer">BY ABDOU BADRAN & OMAR YASSER</div></footer>
+    <footer><div class="author-footer">BY SILERGY</div></footer>
   </div>
 </div>
 
@@ -560,11 +559,18 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     setTimeout(() => {
       dash.style.display = "none";
       dash.classList.remove("animate-exit");
-      document.getElementById("loginCard").classList.remove("animate-exit");
-      document.getElementById("login-screen").style.display = "flex";
+      
+      const loginCard = document.getElementById("loginCard");
+      loginCard.classList.remove("animate-exit");
+      
+      const loginScreen = document.getElementById("login-screen");
+      loginScreen.style.display = "flex";
+      loginScreen.style.opacity = "0";
+      setTimeout(() => { loginScreen.style.opacity = "1"; }, 10);
+
       document.getElementById("usernameInput").value = "";
       document.getElementById("passwordInput").value = "";
-    }, 500);
+    }, 600);
   };
 
   // التحقق من الجلسة
@@ -602,7 +608,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       const isChecked = el.checked;
       set(ref(db, 'controls/' + path), isChecked);
 
-      // إلغاء التايمر وتصفيره فوراً عند إيقاف التشغيل OFF
       if (!isChecked && deviceKey) {
         resetDeviceTimer(deviceKey);
       }
@@ -633,10 +638,8 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     activeTimers[deviceKey].remainingSecs = totalSeconds;
     activeTimers[deviceKey].isPaused = false;
 
-    // 1. تشغيل الجهاز في القاعدة فوراً
     set(ref(db, 'controls/' + activeTimers[deviceKey].fbKey), true);
 
-    // 2. إرسال الوقت بالثواني إلى ESP32 في مسار timers
     if (timerFbKeys[deviceKey]) {
       set(ref(db, 'timers/' + timerFbKeys[deviceKey]), totalSeconds);
     }
@@ -653,7 +656,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         updateTimerDisplay(deviceKey);
 
         if (activeTimers[deviceKey].remainingSecs <= 0) {
-          // انتهاء المؤقت -> إيقاف الجهاز
           set(ref(db, 'controls/' + activeTimers[deviceKey].fbKey), false);
           resetDeviceTimer(deviceKey);
         }
@@ -675,7 +677,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     activeTimers[deviceKey].remainingSecs = 0;
     activeTimers[deviceKey].isPaused = false;
 
-    // إلغاء التايمر في ESP32 بإرسال -1
     if (timerFbKeys[deviceKey]) {
       set(ref(db, 'timers/' + timerFbKeys[deviceKey]), -1);
     }
