@@ -456,6 +456,45 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   const activeUser = localStorage.getItem("silergy_user");
   if (activeUser && allowedUsers[activeUser]) showDashboard(activeUser);
 
+  // --- استماع لقراءات الحساسات وتحديث الـ UI ---
+  onValue(ref(db, 'readings'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      if (data.gas !== undefined) {
+        document.getElementById('gas').innerText = data.gas + " ppm";
+        document.getElementById('gasGauge').style.width = Math.min(100, (data.gas / 1000) * 100) + "%";
+      }
+      if (data.temp !== undefined) {
+        document.getElementById('temp').innerText = data.temp.toFixed(1) + " °C";
+        document.getElementById('tempGauge').style.width = Math.min(100, (data.temp / 50) * 100) + "%";
+      }
+      if (data.hum !== undefined) {
+        document.getElementById('hum').innerText = data.hum.toFixed(1) + " %";
+        document.getElementById('humGauge').style.width = Math.min(100, data.hum) + "%";
+      }
+      if (data.ldr !== undefined) {
+        document.getElementById('ldr').innerText = data.ldr;
+        document.getElementById('ldrGauge').style.width = Math.min(100, (data.ldr / 4095) * 100) + "%";
+      }
+    }
+  });
+
+  // --- استماع لحالات الأجهزة وتحديث مفاتيح التبديل ---
+  onValue(ref(db, 'controls'), (snapshot) => {
+    const controls = snapshot.val();
+    if (controls) {
+      if (controls.fanEnabled !== undefined) document.getElementById('fanSwitch').checked = controls.fanEnabled;
+      if (controls.diffuserEnabled !== undefined) document.getElementById('diffuserSwitch').checked = controls.diffuserEnabled;
+      if (controls.ledsEnabled !== undefined) document.getElementById('ledsSwitch').checked = controls.ledsEnabled;
+      if (controls.bmeEnabled !== undefined) document.getElementById('bmeSwitch').checked = controls.bmeEnabled;
+      if (controls.gasEnabled !== undefined) document.getElementById('gasSwitch').checked = controls.gasEnabled;
+      if (controls.mode) {
+        document.getElementById('modeManual').classList.toggle('active', controls.mode === 'manual');
+        document.getElementById('modeAuto').classList.toggle('active', controls.mode === 'auto');
+      }
+    }
+  });
+
   window.setSystemMode = function(mode) {
     document.getElementById('modeManual').classList.toggle('active', mode === 'manual');
     document.getElementById('modeAuto').classList.toggle('active', mode === 'auto');
@@ -474,7 +513,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     set(ref(db, '/controls/' + controlKey), isChecked);
   };
 
-  // --- إدارة المؤقت المحترفة لتفادي تعارض الـ ESP32 ---
+  // --- إدارة المؤقت لتفادي التعارض مع ESP32 ---
   let localTimers = {
     fan: { seconds: 0, interval: null, isPaused: false },
     diff: { seconds: 0, interval: null, isPaused: false },
@@ -496,7 +535,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     set(ref(db, 'timers/' + timerPath), totalSeconds);
     set(ref(db, 'controls/' + enabledPath), true);
 
-    // 2. تفعيل العد التنازلي المباشر والسلس على المتصفح
+    // 2. تفعيل العد التنازلي المباشر على المتصفح
     localTimers[type].seconds = totalSeconds;
     localTimers[type].isPaused = false;
     
@@ -554,30 +593,8 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     let h = Math.floor(totalSecs / 3600);
     let m = Math.floor((totalSecs % 3600) / 60);
     let s = totalSecs % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
-
-  // الاستماع المباشر لحالة المفاتيح والقراءات
-  onValue(ref(db, 'controls'), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      if (data.fanEnabled !== undefined) document.getElementById('fanSwitch').checked = data.fanEnabled;
-      if (data.diffuserEnabled !== undefined) document.getElementById('diffuserSwitch').checked = data.diffuserEnabled;
-      if (data.ledsEnabled !== undefined) document.getElementById('ledsSwitch').checked = data.ledsEnabled;
-      if (data.bmeEnabled !== undefined) document.getElementById('bmeSwitch').checked = data.bmeEnabled;
-      if (data.gasEnabled !== undefined) document.getElementById('gasSwitch').checked = data.gasEnabled;
-    }
-  });
-
-  onValue(ref(db, 'readings'), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      if (data.gas !== undefined) document.getElementById('gas').innerText = data.gas + " ppm";
-      if (data.temp !== undefined) document.getElementById('temp').innerText = data.temp + " °C";
-      if (data.hum !== undefined) document.getElementById('hum').innerText = data.hum + " %";
-      if (data.ldr !== undefined) document.getElementById('ldr').innerText = data.ldr;
-    }
-  });
 </script>
 </body>
 </html>
