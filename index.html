@@ -132,9 +132,6 @@ input:checked + .slider:before { content: "ON"; transform: translateX(28px); bac
 .circle-btn.pause { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
 .circle-btn.pause:hover { background: #f59e0b; color: #000; }
 
-.circle-btn.resume { border-color: var(--leaf-green); color: var(--leaf-green); background: rgba(16, 185, 129, 0.15); box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
-.circle-btn.resume:hover { background: var(--leaf-green); color: #000; }
-
 .circle-btn.reset { border-color: var(--danger-red); color: var(--danger-red); background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
 .circle-btn.reset:hover { background: var(--danger-red); color: #fff; }
 
@@ -245,13 +242,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
               <div class="timer-group"><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
               <div class="timer-group"><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
             </div>
-            <button class="timer-btn" onclick="startDeviceTimer('fanHours','fanMins','fanSecs','fanTimer','fanEnabled','fanInputsBox','fanActiveBox')">ابدأ المؤقت ⏱️</button>
+            <button class="timer-btn" onclick="startDeviceTimer('fan')">ابدأ المؤقت ⏱️</button>
           </div>
           <div id="fanActiveBox" class="timer-active-container">
-            <div id="fanCountdown" class="countdown-display">--:--:--</div>
+            <div id="fanCountdown" class="countdown-display">00:00:00</div>
             <div class="circle-actions">
               <button id="fanPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('fanTimer','fanPauseBtn')">⏸️</button>
-              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('fanTimer','fanInputsBox','fanActiveBox')">🔄</button>
+              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('fan')">🔄</button>
             </div>
           </div>
         </div>
@@ -271,13 +268,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
               <div class="timer-group"><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
               <div class="timer-group"><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
             </div>
-            <button class="timer-btn" onclick="startDeviceTimer('diffHours','diffMins','diffSecs','diffTimer','diffuserEnabled','diffInputsBox','diffActiveBox')">ابدأ المؤقت ⏱️</button>
+            <button class="timer-btn" onclick="startDeviceTimer('diff')">ابدأ المؤقت ⏱️</button>
           </div>
           <div id="diffActiveBox" class="timer-active-container">
-            <div id="diffCountdown" class="countdown-display">--:--:--</div>
+            <div id="diffCountdown" class="countdown-display">00:00:00</div>
             <div class="circle-actions">
               <button id="diffPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('diffTimer','diffPauseBtn')">⏸️</button>
-              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('diffTimer','diffInputsBox','diffActiveBox')">🔄</button>
+              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('diff')">🔄</button>
             </div>
           </div>
         </div>
@@ -297,13 +294,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
               <div class="timer-group"><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
               <div class="timer-group"><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
             </div>
-            <button class="timer-btn" onclick="startDeviceTimer('ledHours','ledMins','ledSecs','ledTimer','ledsEnabled','ledInputsBox','ledActiveBox')">ابدأ المؤقت ⏱️</button>
+            <button class="timer-btn" onclick="startDeviceTimer('led')">ابدأ المؤقت ⏱️</button>
           </div>
           <div id="ledActiveBox" class="timer-active-container">
-            <div id="ledCountdown" class="countdown-display">--:--:--</div>
+            <div id="ledCountdown" class="countdown-display">00:00:00</div>
             <div class="circle-actions">
               <button id="ledPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('ledTimer','ledPauseBtn')">⏸️</button>
-              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('ledTimer','ledInputsBox','ledActiveBox')">🔄</button>
+              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('led')">🔄</button>
             </div>
           </div>
         </div>
@@ -432,11 +429,19 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     "Mariam Ibrahim": "123654789"
   };
 
-  const timerStates = {
-    fanTimer: { paused: false },
-    diffTimer: { paused: false },
-    ledTimer: { paused: false }
+  const firebaseConfig = {
+    apiKey: "AIzaSyBX1PQUhlbiubiQeuY62nN4qjVvMp-NwLI",
+    authDomain: "summer-ca623.firebaseapp.com",
+    databaseURL: "https://summer-ca623-default-rtdb.firebaseio.com",
+    projectId: "summer-ca623",
+    storageBucket: "summer-ca623.firebasestorage.app",
+    messagingSenderId: "798032639895",
+    appId: "1:798032639895:web:7583b8eb505bc30adf36d2",
+    measurementId: "G-9S6PRSR0XM"
   };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
   window.handleLogin = function() {
     const user = document.getElementById("usernameInput").value.trim();
@@ -478,26 +483,87 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   const activeUser = localStorage.getItem("silergy_user");
   if (activeUser && allowedUsers[activeUser]) showDashboard(activeUser);
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBX1PQUhlbiubiQeuY62nN4qjVvMp-NwLI",
-    authDomain: "summer-ca623.firebaseapp.com",
-    databaseURL: "https://summer-ca623-default-rtdb.firebaseio.com",
-    projectId: "summer-ca623",
-    storageBucket: "summer-ca623.firebasestorage.app",
-    messagingSenderId: "798032639895",
-    appId: "1:798032639895:web:7583b8eb505bc30adf36d2",
-    measurementId: "G-9S6PRSR0XM"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
   window.setSystemMode = function(mode) {
     document.getElementById('modeManual').classList.toggle('active', mode === 'manual');
     document.getElementById('modeAuto').classList.toggle('active', mode === 'auto');
     set(ref(db, '/controls/mode'), mode);
   };
 
+  window.toggleControl = function(controlKey) {
+    const elementMap = {
+      'fanEnabled': 'fanSwitch',
+      'diffuserEnabled': 'diffuserSwitch',
+      'ledsEnabled': 'ledsSwitch',
+      'bmeEnabled': 'bmeSwitch',
+      'gasEnabled': 'gasSwitch'
+    };
+    const isChecked = document.getElementById(elementMap[controlKey]).checked;
+    set(ref(db, '/controls/' + controlKey), isChecked);
+  };
+
+  // --- إدارة المؤقت والربط مع ESP32 ---
+  window.startDeviceTimer = function(type) {
+    let hrs = parseInt(document.getElementById(type + 'Hours').value) || 0;
+    let mins = parseInt(document.getElementById(type + 'Mins').value) || 0;
+    let secs = parseInt(document.getElementById(type + 'Secs').value) || 0;
+
+    let totalSeconds = (hrs * 3600) + (mins * 60) + secs;
+
+    if (totalSeconds <= 0) return;
+
+    let timerPath = type + 'Timer';
+    let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
+
+    set(ref(db, 'timers/' + timerPath), totalSeconds);
+    set(ref(db, 'controls/' + enabledPath), true);
+
+    document.getElementById(type + 'InputsBox').style.display = 'none';
+    document.getElementById(type + 'ActiveBox').style.display = 'flex';
+  };
+
+  window.resetDeviceTimer = function(type) {
+    let timerPath = type + 'Timer';
+    let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
+
+    set(ref(db, 'timers/' + timerPath), 0);
+    set(ref(db, 'controls/' + enabledPath), false);
+
+    document.getElementById(type + 'InputsBox').style.display = 'block';
+    document.getElementById(type + 'ActiveBox').style.display = 'none';
+  };
+
+  function listenToTimer(type, countdownId, inputsBoxId, activeBoxId) {
+    let remPath = (type === 'led' ? 'ledsRem' : type + 'Rem');
+    onValue(ref(db, 'readings/' + remPath), (snapshot) => {
+      let remSecs = snapshot.val();
+      
+      if (remSecs !== null && remSecs > 0) {
+        document.getElementById(inputsBoxId).style.display = 'none';
+        document.getElementById(activeBoxId).style.display = 'flex';
+
+        let h = Math.floor(remSecs / 3600);
+        let m = Math.floor((remSecs % 3600) / 60);
+        let s = remSecs % 60;
+
+        let formatted = 
+          String(h).padStart(2, '0') + ":" + 
+          String(m).padStart(2, '0') + ":" + 
+          String(s).padStart(2, '0');
+
+        document.getElementById(countdownId).innerText = formatted;
+      } else {
+        document.getElementById(inputsBoxId).style.display = 'block';
+        document.getElementById(activeBoxId).style.display = 'none';
+        document.getElementById(countdownId).innerText = "00:00:00";
+      }
+    });
+  }
+
+  listenToTimer('fan', 'fanCountdown', 'fanInputsBox', 'fanActiveBox');
+  listenToTimer('diff', 'diffCountdown', 'diffInputsBox', 'diffActiveBox');
+  listenToTimer('led', 'ledCountdown', 'ledInputsBox', 'ledActiveBox');
+
+  // --- تحديث الحساسات والرسومات البيانية ---
   const maxPoints = 20;
   function createChart(ctxId, label, color) {
     return new Chart(document.getElementById(ctxId).getContext('2d'), {
@@ -517,155 +583,55 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     chart.data.labels.push(label); chart.data.datasets[0].data.push(data); chart.update();
   }
 
-  function setGauge(elementId, val, min, max, optimalMin, optimalMax) {
+  function setGauge(elementId, val, min, max) {
     let bar = document.getElementById(elementId);
-    if (isNaN(val) || val === null) { bar.style.width = "0%"; return; }
-    let pct = ((val - min) / (max - min)) * 100;
-    if(pct < 0) pct = 0; if(pct > 100) pct = 100;
+    if (!bar || isNaN(val) || val === null) return;
+    let pct = Math.min(Math.max(((val - min) / (max - min)) * 100, 0), 100);
     bar.style.width = pct + "%";
-    if (val >= optimalMin && val <= optimalMax) bar.style.backgroundColor = "#10b981";
-    else if ((val >= optimalMin - (optimalMax-optimalMin)*0.5 && val < optimalMin) || (val > optimalMax && val <= optimalMax + (optimalMax-optimalMin)*0.5)) bar.style.backgroundColor = "#f59e0b";
-    else bar.style.backgroundColor = "#ef4444";
+    bar.style.backgroundColor = pct > 75 ? "#ef4444" : pct > 50 ? "#ff9800" : "#10b981";
   }
 
-  function formatSeconds(totalSecs) {
-    if (!totalSecs || totalSecs <= 0) return "00:00:00";
-    let h = Math.floor(totalSecs / 3600), m = Math.floor((totalSecs % 3600) / 60), s = totalSecs % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  }
-
-  window.toggleControl = function(path) {
-    const controlRef = ref(db, '/controls/' + path);
-    get(controlRef).then((snapshot) => { set(controlRef, !snapshot.val()); });
-  };
-
-  /* Immediate UI Switch on Start Timer */
-  window.startDeviceTimer = function(hId, mId, sId, timerPath, deviceEnabledPath, inputsBoxId, activeBoxId) {
-    let h = parseInt(document.getElementById(hId).value) || 0;
-    let m = parseInt(document.getElementById(mId).value) || 0;
-    let s = parseInt(document.getElementById(sId).value) || 0;
-    let totalSeconds = (h * 3600) + (m * 60) + s;
-
-    if(totalSeconds > 0) {
-      // Direct UI Flip
-      document.getElementById(inputsBoxId).style.display = "none";
-      document.getElementById(activeBoxId).style.display = "flex";
-
-      timerStates[timerPath].paused = false;
-      set(ref(db, '/timers/' + timerPath), totalSeconds);
-      set(ref(db, '/timers/' + timerPath + 'State'), 'running');
-      if(deviceEnabledPath) set(ref(db, '/controls/' + deviceEnabledPath), true);
-    } else {
-      triggerAlert("⚠️ يرجى تحديد وقت أكبر من 0 ثواني!");
-    }
-  };
-
-  /* Pause / Resume Button Flip */
-  window.togglePauseTimer = function(timerPath, btnId) {
-    const btn = document.getElementById(btnId);
-    if (!timerStates[timerPath].paused) {
-      timerStates[timerPath].paused = true;
-      set(ref(db, '/timers/' + timerPath + 'State'), 'paused');
-      btn.innerText = "▶️";
-      btn.className = "circle-btn resume";
-    } else {
-      timerStates[timerPath].paused = false;
-      set(ref(db, '/timers/' + timerPath + 'State'), 'running');
-      btn.innerText = "⏸️";
-      btn.className = "circle-btn pause";
-    }
-  };
-
-  /* Reset Button Flip Back to Input Form */
-  window.resetDeviceTimer = function(timerPath, inputsBoxId, activeBoxId) {
-    // Direct UI Reset
-    document.getElementById(inputsBoxId).style.display = "block";
-    document.getElementById(activeBoxId).style.display = "none";
-
-    timerStates[timerPath].paused = false;
-    set(ref(db, '/timers/' + timerPath), 0);
-    set(ref(db, '/timers/' + timerPath + 'State'), 'stopped');
-  };
-
-  function updateTimerUI(inputsId, activeBoxId, remainingSeconds, timerPath, pauseBtnId) {
-    const inputsBox = document.getElementById(inputsId);
-    const activeBox = document.getElementById(activeBoxId);
-    const pauseBtn = document.getElementById(pauseBtnId);
-
-    if (remainingSeconds && remainingSeconds > 0) {
-      inputsBox.style.display = "none";
-      activeBox.style.display = "flex";
-    } else {
-      inputsBox.style.display = "block";
-      activeBox.style.display = "none";
-      if(pauseBtn) {
-        timerStates[timerPath].paused = false;
-        pauseBtn.innerText = "⏸️";
-        pauseBtn.className = "circle-btn pause";
-      }
-    }
-  }
-
-  onValue(ref(db, '/controls'), (snapshot) => {
+  // الاستماع لقراءات الحساسات من Firebase
+  onValue(ref(db, 'readings'), (snapshot) => {
     const data = snapshot.val() || {};
-    document.getElementById("gasSwitch").checked = Boolean(data.gasEnabled);
-    document.getElementById("bmeSwitch").checked = Boolean(data.bmeEnabled);
-    document.getElementById("fanSwitch").checked = Boolean(data.fanEnabled);
-    document.getElementById("diffuserSwitch").checked = Boolean(data.diffuserEnabled);
-    document.getElementById("ledsSwitch").checked = Boolean(data.ledsEnabled);
-  });
+    const now = new Date().toLocaleTimeString();
 
-  let lastAlertTime = 0;
-  onValue(ref(db, '/readings'), (snapshot) => {
-    const data = snapshot.val();
-    const nowStr = new Date().toLocaleTimeString();
-
-    if (data) {
-      if (data.gas !== undefined) {
-        document.getElementById("gas").innerText = data.gas + " ppm";
-        setGauge("gasGauge", data.gas, 0, 1000, 0, 300);
-        addData(gasChart, nowStr, data.gas);
-        if(data.gas > 400 && Date.now() - lastAlertTime > 10000) {
-          triggerAlert("⚠️ High Gas Detected: " + data.gas + " ppm");
-          lastAlertTime = Date.now();
-        }
-      }
-      
-      if (data.temp !== undefined) {
-        document.getElementById("temp").innerText = data.temp + " °C";
-        setGauge("tempGauge", data.temp, 10, 50, 22, 28);
-        addData(tempChart, nowStr, data.temp);
-        if(data.temp > 30) document.documentElement.style.setProperty('--dynamic-accent', '#f43f5e');
-        else document.documentElement.style.setProperty('--dynamic-accent', '#06b6d4');
-      }
-
-      if (data.hum !== undefined) {
-        document.getElementById("hum").innerText = data.hum + " %";
-        setGauge("humGauge", data.hum, 0, 100, 50, 70);
-        addData(humChart, nowStr, data.hum);
-      }
-
-      if (data.ldr !== undefined) {
-        document.getElementById("ldr").innerText = data.ldr;
-        setGauge("ldrGauge", data.ldr, 0, 4095, 1000, 3000);
-        addData(ldrChart, nowStr, data.ldr);
-      }
-
-      /* Timer Display Management */
-      if (data.fanRem !== undefined) {
-        document.getElementById("fanCountdown").innerText = formatSeconds(data.fanRem);
-        updateTimerUI("fanInputsBox", "fanActiveBox", data.fanRem, "fanTimer", "fanPauseBtn");
-      }
-      if (data.diffRem !== undefined) {
-        document.getElementById("diffCountdown").innerText = formatSeconds(data.diffRem);
-        updateTimerUI("diffInputsBox", "diffActiveBox", data.diffRem, "diffTimer", "diffPauseBtn");
-      }
-      if (data.ledRem !== undefined) {
-        document.getElementById("ledCountdown").innerText = formatSeconds(data.ledRem);
-        updateTimerUI("ledInputsBox", "ledActiveBox", data.ledRem, "ledTimer", "ledPauseBtn");
-      }
+    if (data.gas !== undefined) {
+      document.getElementById('gas').innerText = data.gas;
+      setGauge('gasGauge', data.gas, 0, 1000);
+      addData(gasChart, now, data.gas);
+    }
+    if (data.temp !== undefined) {
+      document.getElementById('temp').innerText = data.temp + " °C";
+      setGauge('tempGauge', data.temp, 0, 50);
+      addData(tempChart, now, data.temp);
+    }
+    if (data.hum !== undefined) {
+      document.getElementById('hum').innerText = data.hum + " %";
+      setGauge('humGauge', data.hum, 0, 100);
+      addData(humChart, now, data.hum);
+    }
+    if (data.ldr !== undefined) {
+      document.getElementById('ldr').innerText = data.ldr;
+      setGauge('ldrGauge', data.ldr, 0, 4095);
+      addData(ldrChart, now, data.ldr);
     }
   });
+
+  // الاستماع لحالة المفاتيح (Controls)
+  onValue(ref(db, 'controls'), (snapshot) => {
+    const controls = snapshot.val() || {};
+    if (controls.fanEnabled !== undefined) document.getElementById('fanSwitch').checked = controls.fanEnabled;
+    if (controls.diffuserEnabled !== undefined) document.getElementById('diffuserSwitch').checked = controls.diffuserEnabled;
+    if (controls.ledsEnabled !== undefined) document.getElementById('ledsSwitch').checked = controls.ledsEnabled;
+    if (controls.bmeEnabled !== undefined) document.getElementById('bmeSwitch').checked = controls.bmeEnabled;
+    if (controls.gasEnabled !== undefined) document.getElementById('gasSwitch').checked = controls.gasEnabled;
+    if (controls.mode) {
+      document.getElementById('modeManual').classList.toggle('active', controls.mode === 'manual');
+      document.getElementById('modeAuto').classList.toggle('active', controls.mode === 'auto');
+    }
+  });
+
 </script>
 </body>
 </html>
