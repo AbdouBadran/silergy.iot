@@ -204,6 +204,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       <h1>SILERGY Control Dashboard</h1>
     </div>
 
+    <!-- 1. الحساسات والقراءات -->
     <div class="section-title">
       <span>📊 قراءات الحساسات الحية والمؤشرات</span>
     </div>
@@ -230,27 +231,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       </div>
     </div>
 
-    <!-- Live Charts Section -->
-    <div class="section-title">📈 المنحنيات البيانية التفاعلية (Real-Time Analytics)</div>
-    <div class="charts-grid">
-      <div class="chart-card">
-        <h4>🌡️ تغير درجة الحرارة (°C)</h4>
-        <div class="chart-wrapper"><canvas id="tempChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h4>💧 تغير مستوى الرطوبة (%)</h4>
-        <div class="chart-wrapper"><canvas id="humChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h4>🍃 جودة الهواء (MQ-135)</h4>
-        <div class="chart-wrapper"><canvas id="gasChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h4>☀️ إضاءة المكان (LDR)</h4>
-        <div class="chart-wrapper"><canvas id="ldrChart"></canvas></div>
-      </div>
-    </div>
-
+    <!-- 2. لوحة التحكم والأجهزة -->
     <div class="section-title">🎛️ لوحة التحكم والأجهزة</div>
     <div class="control-container">
       
@@ -348,6 +329,27 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
           <span class="switch-label">تشغيل الحساس</span>
           <label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasEnabled')"><span class="slider"></span></label>
         </div>
+      </div>
+    </div>
+
+    <!-- 3. المنحنيات البيانية (أصبحت في نهاية الصفحة) -->
+    <div class="section-title">📈 المنحنيات البيانية التفاعلية (Real-Time Analytics)</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h4>🌡️ تغير درجة الحرارة (°C)</h4>
+        <div class="chart-wrapper"><canvas id="tempChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>💧 تغير مستوى الرطوبة (%)</h4>
+        <div class="chart-wrapper"><canvas id="humChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>🍃 جودة الهواء (MQ-135)</h4>
+        <div class="chart-wrapper"><canvas id="gasChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>☀️ إضاءة المكان (LDR)</h4>
+        <div class="chart-wrapper"><canvas id="ldrChart"></canvas></div>
       </div>
     </div>
 
@@ -691,7 +693,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     document.getElementById(type + 'InputsBox').style.display = 'block';
     document.getElementById(type + 'ActiveBox').style.display = 'none';
     
-    // Reset pause button state icon
     const pauseBtn = document.getElementById(type + 'PauseBtn');
     if (pauseBtn) pauseBtn.innerText = "⏸️";
   };
