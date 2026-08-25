@@ -204,7 +204,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       <h1>SILERGY Control Dashboard</h1>
     </div>
 
-    <!-- 1. الحساسات والقراءات (أولاً) -->
+    <!-- 1. الحساسات والقراءات -->
     <div class="section-title">
       <span>📊 قراءات الحساسات الحية والمؤشرات</span>
     </div>
@@ -231,7 +231,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       </div>
     </div>
 
-    <!-- 2. لوحة التحكم والأجهزة (ثانياً) -->
+    <!-- 2. لوحة التحكم والأجهزة -->
     <div class="section-title">🎛️ لوحة التحكم والأجهزة</div>
     <div class="control-container">
       
@@ -240,7 +240,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         <h3>🌀 المروحة (Fan)</h3>
         <div class="switch-row">
           <span class="switch-label">حالة التشغيل</span>
-          <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled', 'fan')"><span class="slider"></span></label>
+          <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
         </div>
         <div class="timer-box">
           <div id="fanInputsBox">
@@ -266,7 +266,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         <h3>💨 الفواحة (Diffuser)</h3>
         <div class="switch-row">
           <span class="switch-label">حالة التشغيل</span>
-          <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled', 'diff')"><span class="slider"></span></label>
+          <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled')"><span class="slider"></span></label>
         </div>
         <div class="timer-box">
           <div id="diffInputsBox">
@@ -292,7 +292,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         <h3>💡 الكشافات (LEDs)</h3>
         <div class="switch-row">
           <span class="switch-label">حالة التشغيل</span>
-          <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled', 'led')"><span class="slider"></span></label>
+          <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled')"><span class="slider"></span></label>
         </div>
         <div class="timer-box">
           <div id="ledInputsBox">
@@ -332,7 +332,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       </div>
     </div>
 
-    <!-- 3. المنحنيات البيانية (ثالثاً في الأسفل) -->
+    <!-- 3. المنحنيات البيانية -->
     <div class="section-title">📈 المنحنيات البيانية التفاعلية (Real-Time Analytics)</div>
     <div class="charts-grid">
       <div class="chart-card">
@@ -503,18 +503,15 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(56, 189, 248, 1)', 'Gas Level'));
   const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(255, 193, 7, 1)', 'Light LDR'));
 
-  // إضافة البيانات وتنسيق الوقت لتجنب التكرار التام بالدقائق فقط (HH:mm)
   function addChartData(chart, rawValue) {
     const val = parseFloat(rawValue);
     if (isNaN(val) || val < 0) return;
 
-    // تنسيق الوقت بالدقيقة والساعة فقط دون الثواني ودون نصوص ص/م المزدحمة
     const now = new Date();
     const timeLabel = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 
     const lastLabel = chart.data.labels[chart.data.labels.length - 1];
     if (lastLabel === timeLabel) {
-      // تجديد القيمة الأخيرة بدلاً من إدراج وقت مكرر
       chart.data.datasets[0].data[chart.data.datasets[0].data.length - 1] = val;
     } else {
       chart.data.labels.push(timeLabel);
@@ -557,147 +554,142 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     }, 2000);
   }
 
-  window.handleLogout = function() {
+  function showDashboard(username) {
     const dash = document.getElementById("dashboard-screen");
-    dash.classList.remove("animate-enter"); 
+    document.getElementById("welcomeUserDisplay").textContent = "Welcome, " + username;
+    dash.style.display = "block";
+    setTimeout(() => { dash.classList.add("animate-enter"); }, 10);
+  }
+
+  window.handleLogout = function() {
+    localStorage.removeItem("silergy_user");
+    const dash = document.getElementById("dashboard-screen");
+    dash.classList.remove("animate-enter");
     dash.classList.add("animate-exit");
     setTimeout(() => {
-      localStorage.removeItem("silergy_user");
-      dash.style.display = "none"; 
+      dash.style.display = "none";
       dash.classList.remove("animate-exit");
-      const loginScreen = document.getElementById("login-screen");
       document.getElementById("loginCard").classList.remove("animate-exit");
-      loginScreen.style.display = "flex";
-      document.getElementById("usernameInput").value = ""; 
-      document.getElementById("passwordInput").value = "";
+      document.getElementById("login-screen").style.display = "flex";
     }, 500);
   };
 
-  function showDashboard(username) {
-    const dash = document.getElementById("dashboard-screen");
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("welcomeUserDisplay").textContent = `Welcome, ${username}`;
-    dash.style.display = "block"; 
-    setTimeout(() => { dash.classList.add("animate-enter"); }, 10);
-    listenToFirebaseData();
-  }
-
-  window.toggleControl = function(path, type) {
-    const state = event.target.checked;
-    set(ref(db, `controls/${path}`), state);
-    if (!state && type) {
-      set(ref(db, `timers/${type}Timer`), -1);
-    }
-  };
-
   window.setSystemMode = function(mode) {
-    const isAuto = mode === 'auto';
     set(ref(db, 'controls/systemMode'), mode);
-    document.getElementById("modeAuto").classList.toggle("active", isAuto);
-    document.getElementById("modeManual").classList.toggle("active", !isAuto);
-  };
-
-  window.startDeviceTimer = function(type) {
-    const h = parseInt(document.getElementById(`${type}Hours`).value) || 0;
-    const m = parseInt(document.getElementById(`${type}Mins`).value) || 0;
-    const s = parseInt(document.getElementById(`${type}Secs`).value) || 0;
-    const totalSecs = (h * 3600) + (m * 60) + s;
-
-    if (totalSecs > 0) {
-      set(ref(db, `timers/${type}Timer`), totalSecs);
+    if(mode === 'manual') {
+      document.getElementById('modeManual').classList.add('active');
+      document.getElementById('modeAuto').classList.remove('active');
+    } else {
+      document.getElementById('modeAuto').classList.add('active');
+      document.getElementById('modeManual').classList.remove('active');
     }
   };
 
-  window.resetDeviceTimer = function(type) {
-    set(ref(db, `timers/${type}Timer`), -1);
+  window.toggleControl = function(path) {
+    let elementId = '';
+    if(path === 'fanEnabled') elementId = 'fanSwitch';
+    else if(path === 'diffuserEnabled') elementId = 'diffuserSwitch';
+    else if(path === 'ledsEnabled') elementId = 'ledsSwitch';
+    else if(path === 'bmeEnabled') elementId = 'bmeSwitch';
+    else if(path === 'gasEnabled') elementId = 'gasSwitch';
+
+    const el = document.getElementById(elementId);
+    if(el) {
+      set(ref(db, 'controls/' + path), el.checked);
+    }
   };
 
-  function formatTimeDisplay(secs) {
-    if (secs <= 0) return "00:00:00";
-    const h = Math.floor(secs / 3600).toString().padStart(2, '0');
-    const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
-    const s = (secs % 60).toString().padStart(2, '0');
-    return `${h}:${m}:${s}`;
-  }
+  // ⏱️ دالة بدء التايمر مع تفعيل المفتاح تلقائياً
+  window.startDeviceTimer = function(deviceKey) {
+    let h = parseInt(document.getElementById(deviceKey + 'Hours').value) || 0;
+    let m = parseInt(document.getElementById(deviceKey + 'Mins').value) || 0;
+    let s = parseInt(document.getElementById(deviceKey + 'Secs').value) || 0;
 
-  function updateGaugeBar(id, val, min, max, color) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (val === "--" || val < 0) {
-      el.style.width = "0%";
+    let totalSeconds = (h * 3600) + (m * 60) + s;
+
+    if (totalSeconds <= 0) {
+      alert("برجاء إدخال وقت صحيح للمؤقت!");
       return;
     }
-    let pct = ((val - min) / (max - min)) * 100;
-    pct = Math.max(0, Math.min(100, pct));
-    el.style.width = `${pct}%`;
-    el.style.backgroundColor = color;
-  }
 
-  function listenToFirebaseData() {
-    onValue(ref(db, 'readings'), (snapshot) => {
-      const data = snapshot.val() || {};
+    let dbTimerPath = (deviceKey === 'fan') ? 'fanTimer' : (deviceKey === 'diff') ? 'diffTimer' : 'ledTimer';
+    set(ref(db, 'timers/' + dbTimerPath), totalSeconds);
 
-      const gasVal = (data.gas !== undefined && data.gas >= 0) ? data.gas : "--";
-      const tempVal = (data.temp !== undefined && data.temp >= 0) ? data.temp : "--";
-      const humVal = (data.hum !== undefined && data.hum >= 0) ? data.hum : "--";
-      const ldrVal = (data.ldr !== undefined && data.ldr >= 0) ? data.ldr : "--";
+    // ⚡ [حل المشكلة] تفعيل المفتاح في Firebase وتحديث الواجهة
+    let dbControlPath = (deviceKey === 'fan') ? 'fanEnabled' : (deviceKey === 'diff') ? 'diffuserEnabled' : 'ledsEnabled';
+    set(ref(db, 'controls/' + dbControlPath), true);
 
-      document.getElementById('gas').textContent = gasVal !== "--" ? `${gasVal} PPM` : "OFF";
-      document.getElementById('temp').textContent = tempVal !== "--" ? `${tempVal} °C` : "OFF";
-      document.getElementById('hum').textContent = humVal !== "--" ? `${humVal} %` : "OFF";
-      document.getElementById('ldr').textContent = ldrVal !== "--" ? `${ldrVal}` : "OFF";
+    let switchId = (deviceKey === 'fan') ? 'fanSwitch' : (deviceKey === 'diff') ? 'diffuserSwitch' : 'ledsSwitch';
+    let switchEl = document.getElementById(switchId);
+    if (switchEl) switchEl.checked = true;
 
-      updateGaugeBar('gasGauge', gasVal, 0, 1000, '#38bdf8');
-      updateGaugeBar('tempGauge', tempVal, 0, 50, '#f43f5e');
-      updateGaugeBar('humGauge', humVal, 0, 100, '#60a5fa');
-      updateGaugeBar('ldrGauge', ldrVal, 0, 4095, '#ffc107');
+    document.getElementById(deviceKey + 'InputsBox').style.display = 'none';
+    document.getElementById(deviceKey + 'ActiveBox').style.display = 'flex';
+  };
 
-      if (gasVal !== "--") addChartData(gasChart, gasVal);
-      if (tempVal !== "--") addChartData(tempChart, tempVal);
-      if (humVal !== "--") addChartData(humChart, humVal);
-      if (ldrVal !== "--") addChartData(ldrChart, ldrVal);
+  window.resetDeviceTimer = function(deviceKey) {
+    let dbTimerPath = (deviceKey === 'fan') ? 'fanTimer' : (deviceKey === 'diff') ? 'diffTimer' : 'ledTimer';
+    let dbControlPath = (deviceKey === 'fan') ? 'fanEnabled' : (deviceKey === 'diff') ? 'diffuserEnabled' : 'ledsEnabled';
 
-      handleTimerBoxUI('fan', data.fanRem || 0);
-      handleTimerBoxUI('diff', data.diffRem || 0);
-      handleTimerBoxUI('led', data.ledRem || 0);
-    });
+    set(ref(db, 'timers/' + dbTimerPath), -1);
+    set(ref(db, 'controls/' + dbControlPath), false);
 
-    onValue(ref(db, 'controls'), (snapshot) => {
-      const ctrl = snapshot.val() || {};
-      document.getElementById('fanSwitch').checked = !!ctrl.fanEnabled;
-      document.getElementById('diffuserSwitch').checked = !!ctrl.diffuserEnabled;
-      document.getElementById('ledsSwitch').checked = !!ctrl.ledsEnabled;
-      document.getElementById('bmeSwitch').checked = !!ctrl.bmeEnabled;
-      document.getElementById('gasSwitch').checked = !!ctrl.gasEnabled;
+    let switchId = (deviceKey === 'fan') ? 'fanSwitch' : (deviceKey === 'diff') ? 'diffuserSwitch' : 'ledsSwitch';
+    let switchEl = document.getElementById(switchId);
+    if (switchEl) switchEl.checked = false;
 
-      const isAuto = ctrl.systemMode === 'auto';
-      document.getElementById("modeAuto").classList.toggle("active", isAuto);
-      document.getElementById("modeManual").classList.toggle("active", !isAuto);
-    });
-  }
+    document.getElementById(deviceKey + 'InputsBox').style.display = 'block';
+    document.getElementById(deviceKey + 'ActiveBox').style.display = 'none';
+  };
 
-  function handleTimerBoxUI(type, remSecs) {
-    const inputBx = document.getElementById(`${type}InputsBox`);
-    const activeBx = document.getElementById(`${type}ActiveBox`);
-    const display = document.getElementById(`${type}Countdown`);
-
-    if (remSecs > 0) {
-      inputBx.style.display = "none";
-      activeBx.style.display = "flex";
-      display.textContent = formatTimeDisplay(remSecs);
-    } else {
-      inputBx.style.display = "block";
-      activeBx.style.display = "none";
-      display.textContent = "00:00:00";
-    }
-  }
-
-  window.addEventListener("DOMContentLoaded", () => {
-    const savedUser = localStorage.getItem("silergy_user");
-    if (savedUser && allowedUsers[savedUser]) {
-      showDashboard(savedUser);
+  // الاستماع للتغييرات في Firebase
+  onValue(ref(db, 'sensorData'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      if(data.temperature !== undefined) {
+        document.getElementById('temp').textContent = data.temperature + " °C";
+        document.getElementById('tempGauge').style.width = Math.min(data.temperature, 50) * 2 + "%";
+        addChartData(tempChart, data.temperature);
+      }
+      if(data.humidity !== undefined) {
+        document.getElementById('hum').textContent = data.humidity + " %";
+        document.getElementById('humGauge').style.width = data.humidity + "%";
+        addChartData(humChart, data.humidity);
+      }
+      if(data.gas !== undefined) {
+        document.getElementById('gas').textContent = data.gas + " PPM";
+        document.getElementById('gasGauge').style.width = Math.min(data.gas / 10, 100) + "%";
+        addChartData(gasChart, data.gas);
+      }
+      if(data.ldr !== undefined) {
+        document.getElementById('ldr').textContent = data.ldr;
+        document.getElementById('ldrGauge').style.width = Math.min(data.ldr / 40.95, 100) + "%";
+        addChartData(ldrChart, data.ldr);
+      }
     }
   });
+
+  onValue(ref(db, 'controls'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      if(document.getElementById('fanSwitch')) document.getElementById('fanSwitch').checked = data.fanEnabled || false;
+      if(document.getElementById('diffuserSwitch')) document.getElementById('diffuserSwitch').checked = data.diffuserEnabled || false;
+      if(document.getElementById('ledsSwitch')) document.getElementById('ledsSwitch').checked = data.ledsEnabled || false;
+      if(document.getElementById('bmeSwitch')) document.getElementById('bmeSwitch').checked = data.bmeEnabled || false;
+      if(document.getElementById('gasSwitch')) document.getElementById('gasSwitch').checked = data.gasEnabled || false;
+      
+      if(data.systemMode) {
+        setSystemMode(data.systemMode);
+      }
+    }
+  });
+
+  // التحقق من الجلسة المخزنة عند التحميل
+  const savedUser = localStorage.getItem("silergy_user");
+  if(savedUser && allowedUsers[savedUser]) {
+    document.getElementById("login-screen").style.display = "none";
+    showDashboard(savedUser);
+  }
 </script>
 </body>
 </html>
