@@ -120,16 +120,23 @@ input:checked + .slider:before { content: "ON"; transform: translateX(28px); bac
 .timer-btn { width: 100%; padding: 9px; border: none; border-radius: 8px; background: var(--ee-cyan); color: #030a16; font-weight: 700; cursor: pointer; transition: 0.2s; }
 .timer-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
 
-.timer-active-container { display: none; flex-direction: column; gap: 10px; align-items: center; }
-.countdown-display { width: 100%; padding: 12px; background: rgba(6, 182, 212, 0.12); border: 1.5px solid var(--ee-cyan); border-radius: 10px; text-align: center; font-family: monospace; font-size: 22px; color: var(--ee-cyan); font-weight: bold; box-shadow: 0 0 15px rgba(6,182,212,0.2); letter-spacing: 2px; }
-.timer-actions { display: flex; gap: 8px; width: 100%; }
-.action-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; border: 1px solid transparent; display: flex; align-items: center; justify-content: center; gap: 5px; }
-.pause-btn { background: rgba(245, 158, 11, 0.2); border-color: #f59e0b; color: #f59e0b; }
-.pause-btn:hover { background: #f59e0b; color: #000; }
-.resume-btn { background: rgba(16, 185, 129, 0.2); border-color: var(--leaf-green); color: var(--leaf-green); }
-.resume-btn:hover { background: var(--leaf-green); color: #000; }
-.reset-btn { background: rgba(239, 68, 68, 0.2); border-color: var(--danger-red); color: var(--danger-red); }
-.reset-btn:hover { background: var(--danger-red); color: #fff; }
+/* Active Timer UI Layout */
+.timer-active-container { display: none; flex-direction: column; gap: 12px; align-items: center; width: 100%; padding: 5px 0; }
+.countdown-display { width: 100%; padding: 10px; background: rgba(6, 182, 212, 0.1); border: 1.5px solid var(--ee-cyan); border-radius: 12px; text-align: center; font-family: monospace; font-size: 24px; color: var(--ee-cyan); font-weight: bold; box-shadow: 0 0 15px rgba(6,182,212,0.2); letter-spacing: 2px; }
+
+/* Circular Button Icons */
+.circle-actions { display: flex; gap: 20px; justify-content: center; align-items: center; width: 100%; }
+.circle-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s ease; border: 1.5px solid transparent; background: rgba(255,255,255,0.05); }
+.circle-btn:hover { transform: scale(1.15); }
+
+.circle-btn.pause { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+.circle-btn.pause:hover { background: #f59e0b; color: #000; }
+
+.circle-btn.resume { border-color: var(--leaf-green); color: var(--leaf-green); background: rgba(16, 185, 129, 0.15); box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+.circle-btn.resume:hover { background: var(--leaf-green); color: #000; }
+
+.circle-btn.reset { border-color: var(--danger-red); color: var(--danger-red); background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+.circle-btn.reset:hover { background: var(--danger-red); color: #fff; }
 
 .centered-row { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
 .centered-row .control-card { flex: 1; max-width: 480px; min-width: 300px; }
@@ -238,13 +245,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
               <div class="timer-group"><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
               <div class="timer-group"><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
             </div>
-            <button class="timer-btn" onclick="startDeviceTimer('fanHours','fanMins','fanSecs','fanTimer','fanEnabled','fanState')">ابدأ المؤقت ⏱️</button>
+            <button class="timer-btn" onclick="startDeviceTimer('fanHours','fanMins','fanSecs','fanTimer','fanEnabled','fanInputsBox','fanActiveBox')">ابدأ المؤقت ⏱️</button>
           </div>
           <div id="fanActiveBox" class="timer-active-container">
             <div id="fanCountdown" class="countdown-display">--:--:--</div>
-            <div class="timer-actions">
-              <button id="fanPauseBtn" class="action-btn pause-btn" onclick="togglePauseTimer('fanTimer','fanPauseBtn')">⏸️ إيقاف</button>
-              <button class="action-btn reset-btn" onclick="resetDeviceTimer('fanTimer')">🔄 Reset</button>
+            <div class="circle-actions">
+              <button id="fanPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('fanTimer','fanPauseBtn')">⏸️</button>
+              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('fanTimer','fanInputsBox','fanActiveBox')">🔄</button>
             </div>
           </div>
         </div>
@@ -264,13 +271,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
               <div class="timer-group"><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
               <div class="timer-group"><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
             </div>
-            <button class="timer-btn" onclick="startDeviceTimer('diffHours','diffMins','diffSecs','diffTimer','diffuserEnabled','diffState')">ابدأ المؤقت ⏱️</button>
+            <button class="timer-btn" onclick="startDeviceTimer('diffHours','diffMins','diffSecs','diffTimer','diffuserEnabled','diffInputsBox','diffActiveBox')">ابدأ المؤقت ⏱️</button>
           </div>
           <div id="diffActiveBox" class="timer-active-container">
             <div id="diffCountdown" class="countdown-display">--:--:--</div>
-            <div class="timer-actions">
-              <button id="diffPauseBtn" class="action-btn pause-btn" onclick="togglePauseTimer('diffTimer','diffPauseBtn')">⏸️ إيقاف</button>
-              <button class="action-btn reset-btn" onclick="resetDeviceTimer('diffTimer')">🔄 Reset</button>
+            <div class="circle-actions">
+              <button id="diffPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('diffTimer','diffPauseBtn')">⏸️</button>
+              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('diffTimer','diffInputsBox','diffActiveBox')">🔄</button>
             </div>
           </div>
         </div>
@@ -290,13 +297,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
               <div class="timer-group"><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
               <div class="timer-group"><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
             </div>
-            <button class="timer-btn" onclick="startDeviceTimer('ledHours','ledMins','ledSecs','ledTimer','ledsEnabled','ledState')">ابدأ المؤقت ⏱️</button>
+            <button class="timer-btn" onclick="startDeviceTimer('ledHours','ledMins','ledSecs','ledTimer','ledsEnabled','ledInputsBox','ledActiveBox')">ابدأ المؤقت ⏱️</button>
           </div>
           <div id="ledActiveBox" class="timer-active-container">
             <div id="ledCountdown" class="countdown-display">--:--:--</div>
-            <div class="timer-actions">
-              <button id="ledPauseBtn" class="action-btn pause-btn" onclick="togglePauseTimer('ledTimer','ledPauseBtn')">⏸️ إيقاف</button>
-              <button class="action-btn reset-btn" onclick="resetDeviceTimer('ledTimer')">🔄 Reset</button>
+            <div class="circle-actions">
+              <button id="ledPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('ledTimer','ledPauseBtn')">⏸️</button>
+              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('ledTimer','ledInputsBox','ledActiveBox')">🔄</button>
             </div>
           </div>
         </div>
@@ -397,10 +404,9 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     else { passwordInput.type = "password"; toggleBtn.textContent = "👁️"; }
   }
 
-  /* Prevent toast alerts before login screen is passed */
   function triggerAlert(msg) {
     const dash = document.getElementById("dashboard-screen");
-    if(dash.style.display !== "block") return; // Skip if logged out
+    if(dash.style.display !== "block") return;
     
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div'); toast.className = 'toast'; toast.innerText = msg;
@@ -533,14 +539,18 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     get(controlRef).then((snapshot) => { set(controlRef, !snapshot.val()); });
   };
 
-  /* Enhanced Timer Controls & Dynamic Display Switch */
-  window.startDeviceTimer = function(hId, mId, sId, timerPath, deviceEnabledPath, stateKey) {
+  /* Immediate UI Switch on Start Timer */
+  window.startDeviceTimer = function(hId, mId, sId, timerPath, deviceEnabledPath, inputsBoxId, activeBoxId) {
     let h = parseInt(document.getElementById(hId).value) || 0;
     let m = parseInt(document.getElementById(mId).value) || 0;
     let s = parseInt(document.getElementById(sId).value) || 0;
     let totalSeconds = (h * 3600) + (m * 60) + s;
 
     if(totalSeconds > 0) {
+      // Direct UI Flip
+      document.getElementById(inputsBoxId).style.display = "none";
+      document.getElementById(activeBoxId).style.display = "flex";
+
       timerStates[timerPath].paused = false;
       set(ref(db, '/timers/' + timerPath), totalSeconds);
       set(ref(db, '/timers/' + timerPath + 'State'), 'running');
@@ -550,22 +560,28 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     }
   };
 
+  /* Pause / Resume Button Flip */
   window.togglePauseTimer = function(timerPath, btnId) {
     const btn = document.getElementById(btnId);
     if (!timerStates[timerPath].paused) {
       timerStates[timerPath].paused = true;
       set(ref(db, '/timers/' + timerPath + 'State'), 'paused');
-      btn.innerText = "▶️ استئناف";
-      btn.className = "action-btn resume-btn";
+      btn.innerText = "▶️";
+      btn.className = "circle-btn resume";
     } else {
       timerStates[timerPath].paused = false;
       set(ref(db, '/timers/' + timerPath + 'State'), 'running');
-      btn.innerText = "⏸️ إيقاف";
-      btn.className = "action-btn pause-btn";
+      btn.innerText = "⏸️";
+      btn.className = "circle-btn pause";
     }
   };
 
-  window.resetDeviceTimer = function(timerPath) {
+  /* Reset Button Flip Back to Input Form */
+  window.resetDeviceTimer = function(timerPath, inputsBoxId, activeBoxId) {
+    // Direct UI Reset
+    document.getElementById(inputsBoxId).style.display = "block";
+    document.getElementById(activeBoxId).style.display = "none";
+
     timerStates[timerPath].paused = false;
     set(ref(db, '/timers/' + timerPath), 0);
     set(ref(db, '/timers/' + timerPath + 'State'), 'stopped');
@@ -584,8 +600,8 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
       activeBox.style.display = "none";
       if(pauseBtn) {
         timerStates[timerPath].paused = false;
-        pauseBtn.innerText = "⏸️ إيقاف";
-        pauseBtn.className = "action-btn pause-btn";
+        pauseBtn.innerText = "⏸️";
+        pauseBtn.className = "circle-btn pause";
       }
     }
   }
@@ -646,7 +662,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
       }
       if (data.ledRem !== undefined) {
         document.getElementById("ledCountdown").innerText = formatSeconds(data.ledRem);
-        updateTimerUI("ledInputsBox", "ledActiveBox", data.ledRem, "ledPauseBtn");
+        updateTimerUI("ledInputsBox", "ledActiveBox", data.ledRem, "ledTimer", "ledPauseBtn");
       }
     }
   });
