@@ -562,12 +562,50 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       dash.classList.remove("animate-exit");
       document.getElementById("loginCard").classList.remove("animate-exit");
       document.getElementById("login-screen").style.display = "flex";
+      document.getElementById("usernameInput").value = "";
+      document.getElementById("passwordInput").value = "";
     }, 500);
+  };
+
+  // التحقق من الجلسة
+  const savedUser = localStorage.getItem("silergy_user");
+  if (savedUser && allowedUsers[savedUser]) {
+    document.getElementById("login-screen").style.display = "none";
+    showDashboard(savedUser);
+  }
+
+  // --- إدارات التايمر والأزرار المفتاحية ---
+  const activeTimers = {
+    fan: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'fanEnabled' },
+    diff: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'diffuserEnabled' },
+    led: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'ledsEnabled' }
+  };
+
+  window.toggleControl = function(path) {
+    let elementId = '';
+    let deviceKey = '';
+
+    if (path === 'fanEnabled') { elementId = 'fanSwitch'; deviceKey = 'fan'; }
+    else if (path === 'diffuserEnabled') { elementId = 'diffuserSwitch'; deviceKey = 'diff'; }
+    else if (path === 'ledsEnabled') { elementId = 'ledsSwitch'; deviceKey = 'led'; }
+    else if (path === 'bmeEnabled') { elementId = 'bmeSwitch'; }
+    else if (path === 'gasEnabled') { elementId = 'gasSwitch'; }
+
+    const el = document.getElementById(elementId);
+    if (el) {
+      const isChecked = el.checked;
+      set(ref(db, 'controls/' + path), isChecked);
+
+      // إصلاح المشكلة: إلغاء التايمر وتصفيره فوراً عند إيقاف التشغيل OFF
+      if (!isChecked && deviceKey) {
+        resetDeviceTimer(deviceKey);
+      }
+    }
   };
 
   window.setSystemMode = function(mode) {
     set(ref(db, 'controls/systemMode'), mode);
-    if(mode === 'manual') {
+    if (mode === 'manual') {
       document.getElementById('modeManual').classList.add('active');
       document.getElementById('modeAuto').classList.remove('active');
     } else {
@@ -576,164 +614,128 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     }
   };
 
-  window.toggleControl = function(path) {
-    let elementId = '';
-    if(path === 'fanEnabled') elementId = 'fanSwitch';
-    else if(path === 'diffuserEnabled') elementId = 'diffuserSwitch';
-    else if(path === 'ledsEnabled') elementId = 'ledsSwitch';
-    else if(path === 'bmeEnabled') elementId = 'bmeSwitch';
-    else if(path === 'gasEnabled') elementId = 'gasSwitch';
+  window.startDeviceTimer = function(deviceKey) {
+    let hrs = parseInt(document.getElementById(deviceKey + 'Hours').value) || 0;
+    let mins = parseInt(document.getElementById(deviceKey + 'Mins').value) || 0;
+    let secs = parseInt(document.getElementById(deviceKey + 'Secs').value) || 0;
 
-    const el = document.getElementById(elementId);
-    if(el) {
-      set(ref(db, 'controls/' + path), el.checked);
-    }
-  };
+    let totalSeconds = hrs * 3600 + mins * 60 + secs;
+    if (totalSeconds <= 0) return;
 
-  // ==========================================
-  // ⚡ إدارَة العدادات التنازلية الملساء (Smooth Timers)
-  // ==========================================
-  const activeTimers = {
-    fan: { interval: null, remainingSecs: 0, paused: false },
-    diff: { interval: null, remainingSecs: 0, paused: false },
-    led: { interval: null, remainingSecs: 0, paused: false }
-  };
+    resetDeviceTimer(deviceKey);
 
-  function formatTime(seconds) {
-    let h = Math.floor(seconds / 3600);
-    let m = Math.floor((seconds % 3600) / 60);
-    let s = seconds % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  }
+    activeTimers[deviceKey].remainingSecs = totalSeconds;
+    activeTimers[deviceKey].isPaused = false;
 
-  function startLocalCountdown(deviceKey) {
-    if (activeTimers[deviceKey].interval) clearInterval(activeTimers[deviceKey].interval);
+    // تشغيل الجهاز في القاعدة فوراً
+    set(ref(db, 'controls/' + activeTimers[deviceKey].fbKey), true);
 
-    activeTimers[deviceKey].interval = setInterval(() => {
-      if (!activeTimers[deviceKey].paused) {
-        if (activeTimers[deviceKey].remainingSecs > 0) {
-          activeTimers[deviceKey].remainingSecs--;
-          let countdownEl = document.getElementById(deviceKey + 'Countdown');
-          if (countdownEl) countdownEl.textContent = formatTime(activeTimers[deviceKey].remainingSecs);
-        } else {
-          // التايمر انتهى
-          clearInterval(activeTimers[deviceKey].interval);
+    document.getElementById(deviceKey + 'InputsBox').style.display = 'none';
+    document.getElementById(deviceKey + 'ActiveBox').style.display = 'flex';
+    document.getElementById(deviceKey + 'PauseBtn').textContent = '⏸️';
+
+    updateTimerDisplay(deviceKey);
+
+    activeTimers[deviceKey].timerId = setInterval(() => {
+      if (!activeTimers[deviceKey].isPaused) {
+        activeTimers[deviceKey].remainingSecs--;
+        updateTimerDisplay(deviceKey);
+
+        if (activeTimers[deviceKey].remainingSecs <= 0) {
+          // انتهاء المؤقت -> إيقاف الجهاز
+          set(ref(db, 'controls/' + activeTimers[deviceKey].fbKey), false);
           resetDeviceTimer(deviceKey);
         }
       }
-    }, 1000); // تحديث دقيق كل ثانية كاملة
-  }
-
-  window.startDeviceTimer = function(deviceKey) {
-    let h = parseInt(document.getElementById(deviceKey + 'Hours').value) || 0;
-    let m = parseInt(document.getElementById(deviceKey + 'Mins').value) || 0;
-    let s = parseInt(document.getElementById(deviceKey + 'Secs').value) || 0;
-
-    let totalSeconds = (h * 3600) + (m * 60) + s;
-
-    if (totalSeconds <= 0) {
-      alert("برجاء إدخال وقت صحيح للمؤقت!");
-      return;
-    }
-
-    let dbTimerPath = (deviceKey === 'fan') ? 'fanTimer' : (deviceKey === 'diff') ? 'diffTimer' : 'ledTimer';
-    set(ref(db, 'timers/' + dbTimerPath), totalSeconds);
-
-    let dbControlPath = (deviceKey === 'fan') ? 'fanEnabled' : (deviceKey === 'diff') ? 'diffuserEnabled' : 'ledsEnabled';
-    set(ref(db, 'controls/' + dbControlPath), true);
-
-    let switchId = (deviceKey === 'fan') ? 'fanSwitch' : (deviceKey === 'diff') ? 'diffuserSwitch' : 'ledsSwitch';
-    let switchEl = document.getElementById(switchId);
-    if (switchEl) switchEl.checked = true;
-
-    // بدء العدّ التنازلي المحلي فوراً
-    activeTimers[deviceKey].remainingSecs = totalSeconds;
-    activeTimers[deviceKey].paused = false;
-    document.getElementById(deviceKey + 'Countdown').textContent = formatTime(totalSeconds);
-    
-    document.getElementById(deviceKey + 'InputsBox').style.display = 'none';
-    document.getElementById(deviceKey + 'ActiveBox').style.display = 'flex';
-
-    startLocalCountdown(deviceKey);
+    }, 1000);
   };
 
   window.togglePauseTimer = function(deviceKey, btnId) {
-    activeTimers[deviceKey].paused = !activeTimers[deviceKey].paused;
-    const btn = document.getElementById(btnId);
-    if (activeTimers[deviceKey].paused) {
-      btn.textContent = "▶️";
-    } else {
-      btn.textContent = "⏸️";
-    }
+    if (!activeTimers[deviceKey].timerId) return;
+    activeTimers[deviceKey].isPaused = !activeTimers[deviceKey].isPaused;
+    document.getElementById(btnId).textContent = activeTimers[deviceKey].isPaused ? '▶️' : '⏸️';
   };
 
   window.resetDeviceTimer = function(deviceKey) {
-    if (activeTimers[deviceKey].interval) clearInterval(activeTimers[deviceKey].interval);
+    if (activeTimers[deviceKey].timerId) {
+      clearInterval(activeTimers[deviceKey].timerId);
+      activeTimers[deviceKey].timerId = null;
+    }
     activeTimers[deviceKey].remainingSecs = 0;
-    activeTimers[deviceKey].paused = false;
-
-    let dbTimerPath = (deviceKey === 'fan') ? 'fanTimer' : (deviceKey === 'diff') ? 'diffTimer' : 'ledTimer';
-    let dbControlPath = (deviceKey === 'fan') ? 'fanEnabled' : (deviceKey === 'diff') ? 'diffuserEnabled' : 'ledsEnabled';
-
-    set(ref(db, 'timers/' + dbTimerPath), -1);
-    set(ref(db, 'controls/' + dbControlPath), false);
-
-    let switchId = (deviceKey === 'fan') ? 'fanSwitch' : (deviceKey === 'diff') ? 'diffuserSwitch' : 'ledsSwitch';
-    let switchEl = document.getElementById(switchId);
-    if (switchEl) switchEl.checked = false;
+    activeTimers[deviceKey].isPaused = false;
 
     document.getElementById(deviceKey + 'InputsBox').style.display = 'block';
     document.getElementById(deviceKey + 'ActiveBox').style.display = 'none';
   };
 
-  // الاستماع للتغييرات في Firebase
+  function updateTimerDisplay(deviceKey) {
+    let total = activeTimers[deviceKey].remainingSecs;
+    let h = Math.floor(total / 3600).toString().padStart(2, '0');
+    let m = Math.floor((total % 3600) / 60).toString().padStart(2, '0');
+    let s = (total % 60).toString().padStart(2, '0');
+    document.getElementById(deviceKey + 'Countdown').textContent = `${h}:${m}:${s}`;
+  }
+
+  // الاستماع لقراءات الحساسات
   onValue(ref(db, 'sensorData'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      if(data.temperature !== undefined) {
-        document.getElementById('temp').textContent = data.temperature + " °C";
-        document.getElementById('tempGauge').style.width = Math.min(data.temperature, 50) * 2 + "%";
-        addChartData(tempChart, data.temperature);
+      if (data.temp !== undefined) {
+        document.getElementById('temp').textContent = data.temp + ' °C';
+        document.getElementById('tempGauge').style.width = Math.min((parseFloat(data.temp) / 50) * 100, 100) + '%';
+        document.getElementById('tempGauge').style.backgroundColor = '#f43f5e';
+        addChartData(tempChart, data.temp);
       }
-      if(data.humidity !== undefined) {
-        document.getElementById('hum').textContent = data.humidity + " %";
-        document.getElementById('humGauge').style.width = data.humidity + "%";
+      if (data.humidity !== undefined) {
+        document.getElementById('hum').textContent = data.humidity + ' %';
+        document.getElementById('humGauge').style.width = Math.min(parseFloat(data.humidity), 100) + '%';
+        document.getElementById('humGauge').style.backgroundColor = '#60a5fa';
         addChartData(humChart, data.humidity);
       }
-      if(data.gas !== undefined) {
-        document.getElementById('gas').textContent = data.gas + " PPM";
-        document.getElementById('gasGauge').style.width = Math.min(data.gas / 10, 100) + "%";
+      if (data.gas !== undefined) {
+        document.getElementById('gas').textContent = data.gas;
+        document.getElementById('gasGauge').style.width = Math.min((parseFloat(data.gas) / 1024) * 100, 100) + '%';
+        document.getElementById('gasGauge').style.backgroundColor = '#38bdf8';
         addChartData(gasChart, data.gas);
       }
-      if(data.ldr !== undefined) {
+      if (data.ldr !== undefined) {
         document.getElementById('ldr').textContent = data.ldr;
-        document.getElementById('ldrGauge').style.width = Math.min(data.ldr / 40.95, 100) + "%";
+        document.getElementById('ldrGauge').style.width = Math.min((parseFloat(data.ldr) / 1024) * 100, 100) + '%';
+        document.getElementById('ldrGauge').style.backgroundColor = '#ffc107';
         addChartData(ldrChart, data.ldr);
       }
     }
   });
 
+  // الاستماع لحالة المفاتيح من Firebase
   onValue(ref(db, 'controls'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      if(document.getElementById('fanSwitch')) document.getElementById('fanSwitch').checked = data.fanEnabled || false;
-      if(document.getElementById('diffuserSwitch')) document.getElementById('diffuserSwitch').checked = data.diffuserEnabled || false;
-      if(document.getElementById('ledsSwitch')) document.getElementById('ledsSwitch').checked = data.ledsEnabled || false;
-      if(document.getElementById('bmeSwitch')) document.getElementById('bmeSwitch').checked = data.bmeEnabled || false;
-      if(document.getElementById('gasSwitch')) document.getElementById('gasSwitch').checked = data.gasEnabled || false;
-      
-      if(data.systemMode) {
-        setSystemMode(data.systemMode);
+      const devices = [
+        { switchId: 'fanSwitch', key: 'fan', state: data.fanEnabled },
+        { switchId: 'diffuserSwitch', key: 'diff', state: data.diffuserEnabled },
+        { switchId: 'ledsSwitch', key: 'led', state: data.ledsEnabled }
+      ];
+
+      devices.forEach(dev => {
+        const el = document.getElementById(dev.switchId);
+        if (el) {
+          el.checked = dev.state || false;
+          // إيقاف العداد فوراً إذا تم إغلاق المفتاح يدويًا أو عبر جهاز آخر
+          if (!dev.state && activeTimers[dev.key].remainingSecs > 0) {
+            resetDeviceTimer(dev.key);
+          }
+        }
+      });
+
+      if (document.getElementById('bmeSwitch')) document.getElementById('bmeSwitch').checked = data.bmeEnabled || false;
+      if (document.getElementById('gasSwitch')) document.getElementById('gasSwitch').checked = data.gasEnabled || false;
+
+      if (data.systemMode) {
+        window.setSystemMode(data.systemMode);
       }
     }
   });
-
-  // التحقق من الجلسة المخزنة عند التحميل
-  const savedUser = localStorage.getItem("silergy_user");
-  if(savedUser && allowedUsers[savedUser]) {
-    document.getElementById("login-screen").style.display = "none";
-    showDashboard(savedUser);
-  }
 </script>
 </body>
 </html>
