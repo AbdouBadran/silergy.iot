@@ -322,14 +322,6 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
       </div>
     </div>
 
-    <div class="section-title">📈 التحليل البياني المنفصل للحساسات</div>
-    <div class="charts-grid">
-      <div class="chart-card"><div class="chart-title">Air Quality (جودة الهواء)</div><canvas id="gasChart"></canvas></div>
-      <div class="chart-card"><div class="chart-title">درجة الحرارة (°C)</div><canvas id="tempChart"></canvas></div>
-      <div class="chart-card"><div class="chart-title">الرطوبة (%)</div><canvas id="humChart"></canvas></div>
-      <div class="chart-card"><div class="chart-title">مستوى الإضاءة (LDR)</div><canvas id="ldrChart"></canvas></div>
-    </div>
-
     <footer><div class="author-footer">BY ABDOU BADRAN & OMAR YASSER</div></footer>
   </div>
 </div>
@@ -396,15 +388,6 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     const toggleBtn = document.querySelector(".toggle-password");
     if (passwordInput.type === "password") { passwordInput.type = "text"; toggleBtn.textContent = "🙈"; }
     else { passwordInput.type = "password"; toggleBtn.textContent = "👁️"; }
-  }
-
-  function triggerAlert(msg) {
-    const dash = document.getElementById("dashboard-screen");
-    if(dash.style.display !== "block") return;
-    
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div'); toast.className = 'toast'; toast.innerText = msg;
-    container.appendChild(toast); setTimeout(() => toast.remove(), 5000);
   }
 </script>
 
@@ -498,7 +481,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     set(ref(db, '/controls/' + controlKey), isChecked);
   };
 
-  // --- إدارة المؤقت والربط مع ESP32 ---
+  // --- تشغيل المؤقت وتفادي التأخير ---
   window.startDeviceTimer = function(type) {
     let hrs = parseInt(document.getElementById(type + 'Hours').value) || 0;
     let mins = parseInt(document.getElementById(type + 'Mins').value) || 0;
@@ -508,17 +491,30 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     if (totalSeconds <= 0) return;
 
     let timerPath = (type === 'led' ? 'ledTimer' : type + 'Timer');
+    let remPath = (type === 'led' ? 'ledRem' : type + 'Rem');
     let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
 
+    // إرسال البيانات فوراً للـ Firebase
     set(ref(db, 'timers/' + timerPath), totalSeconds);
+    set(ref(db, 'readings/' + remPath), totalSeconds);
     set(ref(db, 'controls/' + enabledPath), true);
+
+    // إظهار العد التنازلي فوراً في الواجهة
+    let inputsBoxId = type + 'InputsBox';
+    let activeBoxId = type + 'ActiveBox';
+    let countdownId = type + 'Countdown';
+    document.getElementById(inputsBoxId).style.display = 'none';
+    document.getElementById(activeBoxId).style.display = 'flex';
+    document.getElementById(countdownId).innerText = formatTime(totalSeconds);
   };
 
   window.resetDeviceTimer = function(type) {
     let timerPath = (type === 'led' ? 'ledTimer' : type + 'Timer');
+    let remPath = (type === 'led' ? 'ledRem' : type + 'Rem');
     let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
 
     set(ref(db, 'timers/' + timerPath), 0);
+    set(ref(db, 'readings/' + remPath), 0);
     set(ref(db, 'controls/' + enabledPath), false);
 
     document.getElementById(type + 'InputsBox').style.display = 'block';
