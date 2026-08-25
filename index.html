@@ -358,7 +358,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 </div>
 
 <script>
-  // Canvas Background Setup
   const canvas = document.getElementById('eco-canvas');
   const ctx = canvas.getContext('2d');
   function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -460,21 +459,13 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // إعدادات المخططات الرسم البياني
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
     scales: {
-      x: { 
-        grid: { color: 'rgba(255,255,255,0.05)' }, 
-        ticks: { color: '#94a3b8', font: { size: 11 }, maxRotation: 0, minRotation: 0 } 
-      },
-      y: { 
-        min: 0, 
-        grid: { color: 'rgba(255,255,255,0.05)' }, 
-        ticks: { color: '#94a3b8', font: { size: 10 } } 
-      }
+      x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 11 }, maxRotation: 0, minRotation: 0 } },
+      y: { min: 0, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
     },
     elements: { line: { tension: 0.4 } }
   };
@@ -599,7 +590,40 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     }
   };
 
-  // ⏱️ دالة بدء التايمر مع تفعيل المفتاح تلقائياً
+  // ==========================================
+  // ⚡ إدارَة العدادات التنازلية الملساء (Smooth Timers)
+  // ==========================================
+  const activeTimers = {
+    fan: { interval: null, remainingSecs: 0, paused: false },
+    diff: { interval: null, remainingSecs: 0, paused: false },
+    led: { interval: null, remainingSecs: 0, paused: false }
+  };
+
+  function formatTime(seconds) {
+    let h = Math.floor(seconds / 3600);
+    let m = Math.floor((seconds % 3600) / 60);
+    let s = seconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+
+  function startLocalCountdown(deviceKey) {
+    if (activeTimers[deviceKey].interval) clearInterval(activeTimers[deviceKey].interval);
+
+    activeTimers[deviceKey].interval = setInterval(() => {
+      if (!activeTimers[deviceKey].paused) {
+        if (activeTimers[deviceKey].remainingSecs > 0) {
+          activeTimers[deviceKey].remainingSecs--;
+          let countdownEl = document.getElementById(deviceKey + 'Countdown');
+          if (countdownEl) countdownEl.textContent = formatTime(activeTimers[deviceKey].remainingSecs);
+        } else {
+          // التايمر انتهى
+          clearInterval(activeTimers[deviceKey].interval);
+          resetDeviceTimer(deviceKey);
+        }
+      }
+    }, 1000); // تحديث دقيق كل ثانية كاملة
+  }
+
   window.startDeviceTimer = function(deviceKey) {
     let h = parseInt(document.getElementById(deviceKey + 'Hours').value) || 0;
     let m = parseInt(document.getElementById(deviceKey + 'Mins').value) || 0;
@@ -615,7 +639,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     let dbTimerPath = (deviceKey === 'fan') ? 'fanTimer' : (deviceKey === 'diff') ? 'diffTimer' : 'ledTimer';
     set(ref(db, 'timers/' + dbTimerPath), totalSeconds);
 
-    // ⚡ [حل المشكلة] تفعيل المفتاح في Firebase وتحديث الواجهة
     let dbControlPath = (deviceKey === 'fan') ? 'fanEnabled' : (deviceKey === 'diff') ? 'diffuserEnabled' : 'ledsEnabled';
     set(ref(db, 'controls/' + dbControlPath), true);
 
@@ -623,11 +646,32 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     let switchEl = document.getElementById(switchId);
     if (switchEl) switchEl.checked = true;
 
+    // بدء العدّ التنازلي المحلي فوراً
+    activeTimers[deviceKey].remainingSecs = totalSeconds;
+    activeTimers[deviceKey].paused = false;
+    document.getElementById(deviceKey + 'Countdown').textContent = formatTime(totalSeconds);
+    
     document.getElementById(deviceKey + 'InputsBox').style.display = 'none';
     document.getElementById(deviceKey + 'ActiveBox').style.display = 'flex';
+
+    startLocalCountdown(deviceKey);
+  };
+
+  window.togglePauseTimer = function(deviceKey, btnId) {
+    activeTimers[deviceKey].paused = !activeTimers[deviceKey].paused;
+    const btn = document.getElementById(btnId);
+    if (activeTimers[deviceKey].paused) {
+      btn.textContent = "▶️";
+    } else {
+      btn.textContent = "⏸️";
+    }
   };
 
   window.resetDeviceTimer = function(deviceKey) {
+    if (activeTimers[deviceKey].interval) clearInterval(activeTimers[deviceKey].interval);
+    activeTimers[deviceKey].remainingSecs = 0;
+    activeTimers[deviceKey].paused = false;
+
     let dbTimerPath = (deviceKey === 'fan') ? 'fanTimer' : (deviceKey === 'diff') ? 'diffTimer' : 'ledTimer';
     let dbControlPath = (deviceKey === 'fan') ? 'fanEnabled' : (deviceKey === 'diff') ? 'diffuserEnabled' : 'ledsEnabled';
 
