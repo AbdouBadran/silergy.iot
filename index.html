@@ -204,7 +204,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       <h1>SILERGY Control Dashboard</h1>
     </div>
 
-    <!-- 1. الحساسات والقراءات -->
+    <!-- 1. الحساسات والقراءات (أولاً) -->
     <div class="section-title">
       <span>📊 قراءات الحساسات الحية والمؤشرات</span>
     </div>
@@ -231,7 +231,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       </div>
     </div>
 
-    <!-- 2. لوحة التحكم والأجهزة -->
+    <!-- 2. لوحة التحكم والأجهزة (ثانياً) -->
     <div class="section-title">🎛️ لوحة التحكم والأجهزة</div>
     <div class="control-container">
       
@@ -332,7 +332,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       </div>
     </div>
 
-    <!-- 3. المنحنيات البيانية (أصبحت في نهاية الصفحة) -->
+    <!-- 3. المنحنيات البيانية (ثالثاً في الأسفل) -->
     <div class="section-title">📈 المنحنيات البيانية التفاعلية (Real-Time Analytics)</div>
     <div class="charts-grid">
       <div class="chart-card">
@@ -358,7 +358,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 </div>
 
 <script>
-  // Dynamic Background Canvas
+  // Canvas Background Setup
   const canvas = document.getElementById('eco-canvas');
   const ctx = canvas.getContext('2d');
   function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -460,13 +460,21 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+  // إعدادات المخططات الرسم البياني
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
     scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+      x: { 
+        grid: { color: 'rgba(255,255,255,0.05)' }, 
+        ticks: { color: '#94a3b8', font: { size: 11 }, maxRotation: 0, minRotation: 0 } 
+      },
+      y: { 
+        min: 0, 
+        grid: { color: 'rgba(255,255,255,0.05)' }, 
+        ticks: { color: '#94a3b8', font: { size: 10 } } 
+      }
     },
     elements: { line: { tension: 0.4 } }
   };
@@ -483,7 +491,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
           backgroundColor: color.replace('1)', '0.15)'),
           borderWidth: 2,
           fill: true,
-          pointRadius: 2
+          pointRadius: 3
         }]
       },
       options: chartOptions
@@ -495,10 +503,25 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(56, 189, 248, 1)', 'Gas Level'));
   const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(255, 193, 7, 1)', 'Light LDR'));
 
-  function addChartData(chart, label, value) {
-    chart.data.labels.push(label);
-    chart.data.datasets[0].data.push(value);
-    if (chart.data.labels.length > 12) {
+  // إضافة البيانات وتنسيق الوقت لتجنب التكرار التام بالدقائق فقط (HH:mm)
+  function addChartData(chart, rawValue) {
+    const val = parseFloat(rawValue);
+    if (isNaN(val) || val < 0) return;
+
+    // تنسيق الوقت بالدقيقة والساعة فقط دون الثواني ودون نصوص ص/م المزدحمة
+    const now = new Date();
+    const timeLabel = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+    const lastLabel = chart.data.labels[chart.data.labels.length - 1];
+    if (lastLabel === timeLabel) {
+      // تجديد القيمة الأخيرة بدلاً من إدراج وقت مكرر
+      chart.data.datasets[0].data[chart.data.datasets[0].data.length - 1] = val;
+    } else {
+      chart.data.labels.push(timeLabel);
+      chart.data.datasets[0].data.push(val);
+    }
+
+    if (chart.data.labels.length > 8) {
       chart.data.labels.shift();
       chart.data.datasets[0].data.shift();
     }
@@ -512,199 +535,169 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       document.getElementById("errorMsg").style.display = "none";
       localStorage.setItem("silergy_user", user);
       document.getElementById("loginCard").classList.add("animate-exit");
-      setTimeout(() => { document.getElementById("login-screen").style.display = "none"; playWelcomeAnimation(user); }, 500);
-    } else { document.getElementById("errorMsg").style.display = "block"; }
+      setTimeout(() => { 
+        document.getElementById("login-screen").style.display = "none"; 
+        playWelcomeAnimation(user); 
+      }, 500);
+    } else { 
+      document.getElementById("errorMsg").style.display = "block"; 
+    }
   };
 
   function playWelcomeAnimation(username) {
     const overlay = document.getElementById("welcome-overlay");
-    overlay.style.display = "flex"; setTimeout(() => { overlay.style.opacity = "1"; }, 10);
-    setTimeout(() => { overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; showDashboard(username); }, 500); }, 2000);
+    overlay.style.display = "flex"; 
+    setTimeout(() => { overlay.style.opacity = "1"; }, 10);
+    setTimeout(() => { 
+      overlay.style.opacity = "0"; 
+      setTimeout(() => { 
+        overlay.style.display = "none"; 
+        showDashboard(username); 
+      }, 500); 
+    }, 2000);
   }
 
   window.handleLogout = function() {
     const dash = document.getElementById("dashboard-screen");
-    dash.classList.remove("animate-enter"); dash.classList.add("animate-exit");
+    dash.classList.remove("animate-enter"); 
+    dash.classList.add("animate-exit");
     setTimeout(() => {
       localStorage.removeItem("silergy_user");
-      dash.style.display = "none"; dash.classList.remove("animate-exit");
+      dash.style.display = "none"; 
+      dash.classList.remove("animate-exit");
       const loginScreen = document.getElementById("login-screen");
       document.getElementById("loginCard").classList.remove("animate-exit");
       loginScreen.style.display = "flex";
-      document.getElementById("usernameInput").value = ""; document.getElementById("passwordInput").value = "";
+      document.getElementById("usernameInput").value = ""; 
+      document.getElementById("passwordInput").value = "";
     }, 500);
   };
 
   function showDashboard(username) {
     const dash = document.getElementById("dashboard-screen");
     document.getElementById("login-screen").style.display = "none";
-    dash.style.display = "block"; setTimeout(() => { dash.classList.add("animate-enter"); }, 10);
-    document.getElementById("welcomeUserDisplay").innerText = "Welcome " + username;
+    document.getElementById("welcomeUserDisplay").textContent = `Welcome, ${username}`;
+    dash.style.display = "block"; 
+    setTimeout(() => { dash.classList.add("animate-enter"); }, 10);
+    listenToFirebaseData();
   }
 
-  const activeUser = localStorage.getItem("silergy_user");
-  if (activeUser && allowedUsers[activeUser]) showDashboard(activeUser);
-
-  // Sensor Readings
-  onValue(ref(db, 'readings'), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-      if (data.gas !== undefined) {
-        document.getElementById('gas').innerText = data.gas + " ppm";
-        const gasPct = Math.min(100, (data.gas / 1000) * 100);
-        const gasG = document.getElementById('gasGauge');
-        gasG.style.width = gasPct + "%";
-        gasG.style.backgroundColor = gasPct > 50 ? "#ef4444" : "#38bdf8";
-        addChartData(gasChart, now, data.gas);
-      }
-      if (data.temp !== undefined) {
-        document.getElementById('temp').innerText = data.temp.toFixed(1) + " °C";
-        const tempPct = Math.min(100, (data.temp / 50) * 100);
-        const tempG = document.getElementById('tempGauge');
-        tempG.style.width = tempPct + "%";
-        tempG.style.backgroundColor = tempPct > 70 ? "#ef4444" : "#f43f5e";
-        addChartData(tempChart, now, data.temp);
-      }
-      if (data.hum !== undefined) {
-        document.getElementById('hum').innerText = data.hum.toFixed(1) + " %";
-        document.getElementById('humGauge').style.width = Math.min(100, data.hum) + "%";
-        document.getElementById('humGauge').style.backgroundColor = "#60a5fa";
-        addChartData(humChart, now, data.hum);
-      }
-      if (data.ldr !== undefined) {
-        document.getElementById('ldr').innerText = data.ldr;
-        document.getElementById('ldrGauge').style.width = Math.min(100, (data.ldr / 4095) * 100) + "%";
-        document.getElementById('ldrGauge').style.backgroundColor = "#ffc107";
-        addChartData(ldrChart, now, data.ldr);
-      }
+  window.toggleControl = function(path, type) {
+    const state = event.target.checked;
+    set(ref(db, `controls/${path}`), state);
+    if (!state && type) {
+      set(ref(db, `timers/${type}Timer`), -1);
     }
-  });
-
-  // Controls Listener
-  onValue(ref(db, 'controls'), (snapshot) => {
-    const controls = snapshot.val();
-    if (controls) {
-      if (controls.fanEnabled !== undefined) document.getElementById('fanSwitch').checked = controls.fanEnabled;
-      if (controls.diffuserEnabled !== undefined) document.getElementById('diffuserSwitch').checked = controls.diffuserEnabled;
-      if (controls.ledsEnabled !== undefined) document.getElementById('ledsSwitch').checked = controls.ledsEnabled;
-      if (controls.bmeEnabled !== undefined) document.getElementById('bmeSwitch').checked = controls.bmeEnabled;
-      if (controls.gasEnabled !== undefined) document.getElementById('gasSwitch').checked = controls.gasEnabled;
-      if (controls.mode) {
-        document.getElementById('modeManual').classList.toggle('active', controls.mode === 'manual');
-        document.getElementById('modeAuto').classList.toggle('active', controls.mode === 'auto');
-      }
-    }
-  });
+  };
 
   window.setSystemMode = function(mode) {
-    document.getElementById('modeManual').classList.toggle('active', mode === 'manual');
-    document.getElementById('modeAuto').classList.toggle('active', mode === 'auto');
-    set(ref(db, '/controls/mode'), mode);
-  };
-
-  // Timer States
-  let localTimers = {
-    fan: { seconds: 0, interval: null, isPaused: false },
-    diff: { seconds: 0, interval: null, isPaused: false },
-    led: { seconds: 0, interval: null, isPaused: false }
-  };
-
-  // Toggle switch handling with timer auto-reset when turned OFF
-  window.toggleControl = function(controlKey, timerDeviceType) {
-    const elementMap = {
-      'fanEnabled': 'fanSwitch',
-      'diffuserEnabled': 'diffuserSwitch',
-      'ledsEnabled': 'ledsSwitch',
-      'bmeEnabled': 'bmeSwitch',
-      'gasEnabled': 'gasSwitch'
-    };
-    const isChecked = document.getElementById(elementMap[controlKey]).checked;
-    set(ref(db, '/controls/' + controlKey), isChecked);
-
-    // If turned OFF manually, stop and reset timer
-    if (!isChecked && timerDeviceType) {
-      resetDeviceTimer(timerDeviceType);
-    }
+    const isAuto = mode === 'auto';
+    set(ref(db, 'controls/systemMode'), mode);
+    document.getElementById("modeAuto").classList.toggle("active", isAuto);
+    document.getElementById("modeManual").classList.toggle("active", !isAuto);
   };
 
   window.startDeviceTimer = function(type) {
-    let hrs = parseInt(document.getElementById(type + 'Hours').value) || 0;
-    let mins = parseInt(document.getElementById(type + 'Mins').value) || 0;
-    let secs = parseInt(document.getElementById(type + 'Secs').value) || 0;
+    const h = parseInt(document.getElementById(`${type}Hours`).value) || 0;
+    const m = parseInt(document.getElementById(`${type}Mins`).value) || 0;
+    const s = parseInt(document.getElementById(`${type}Secs`).value) || 0;
+    const totalSecs = (h * 3600) + (m * 60) + s;
 
-    let totalSeconds = (hrs * 3600) + (mins * 60) + secs;
-    if (totalSeconds <= 0) return;
-
-    let timerPath = (type === 'led' ? 'ledTimer' : type + 'Timer');
-    let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
-    let switchId = (type === 'fan' ? 'fanSwitch' : (type === 'diff' ? 'diffuserSwitch' : 'ledsSwitch'));
-
-    set(ref(db, '/timers/' + timerPath), totalSeconds);
-    set(ref(db, '/controls/' + enabledPath), true);
-    document.getElementById(switchId).checked = true;
-
-    document.getElementById(type + 'InputsBox').style.display = 'none';
-    document.getElementById(type + 'ActiveBox').style.display = 'flex';
-
-    localTimers[type].seconds = totalSeconds;
-    localTimers[type].isPaused = false;
-    if (localTimers[type].interval) clearInterval(localTimers[type].interval);
-
-    localTimers[type].interval = setInterval(() => {
-      if (!localTimers[type].isPaused) {
-        localTimers[type].seconds--;
-        if (localTimers[type].seconds <= 0) {
-          clearInterval(localTimers[type].interval);
-          localTimers[type].interval = null;
-          document.getElementById(type + 'InputsBox').style.display = 'block';
-          document.getElementById(type + 'ActiveBox').style.display = 'none';
-          set(ref(db, '/controls/' + enabledPath), false);
-          set(ref(db, '/timers/' + timerPath), 0);
-          document.getElementById(switchId).checked = false;
-        } else {
-          updateTimerUI(type);
-        }
-      }
-    }, 1000);
-    updateTimerUI(type);
-  };
-
-  window.togglePauseTimer = function(type, btnId) {
-    localTimers[type].isPaused = !localTimers[type].isPaused;
-    document.getElementById(btnId).innerText = localTimers[type].isPaused ? "▶️" : "⏸️";
+    if (totalSecs > 0) {
+      set(ref(db, `timers/${type}Timer`), totalSecs);
+    }
   };
 
   window.resetDeviceTimer = function(type) {
-    if (localTimers[type].interval) clearInterval(localTimers[type].interval);
-    localTimers[type].interval = null;
-    localTimers[type].seconds = 0;
-    localTimers[type].isPaused = false;
-
-    let timerPath = (type === 'led' ? 'ledTimer' : type + 'Timer');
-    let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
-    let switchId = (type === 'fan' ? 'fanSwitch' : (type === 'diff' ? 'diffuserSwitch' : 'ledsSwitch'));
-
-    set(ref(db, '/controls/' + enabledPath), false);
-    set(ref(db, '/timers/' + timerPath), 0);
-    document.getElementById(switchId).checked = false;
-
-    document.getElementById(type + 'InputsBox').style.display = 'block';
-    document.getElementById(type + 'ActiveBox').style.display = 'none';
-    
-    const pauseBtn = document.getElementById(type + 'PauseBtn');
-    if (pauseBtn) pauseBtn.innerText = "⏸️";
+    set(ref(db, `timers/${type}Timer`), -1);
   };
 
-  function updateTimerUI(type) {
-    let s = localTimers[type].seconds;
-    let h = Math.floor(s / 3600);
-    let m = Math.floor((s % 3600) / 60);
-    let sec = s % 60;
-    let timeStr = String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0') + ":" + String(sec).padStart(2, '0');
-    document.getElementById(type + 'Countdown').innerText = timeStr;
+  function formatTimeDisplay(secs) {
+    if (secs <= 0) return "00:00:00";
+    const h = Math.floor(secs / 3600).toString().padStart(2, '0');
+    const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${s}`;
   }
+
+  function updateGaugeBar(id, val, min, max, color) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (val === "--" || val < 0) {
+      el.style.width = "0%";
+      return;
+    }
+    let pct = ((val - min) / (max - min)) * 100;
+    pct = Math.max(0, Math.min(100, pct));
+    el.style.width = `${pct}%`;
+    el.style.backgroundColor = color;
+  }
+
+  function listenToFirebaseData() {
+    onValue(ref(db, 'readings'), (snapshot) => {
+      const data = snapshot.val() || {};
+
+      const gasVal = (data.gas !== undefined && data.gas >= 0) ? data.gas : "--";
+      const tempVal = (data.temp !== undefined && data.temp >= 0) ? data.temp : "--";
+      const humVal = (data.hum !== undefined && data.hum >= 0) ? data.hum : "--";
+      const ldrVal = (data.ldr !== undefined && data.ldr >= 0) ? data.ldr : "--";
+
+      document.getElementById('gas').textContent = gasVal !== "--" ? `${gasVal} PPM` : "OFF";
+      document.getElementById('temp').textContent = tempVal !== "--" ? `${tempVal} °C` : "OFF";
+      document.getElementById('hum').textContent = humVal !== "--" ? `${humVal} %` : "OFF";
+      document.getElementById('ldr').textContent = ldrVal !== "--" ? `${ldrVal}` : "OFF";
+
+      updateGaugeBar('gasGauge', gasVal, 0, 1000, '#38bdf8');
+      updateGaugeBar('tempGauge', tempVal, 0, 50, '#f43f5e');
+      updateGaugeBar('humGauge', humVal, 0, 100, '#60a5fa');
+      updateGaugeBar('ldrGauge', ldrVal, 0, 4095, '#ffc107');
+
+      if (gasVal !== "--") addChartData(gasChart, gasVal);
+      if (tempVal !== "--") addChartData(tempChart, tempVal);
+      if (humVal !== "--") addChartData(humChart, humVal);
+      if (ldrVal !== "--") addChartData(ldrChart, ldrVal);
+
+      handleTimerBoxUI('fan', data.fanRem || 0);
+      handleTimerBoxUI('diff', data.diffRem || 0);
+      handleTimerBoxUI('led', data.ledRem || 0);
+    });
+
+    onValue(ref(db, 'controls'), (snapshot) => {
+      const ctrl = snapshot.val() || {};
+      document.getElementById('fanSwitch').checked = !!ctrl.fanEnabled;
+      document.getElementById('diffuserSwitch').checked = !!ctrl.diffuserEnabled;
+      document.getElementById('ledsSwitch').checked = !!ctrl.ledsEnabled;
+      document.getElementById('bmeSwitch').checked = !!ctrl.bmeEnabled;
+      document.getElementById('gasSwitch').checked = !!ctrl.gasEnabled;
+
+      const isAuto = ctrl.systemMode === 'auto';
+      document.getElementById("modeAuto").classList.toggle("active", isAuto);
+      document.getElementById("modeManual").classList.toggle("active", !isAuto);
+    });
+  }
+
+  function handleTimerBoxUI(type, remSecs) {
+    const inputBx = document.getElementById(`${type}InputsBox`);
+    const activeBx = document.getElementById(`${type}ActiveBox`);
+    const display = document.getElementById(`${type}Countdown`);
+
+    if (remSecs > 0) {
+      inputBx.style.display = "none";
+      activeBx.style.display = "flex";
+      display.textContent = formatTimeDisplay(remSecs);
+    } else {
+      inputBx.style.display = "block";
+      activeBx.style.display = "none";
+      display.textContent = "00:00:00";
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedUser = localStorage.getItem("silergy_user");
+    if (savedUser && allowedUsers[savedUser]) {
+      showDashboard(savedUser);
+    }
+  });
 </script>
 </body>
 </html>
