@@ -14,11 +14,139 @@
   --ee-cyan: #06b6d4;
   --card-bg: rgba(6, 20, 38, 0.88);
   --border-glow: rgba(16, 185, 129, 0.25);
+  --danger-red: #ef4444;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 body { min-height: 100vh; color: #e2e8f0; background: #020813; position: relative; overflow-x: hidden; padding: 30px 15px; }
 .bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: -1; background: linear-gradient(135deg, rgba(2,8,19,0.95) 0%, rgba(5,26,20,0.92) 100%); overflow: hidden; }
 .sun-glow { position: absolute; top: -50px; right: -50px; width: 320px; height: 320px; background: radial-gradient(circle, rgba(255,193,7,0.3) 0%, rgba(255,152,0,0.1) 60%, transparent 75%); border-radius: 50%; filter: blur(25px); }
+
+/* ==================== Login Page Styles ==================== */
+#login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #020813;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.login-card {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border-glow);
+  border-radius: 24px;
+  padding: 40px 30px;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+.login-title {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--primary-gold), #ffffff, var(--leaf-green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 12px;
+}
+.warning-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  color: var(--primary-gold);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  direction: ltr;
+}
+.warning-badge span { font-size: 16px; }
+.input-group {
+  margin-bottom: 18px;
+  text-align: right;
+}
+.input-group label {
+  display: block;
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.8);
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: 0.3s;
+}
+.input-group input:focus {
+  border-color: var(--leaf-green);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--leaf-green), var(--ee-cyan));
+  color: #020813;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+.login-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.error-msg {
+  color: var(--danger-red);
+  font-size: 13px;
+  margin-top: 12px;
+  display: none;
+  font-weight: 600;
+}
+
+/* ==================== Dashboard Styles ==================== */
+#dashboard-screen { display: none; }
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.user-welcome-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 30px;
+  direction: ltr;
+}
+.user-welcome-text { font-size: 14px; font-weight: 700; color: var(--ee-cyan); }
+.logout-btn {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid var(--danger-red);
+  color: var(--danger-red);
+  padding: 6px 14px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.logout-btn:hover { background: var(--danger-red); color: #fff; }
+
 .container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
 .header { text-align: center; margin-bottom: 30px; }
 h1 { font-size: 34px; font-weight: 800; background: linear-gradient(90deg, #ffc107, #ffffff, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
@@ -62,130 +190,217 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
 </head>
 <body>
 <div class="bg-layer"><div class="sun-glow"></div></div>
-<div class="container">
-  <div class="header">
-    <h1>لوحة التحكم البيئية الذكية للطاقة والزراعة</h1>
-  </div>
 
-  <div class="section-title">📊 قراءات الحساسات الحية والمؤشرات</div>
-  <div class="grid">
-    <div class="card">
-      <div class="card-title">Air Quality (جودة الهواء)</div>
-      <div id="gas" class="card-value" style="color: #38bdf8;">--</div>
-      <div class="gauge-container"><div id="gasGauge" class="gauge-bar"></div></div>
+<!-- ==================== Login Screen ==================== -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-title">Welcome To SILERGY</div>
+    <div class="warning-badge">
+      <span>⚠️</span> Only SILERGY members have access
     </div>
-    <div class="card">
-      <div class="card-title">درجة الحرارة</div>
-      <div id="temp" class="card-value" style="color: #f43f5e;">--</div>
-      <div class="gauge-container"><div id="tempGauge" class="gauge-bar"></div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">الرطوبة</div>
-      <div id="hum" class="card-value" style="color: #60a5fa;">--</div>
-      <div class="gauge-container"><div id="humGauge" class="gauge-bar"></div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">مستوى الإضاءة (LDR)</div>
-      <div id="ldr" class="card-value" style="color: #ffc107;">--</div>
-      <div class="gauge-container"><div id="ldrGauge" class="gauge-bar"></div></div>
-    </div>
-  </div>
-
-  <div class="section-title">🎛️ لوحة التحكم والأجهزة</div>
-  <div class="control-container">
-    <div class="control-card">
-      <h3>🌀 المروحة (Fan)</h3>
-      <div class="switch-row">
-        <span class="switch-label">حالة التشغيل</span>
-        <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
+    
+    <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+      <div class="input-group">
+        <label>اسم المستخدم (Username)</label>
+        <input type="text" id="usernameInput" placeholder="أدخل اسم المستخدم..." required autocomplete="off">
       </div>
-      <div class="timer-box">
-        <div class="timer-inputs">
-          <div class="timer-group"><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
-          <div class="timer-group"><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
-          <div class="timer-group"><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
+      <div class="input-group">
+        <label>كلمة المرور (Password)</label>
+        <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور..." required>
+      </div>
+      <button type="submit" class="login-btn">تسجيل الدخول</button>
+      <div id="errorMsg" class="error-msg">⚠️ اسم المستخدم أو كلمة المرور غير صحيحة!</div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== Dashboard Screen ==================== -->
+<div id="dashboard-screen">
+  <div class="container">
+    
+    <div class="top-bar">
+      <div class="user-welcome-badge">
+        <div class="user-welcome-text" id="welcomeUserDisplay">Welcome, User</div>
+        <button class="logout-btn" onclick="handleLogout()">خروج</button>
+      </div>
+    </div>
+
+    <div class="header">
+      <h1>لوحة التحكم البيئية الذكية للطاقة والزراعة</h1>
+    </div>
+
+    <div class="section-title">📊 قراءات الحساسات الحية والمؤشرات</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Air Quality (جودة الهواء)</div>
+        <div id="gas" class="card-value" style="color: #38bdf8;">--</div>
+        <div class="gauge-container"><div id="gasGauge" class="gauge-bar"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">درجة الحرارة</div>
+        <div id="temp" class="card-value" style="color: #f43f5e;">--</div>
+        <div class="gauge-container"><div id="tempGauge" class="gauge-bar"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">الرطوبة</div>
+        <div id="hum" class="card-value" style="color: #60a5fa;">--</div>
+        <div class="gauge-container"><div id="humGauge" class="gauge-bar"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">مستوى الإضاءة (LDR)</div>
+        <div id="ldr" class="card-value" style="color: #ffc107;">--</div>
+        <div class="gauge-container"><div id="ldrGauge" class="gauge-bar"></div></div>
+      </div>
+    </div>
+
+    <div class="section-title">🎛️ لوحة التحكم والأجهزة</div>
+    <div class="control-container">
+      <div class="control-card">
+        <h3>🌀 المروحة (Fan)</h3>
+        <div class="switch-row">
+          <span class="switch-label">حالة التشغيل</span>
+          <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
         </div>
-        <button class="timer-btn" onclick="setTimer('fanHours','fanMins','fanSecs','fanEnabled')">ابدأ المؤقت</button>
-      </div>
-    </div>
-
-    <div class="control-card">
-      <h3>💨 الفواحة (Diffuser)</h3>
-      <div class="switch-row">
-        <span class="switch-label">حالة التشغيل</span>
-        <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled')"><span class="slider"></span></label>
-      </div>
-      <div class="timer-box">
-        <div class="timer-inputs">
-          <div class="timer-group"><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
-          <div class="timer-group"><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
-          <div class="timer-group"><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
+        <div class="timer-box">
+          <div class="timer-inputs">
+            <div class="timer-group"><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
+            <div class="timer-group"><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
+            <div class="timer-group"><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
+          </div>
+          <button class="timer-btn" onclick="setTimer('fanHours','fanMins','fanSecs','fanTimer')">ابدأ المؤقت</button>
+          <div id="fanCountdown" class="countdown-display">--:--:--</div>
         </div>
-        <button class="timer-btn" onclick="setTimer('diffHours','diffMins','diffSecs','diffuserEnabled')">ابدأ المؤقت</button>
       </div>
-    </div>
 
-    <div class="control-card">
-      <h3>💡 الكشافات (LEDs)</h3>
-      <div class="switch-row">
-        <span class="switch-label">حالة التشغيل</span>
-        <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled')"><span class="slider"></span></label>
-      </div>
-      <div class="timer-box">
-        <div class="timer-inputs">
-          <div class="timer-group"><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
-          <div class="timer-group"><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
-          <div class="timer-group"><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
+      <div class="control-card">
+        <h3>💨 الفواحة (Diffuser)</h3>
+        <div class="switch-row">
+          <span class="switch-label">حالة التشغيل</span>
+          <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled')"><span class="slider"></span></label>
         </div>
-        <button class="timer-btn" onclick="setTimer('ledHours','ledMins','ledSecs','ledsEnabled')">ابدأ المؤقت</button>
+        <div class="timer-box">
+          <div class="timer-inputs">
+            <div class="timer-group"><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
+            <div class="timer-group"><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
+            <div class="timer-group"><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
+          </div>
+          <button class="timer-btn" onclick="setTimer('diffHours','diffMins','diffSecs','diffTimer')">ابدأ المؤقت</button>
+          <div id="diffCountdown" class="countdown-display">--:--:--</div>
+        </div>
+      </div>
+
+      <div class="control-card">
+        <h3>💡 الكشافات (LEDs)</h3>
+        <div class="switch-row">
+          <span class="switch-label">حالة التشغيل</span>
+          <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled')"><span class="slider"></span></label>
+        </div>
+        <div class="timer-box">
+          <div class="timer-inputs">
+            <div class="timer-group"><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
+            <div class="timer-group"><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
+            <div class="timer-group"><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
+          </div>
+          <button class="timer-btn" onclick="setTimer('ledHours','ledMins','ledSecs','ledTimer')">ابدأ المؤقت</button>
+          <div id="ledCountdown" class="countdown-display">--:--:--</div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="centered-row">
-    <div class="control-card">
-      <h3>🌡️ حساس البيئة (BME280)</h3>
-      <div class="switch-row" style="margin-top: 10px;">
-        <span class="switch-label">تشغيل الحساس</span>
-        <label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bmeEnabled')"><span class="slider"></span></label>
+    <div class="centered-row">
+      <div class="control-card">
+        <h3>🌡️ حساس البيئة (BME280)</h3>
+        <div class="switch-row" style="margin-top: 10px;">
+          <span class="switch-label">تشغيل الحساس</span>
+          <label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bmeEnabled')"><span class="slider"></span></label>
+        </div>
+      </div>
+      <div class="control-card">
+        <h3>🎛️ حساس الغاز (Air Quality)</h3>
+        <div class="switch-row" style="margin-top: 10px;">
+          <span class="switch-label">تشغيل الحساس</span>
+          <label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasEnabled')"><span class="slider"></span></label>
+        </div>
       </div>
     </div>
-    <div class="control-card">
-      <h3>🎛️ حساس الغاز (Air Quality)</h3>
-      <div class="switch-row" style="margin-top: 10px;">
-        <span class="switch-label">تشغيل الحساس</span>
-        <label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasEnabled')"><span class="slider"></span></label>
+
+    <div class="section-title">📈 التحليل البياني المنفصل للحساسات</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Air Quality (جودة الهواء)</div>
+        <canvas id="gasChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">درجة الحرارة (°C)</div>
+        <canvas id="tempChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">الرطوبة (%)</div>
+        <canvas id="humChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">مستوى الإضاءة (LDR)</div>
+        <canvas id="ldrChart"></canvas>
       </div>
     </div>
-  </div>
 
-  <div class="section-title">📈 التحليل البياني المنفصل للحساسات</div>
-  <div class="charts-grid">
-    <div class="chart-card">
-      <div class="chart-title">Air Quality (جودة الهواء)</div>
-      <canvas id="gasChart"></canvas>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">درجة الحرارة (°C)</div>
-      <canvas id="tempChart"></canvas>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">الرطوبة (%)</div>
-      <canvas id="humChart"></canvas>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">مستوى الإضاءة (LDR)</div>
-      <canvas id="ldrChart"></canvas>
-    </div>
+    <footer><div class="author-footer">BY ABDOU BADRAN & OMAR YASSER</div></footer>
   </div>
-
-  <footer><div class="author-footer">BY ABDOU BADRAN & OMAR YASSER</div></footer>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+  // ==================== الحسابات المسموح بها ====================
+  const allowedUsers = {
+    "Abdou Badran": "970020002",
+    "Haneen Yasser": "24200242",
+    "Omar Yasser": "omarlabw",
+    "Mohamed Elshabrawy": "mohamedlabw",
+    "Mohammed Fouda": "mohamed33",
+    "Anas Wafa": "anaswafa",
+    "Gamal Rajab": "elsheekhgamal",
+    "Aya Ellaban": "123654789",
+    "Alaa Elshobakey": "123654789",
+    "Mariam Ibrahim": "123654789"
+  };
+
+  window.handleLogin = function() {
+    const user = document.getElementById("usernameInput").value.trim();
+    const pass = document.getElementById("passwordInput").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+
+    if (allowedUsers[user] && allowedUsers[user] === pass) {
+      errorMsg.style.display = "none";
+      localStorage.setItem("silergy_user", user);
+      showDashboard(user);
+    } else {
+      errorMsg.style.display = "block";
+    }
+  };
+
+  window.handleLogout = function() {
+    localStorage.removeItem("silergy_user");
+    document.getElementById("dashboard-screen").style.display = "none";
+    document.getElementById("login-screen").style.display = "flex";
+    document.getElementById("usernameInput").value = "";
+    document.getElementById("passwordInput").value = "";
+  };
+
+  function showDashboard(username) {
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("dashboard-screen").style.display = "block";
+    document.getElementById("welcomeUserDisplay").innerText = "Welcome " + username;
+  }
+
+  // التخزين التلقائي للجلسة عند إعادة التحميل
+  const activeUser = localStorage.getItem("silergy_user");
+  if (activeUser && allowedUsers[activeUser]) {
+    showDashboard(activeUser);
+  }
+
+  // ==================== إعدادات Firebase والرسومات ====================
   const firebaseConfig = {
     apiKey: "AIzaSyBX1PQUhlbiubiQeuY62nN4qjVvMp-NwLI",
     authDomain: "summer-ca623.firebaseapp.com",
@@ -253,7 +468,14 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     else bar.style.backgroundColor = "#ef4444";
   }
 
-  // التغيير التفاعلي للأزرار
+  function formatSeconds(totalSecs) {
+    if (!totalSecs || totalSecs <= 0) return "--:--:--";
+    let h = Math.floor(totalSecs / 3600);
+    let m = Math.floor((totalSecs % 3600) / 60);
+    let s = totalSecs % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
   window.toggleControl = function(path) {
     const controlRef = ref(db, '/controls/' + path);
     get(controlRef).then((snapshot) => {
@@ -262,22 +484,17 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     });
   };
 
-  // التحكم بالمؤقتات
-  window.setTimer = function(hId, mId, sId, targetPath) {
+  window.setTimer = function(hId, mId, sId, timerPath) {
     let h = parseInt(document.getElementById(hId).value) || 0;
     let m = parseInt(document.getElementById(mId).value) || 0;
     let s = parseInt(document.getElementById(sId).value) || 0;
     
     let totalSeconds = (h * 3600) + (m * 60) + s;
     if(totalSeconds > 0) {
-      set(ref(db, '/controls/' + targetPath), true);
-      setTimeout(() => {
-        set(ref(db, '/controls/' + targetPath), false);
-      }, totalSeconds * 1000);
+      set(ref(db, '/timers/' + timerPath), totalSeconds);
     }
   };
 
-  // متابعة حالة المفاتيح والأزرار
   onValue(ref(db, '/controls'), (snapshot) => {
     const data = snapshot.val() || {};
     document.getElementById("gasSwitch").checked = Boolean(data.gasEnabled);
@@ -287,38 +504,43 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     document.getElementById("ledsSwitch").checked = Boolean(data.ledsEnabled);
   });
 
-  // الاستماع لقراءات الحساسات ورسمها
   onValue(ref(db, '/readings'), (snapshot) => {
     const data = snapshot.val();
     const nowStr = new Date().toLocaleTimeString();
 
     if (data) {
-      // قراءة الغاز
       if (data.gas !== undefined) {
         document.getElementById("gas").innerText = data.gas + " ppm";
         setGauge("gasGauge", data.gas, 0, 1000, 0, 300);
         addData(gasChart, nowStr, data.gas);
       }
       
-      // قراءة الحرارة
       if (data.temp !== undefined) {
         document.getElementById("temp").innerText = data.temp + " °C";
         setGauge("tempGauge", data.temp, 10, 50, 22, 28);
         addData(tempChart, nowStr, data.temp);
       }
 
-      // قراءة الرطوبة
       if (data.hum !== undefined) {
         document.getElementById("hum").innerText = data.hum + " %";
         setGauge("humGauge", data.hum, 0, 100, 50, 70);
         addData(humChart, nowStr, data.hum);
       }
 
-      // قراءة LDR
       if (data.ldr !== undefined) {
         document.getElementById("ldr").innerText = data.ldr;
         setGauge("ldrGauge", data.ldr, 0, 4095, 1000, 3000);
         addData(ldrChart, nowStr, data.ldr);
+      }
+
+      if (data.fanRem !== undefined) {
+        document.getElementById("fanCountdown").innerText = formatSeconds(data.fanRem);
+      }
+      if (data.diffRem !== undefined) {
+        document.getElementById("diffCountdown").innerText = formatSeconds(data.diffRem);
+      }
+      if (data.ledRem !== undefined) {
+        document.getElementById("ledCountdown").innerText = formatSeconds(data.ledRem);
       }
     }
   });
