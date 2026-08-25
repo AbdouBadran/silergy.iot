@@ -581,6 +581,12 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     led: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'ledsEnabled' }
   };
 
+  const timerFbKeys = {
+    fan: 'fanTimer',
+    diff: 'diffTimer',
+    led: 'ledTimer'
+  };
+
   window.toggleControl = function(path) {
     let elementId = '';
     let deviceKey = '';
@@ -596,7 +602,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       const isChecked = el.checked;
       set(ref(db, 'controls/' + path), isChecked);
 
-      // إصلاح المشكلة: إلغاء التايمر وتصفيره فوراً عند إيقاف التشغيل OFF
+      // إلغاء التايمر وتصفيره فوراً عند إيقاف التشغيل OFF
       if (!isChecked && deviceKey) {
         resetDeviceTimer(deviceKey);
       }
@@ -627,8 +633,13 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     activeTimers[deviceKey].remainingSecs = totalSeconds;
     activeTimers[deviceKey].isPaused = false;
 
-    // تشغيل الجهاز في القاعدة فوراً
+    // 1. تشغيل الجهاز في القاعدة فوراً
     set(ref(db, 'controls/' + activeTimers[deviceKey].fbKey), true);
+
+    // 2. إرسال الوقت بالثواني إلى ESP32 في مسار timers
+    if (timerFbKeys[deviceKey]) {
+      set(ref(db, 'timers/' + timerFbKeys[deviceKey]), totalSeconds);
+    }
 
     document.getElementById(deviceKey + 'InputsBox').style.display = 'none';
     document.getElementById(deviceKey + 'ActiveBox').style.display = 'flex';
@@ -663,6 +674,11 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     }
     activeTimers[deviceKey].remainingSecs = 0;
     activeTimers[deviceKey].isPaused = false;
+
+    // إلغاء التايمر في ESP32 بإرسال -1
+    if (timerFbKeys[deviceKey]) {
+      set(ref(db, 'timers/' + timerFbKeys[deviceKey]), -1);
+    }
 
     document.getElementById(deviceKey + 'InputsBox').style.display = 'block';
     document.getElementById(deviceKey + 'ActiveBox').style.display = 'none';
@@ -721,7 +737,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         const el = document.getElementById(dev.switchId);
         if (el) {
           el.checked = dev.state || false;
-          // إيقاف العداد فوراً إذا تم إغلاق المفتاح يدويًا أو عبر جهاز آخر
           if (!dev.state && activeTimers[dev.key].remainingSecs > 0) {
             resetDeviceTimer(dev.key);
           }
