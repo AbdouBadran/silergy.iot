@@ -111,7 +111,6 @@ input:checked + .slider:before { content: "ON"; transform: translateX(28px); bac
 .control-card:hover { border-color: var(--border-glow); }
 .control-card h3 { color: #fff; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
 
-/* Dynamic Timer Box UI Upgrade */
 .timer-box { margin-top: 12px; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); }
 .timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; direction: ltr; }
 .timer-group { display: flex; flex-direction: column; align-items: center; }
@@ -120,11 +119,9 @@ input:checked + .slider:before { content: "ON"; transform: translateX(28px); bac
 .timer-btn { width: 100%; padding: 9px; border: none; border-radius: 8px; background: var(--ee-cyan); color: #030a16; font-weight: 700; cursor: pointer; transition: 0.2s; }
 .timer-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
 
-/* Active Timer UI Layout */
 .timer-active-container { display: none; flex-direction: column; gap: 12px; align-items: center; width: 100%; padding: 5px 0; }
 .countdown-display { width: 100%; padding: 10px; background: rgba(6, 182, 212, 0.1); border: 1.5px solid var(--ee-cyan); border-radius: 12px; text-align: center; font-family: monospace; font-size: 24px; color: var(--ee-cyan); font-weight: bold; box-shadow: 0 0 15px rgba(6,182,212,0.2); letter-spacing: 2px; }
 
-/* Circular Button Icons */
 .circle-actions { display: flex; gap: 20px; justify-content: center; align-items: center; width: 100%; }
 .circle-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s ease; border: 1.5px solid transparent; background: rgba(255,255,255,0.05); }
 .circle-btn:hover { transform: scale(1.15); }
@@ -247,7 +244,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
           <div id="fanActiveBox" class="timer-active-container">
             <div id="fanCountdown" class="countdown-display">00:00:00</div>
             <div class="circle-actions">
-              <button id="fanPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('fanTimer','fanPauseBtn')">⏸️</button>
+              <button id="fanPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('fan', 'fanPauseBtn')">⏸️</button>
               <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('fan')">🔄</button>
             </div>
           </div>
@@ -273,7 +270,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
           <div id="diffActiveBox" class="timer-active-container">
             <div id="diffCountdown" class="countdown-display">00:00:00</div>
             <div class="circle-actions">
-              <button id="diffPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('diffTimer','diffPauseBtn')">⏸️</button>
+              <button id="diffPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('diff', 'diffPauseBtn')">⏸️</button>
               <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('diff')">🔄</button>
             </div>
           </div>
@@ -299,7 +296,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
           <div id="ledActiveBox" class="timer-active-container">
             <div id="ledCountdown" class="countdown-display">00:00:00</div>
             <div class="circle-actions">
-              <button id="ledPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('ledTimer','ledPauseBtn')">⏸️</button>
+              <button id="ledPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('led', 'ledPauseBtn')">⏸️</button>
               <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('led')">🔄</button>
             </div>
           </div>
@@ -413,7 +410,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const allowedUsers = {
     "DR Abdullah": "drabdullah",
@@ -508,21 +505,17 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     let secs = parseInt(document.getElementById(type + 'Secs').value) || 0;
 
     let totalSeconds = (hrs * 3600) + (mins * 60) + secs;
-
     if (totalSeconds <= 0) return;
 
-    let timerPath = type + 'Timer';
+    let timerPath = (type === 'led' ? 'ledTimer' : type + 'Timer');
     let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
 
     set(ref(db, 'timers/' + timerPath), totalSeconds);
     set(ref(db, 'controls/' + enabledPath), true);
-
-    document.getElementById(type + 'InputsBox').style.display = 'none';
-    document.getElementById(type + 'ActiveBox').style.display = 'flex';
   };
 
   window.resetDeviceTimer = function(type) {
-    let timerPath = type + 'Timer';
+    let timerPath = (type === 'led' ? 'ledTimer' : type + 'Timer');
     let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
 
     set(ref(db, 'timers/' + timerPath), 0);
@@ -532,25 +525,35 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     document.getElementById(type + 'ActiveBox').style.display = 'none';
   };
 
+  window.togglePauseTimer = function(type, btnId) {
+    const btn = document.getElementById(btnId);
+    let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
+
+    if (btn.innerText === "⏸️") {
+      btn.innerText = "▶️";
+      set(ref(db, 'controls/' + enabledPath), false);
+    } else {
+      btn.innerText = "⏸️";
+      set(ref(db, 'controls/' + enabledPath), true);
+    }
+  };
+
+  function formatTime(totalSecs) {
+    let h = Math.floor(totalSecs / 3600);
+    let m = Math.floor((totalSecs % 3600) / 60);
+    let s = totalSecs % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
   function listenToTimer(type, countdownId, inputsBoxId, activeBoxId) {
-    let remPath = (type === 'led' ? 'ledsRem' : type + 'Rem');
+    let remPath = (type === 'led' ? 'ledRem' : type + 'Rem');
     onValue(ref(db, 'readings/' + remPath), (snapshot) => {
       let remSecs = snapshot.val();
       
       if (remSecs !== null && remSecs > 0) {
         document.getElementById(inputsBoxId).style.display = 'none';
         document.getElementById(activeBoxId).style.display = 'flex';
-
-        let h = Math.floor(remSecs / 3600);
-        let m = Math.floor((remSecs % 3600) / 60);
-        let s = remSecs % 60;
-
-        let formatted = 
-          String(h).padStart(2, '0') + ":" + 
-          String(m).padStart(2, '0') + ":" + 
-          String(s).padStart(2, '0');
-
-        document.getElementById(countdownId).innerText = formatted;
+        document.getElementById(countdownId).innerText = formatTime(remSecs);
       } else {
         document.getElementById(inputsBoxId).style.display = 'block';
         document.getElementById(activeBoxId).style.display = 'none';
@@ -559,79 +562,32 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     });
   }
 
+  // الاستماع المباشر لحالة المفاتيح والقراءات
+  onValue(ref(db, 'controls'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      if (data.fanEnabled !== undefined) document.getElementById('fanSwitch').checked = data.fanEnabled;
+      if (data.diffuserEnabled !== undefined) document.getElementById('diffuserSwitch').checked = data.diffuserEnabled;
+      if (data.ledsEnabled !== undefined) document.getElementById('ledsSwitch').checked = data.ledsEnabled;
+      if (data.bmeEnabled !== undefined) document.getElementById('bmeSwitch').checked = data.bmeEnabled;
+      if (data.gasEnabled !== undefined) document.getElementById('gasSwitch').checked = data.gasEnabled;
+    }
+  });
+
+  onValue(ref(db, 'readings'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      if (data.gas !== undefined) document.getElementById('gas').innerText = data.gas + " ppm";
+      if (data.temp !== undefined) document.getElementById('temp').innerText = data.temp + " °C";
+      if (data.hum !== undefined) document.getElementById('hum').innerText = data.hum + " %";
+      if (data.ldr !== undefined) document.getElementById('ldr').innerText = data.ldr;
+    }
+  });
+
+  // تفعيل الاستماع التنازلي للمؤقتات
   listenToTimer('fan', 'fanCountdown', 'fanInputsBox', 'fanActiveBox');
   listenToTimer('diff', 'diffCountdown', 'diffInputsBox', 'diffActiveBox');
   listenToTimer('led', 'ledCountdown', 'ledInputsBox', 'ledActiveBox');
-
-  // --- تحديث الحساسات والرسومات البيانية ---
-  const maxPoints = 20;
-  function createChart(ctxId, label, color) {
-    return new Chart(document.getElementById(ctxId).getContext('2d'), {
-      type: 'line',
-      data: { labels: [], datasets: [{ label: label, data: [], borderColor: color, backgroundColor: color + '22', fill: true, tension: 0.3, borderWidth: 2 }] },
-      options: { responsive: true, scales: { x: { display: false }, y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.05)' } } }, plugins: { legend: { labels: { color: '#e2e8f0' } } } }
-    });
-  }
-
-  const gasChart = createChart('gasChart', 'Air Quality', '#38bdf8');
-  const tempChart = createChart('tempChart', 'Temperature (C)', '#f43f5e');
-  const humChart = createChart('humChart', 'Humidity (%)', '#60a5fa');
-  const ldrChart = createChart('ldrChart', 'LDR Level', '#ffc107');
-
-  function addData(chart, label, data) {
-    if (chart.data.labels.length >= maxPoints) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
-    chart.data.labels.push(label); chart.data.datasets[0].data.push(data); chart.update();
-  }
-
-  function setGauge(elementId, val, min, max) {
-    let bar = document.getElementById(elementId);
-    if (!bar || isNaN(val) || val === null) return;
-    let pct = Math.min(Math.max(((val - min) / (max - min)) * 100, 0), 100);
-    bar.style.width = pct + "%";
-    bar.style.backgroundColor = pct > 75 ? "#ef4444" : pct > 50 ? "#ff9800" : "#10b981";
-  }
-
-  // الاستماع لقراءات الحساسات من Firebase
-  onValue(ref(db, 'readings'), (snapshot) => {
-    const data = snapshot.val() || {};
-    const now = new Date().toLocaleTimeString();
-
-    if (data.gas !== undefined) {
-      document.getElementById('gas').innerText = data.gas;
-      setGauge('gasGauge', data.gas, 0, 1000);
-      addData(gasChart, now, data.gas);
-    }
-    if (data.temp !== undefined) {
-      document.getElementById('temp').innerText = data.temp + " °C";
-      setGauge('tempGauge', data.temp, 0, 50);
-      addData(tempChart, now, data.temp);
-    }
-    if (data.hum !== undefined) {
-      document.getElementById('hum').innerText = data.hum + " %";
-      setGauge('humGauge', data.hum, 0, 100);
-      addData(humChart, now, data.hum);
-    }
-    if (data.ldr !== undefined) {
-      document.getElementById('ldr').innerText = data.ldr;
-      setGauge('ldrGauge', data.ldr, 0, 4095);
-      addData(ldrChart, now, data.ldr);
-    }
-  });
-
-  // الاستماع لحالة المفاتيح (Controls)
-  onValue(ref(db, 'controls'), (snapshot) => {
-    const controls = snapshot.val() || {};
-    if (controls.fanEnabled !== undefined) document.getElementById('fanSwitch').checked = controls.fanEnabled;
-    if (controls.diffuserEnabled !== undefined) document.getElementById('diffuserSwitch').checked = controls.diffuserEnabled;
-    if (controls.ledsEnabled !== undefined) document.getElementById('ledsSwitch').checked = controls.ledsEnabled;
-    if (controls.bmeEnabled !== undefined) document.getElementById('bmeSwitch').checked = controls.bmeEnabled;
-    if (controls.gasEnabled !== undefined) document.getElementById('gasSwitch').checked = controls.gasEnabled;
-    if (controls.mode) {
-      document.getElementById('modeManual').classList.toggle('active', controls.mode === 'manual');
-      document.getElementById('modeAuto').classList.toggle('active', controls.mode === 'auto');
-    }
-  });
-
 </script>
 </body>
 </html>
