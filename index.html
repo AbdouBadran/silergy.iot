@@ -23,12 +23,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', 'Plus Jakarta Sans', sans-serif; }
 body { min-height: 100vh; color: #f8fafc; background: var(--bg-dark); position: relative; overflow-x: hidden; padding-bottom: 40px; }
 
-/* Dynamic Animated Background Canvas */
 #eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
 .bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: -2; background: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, rgba(2, 6, 23, 0.98) 70%); }
 .sun-glow { position: absolute; top: -100px; right: -100px; width: 450px; height: 450px; background: radial-gradient(circle, var(--dynamic-accent) 0%, transparent 70%); border-radius: 50%; filter: blur(60px); opacity: 0.35; transition: all 1s ease; }
 
-/* Sticky Ultra-Glass Navbar */
 .sticky-navbar {
   position: sticky; top: 0; left: 0; width: 100%; z-index: 1000;
   background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(20px) saturate(180%);
@@ -47,7 +45,6 @@ body { min-height: 100vh; color: #f8fafc; background: var(--bg-dark); position: 
 .logout-btn { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger-red); color: var(--danger-red); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
 .logout-btn:hover { background: var(--danger-red); color: #fff; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
 
-/* Login Screen - Cyberpunk Style */
 #login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 1; transition: opacity 0.5s ease; }
 .login-card {
   background: var(--card-bg); border: 1.5px solid var(--border-glow); border-radius: 28px; padding: 45px 35px; width: 100%; max-width: 440px; text-align: center; backdrop-filter: blur(24px) saturate(180%); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
@@ -73,13 +70,12 @@ body { min-height: 100vh; color: #f8fafc; background: var(--bg-dark); position: 
 
 .forgot-btn { background: transparent; border: none; color: #94a3b8; font-size: 13px; font-weight: 700; margin-top: 18px; cursor: pointer; transition: 0.2s; text-decoration: underline; display: inline-block; direction: ltr; }
 .forgot-btn:hover { color: var(--primary-gold); }
-.troll-msg { display: none; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; font-size: 13px; font-weight: 700; padding: 12px; border-radius: 12px; margin-top: 14px; direction: ltr; line-height: 1.5; animation: fadeIn 0.3s ease; }
+.troll-msg { display: none; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; font-size: 13px; font-weight: 700; padding: 12px; border-radius: 12px; margin-top: 14px; direction: ltr; line-height: 1.5; }
 
 #welcome-overlay { position: fixed; inset: 0; z-index: 10000; background: var(--bg-dark); display: none; align-items: center; justify-content: center; flex-direction: column; opacity: 0; transition: opacity 0.5s ease; }
 .welcome-anim-text { font-size: 42px; font-weight: 900; background: linear-gradient(90deg, var(--primary-gold), var(--ee-cyan), var(--leaf-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulseScale 1.5s infinite ease-in-out; text-align: center; padding: 0 20px; }
 @keyframes pulseScale { 0%, 100% { transform: scale(0.98); filter: drop-shadow(0 0 15px rgba(6,182,212,0.4)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(16,185,129,0.7)); } }
 
-/* Main Dashboard UI */
 #dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease; }
 #dashboard-screen.animate-enter { opacity: 1; }
 #dashboard-screen.animate-exit { animation: dashExit 0.5s ease forwards; }
@@ -91,7 +87,6 @@ h1 { font-size: 38px; font-weight: 900; background: linear-gradient(90deg, #ffc1
 .section-title { font-size: 20px; font-weight: 800; color: var(--leaf-green); margin: 35px 0 20px 0; border-bottom: 1.5px solid rgba(16, 185, 129, 0.2); padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; margin-bottom: 25px; }
 
-/* Futuristic Glowing Cards */
 .card { background: var(--card-bg); border: 1px solid var(--border-glow); border-radius: 24px; padding: 28px 22px; text-align: center; backdrop-filter: blur(16px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 .card:hover { transform: translateY(-8px); border-color: var(--ee-cyan); box-shadow: 0 20px 40px rgba(6, 182, 212, 0.25); }
 .card-title { font-size: 14px; color: #94a3b8; font-weight: 700; margin-bottom: 10px; }
@@ -99,7 +94,11 @@ h1 { font-size: 38px; font-weight: 900; background: linear-gradient(90deg, #ffc1
 .gauge-container { width: 100%; background: rgba(255,255,255,0.06); height: 8px; border-radius: 6px; overflow: hidden; position: relative; margin-top: 10px; }
 .gauge-bar { height: 100%; width: 0%; transition: width 0.6s ease, background-color 0.6s ease; border-radius: 6px; }
 
-/* Modern Switches & Controls */
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(48%, 1fr)); gap: 22px; margin-top: 25px; }
+.chart-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 22px; backdrop-filter: blur(16px); position: relative; height: 320px; display: flex; flex-direction: column; }
+.chart-card h4 { font-size: 16px; color: #e2e8f0; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.chart-wrapper { position: relative; flex: 1; width: 100%; height: 100%; }
+
 .switch-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05); }
 .switch-label { font-size: 15px; font-weight: 700; color: #e2e8f0; }
 .switch { position: relative; display: inline-block; width: 64px; height: 32px; }
@@ -114,7 +113,6 @@ input:checked + .slider:before { content: "ON"; transform: translateX(28px); bac
 .control-card:hover { border-color: var(--border-glow); }
 .control-card h3 { color: #fff; font-size: 19px; font-weight: 800; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; }
 
-/* Dynamic Timer Box */
 .timer-box { margin-top: 14px; background: rgba(2, 6, 23, 0.4); padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); }
 .timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; direction: ltr; }
 .timer-group { display: flex; flex-direction: column; align-items: center; }
@@ -232,6 +230,27 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       </div>
     </div>
 
+    <!-- Live Charts Section -->
+    <div class="section-title">📈 المنحنيات البيانية التفاعلية (Real-Time Analytics)</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h4>🌡️ تغير درجة الحرارة (°C)</h4>
+        <div class="chart-wrapper"><canvas id="tempChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>💧 تغير مستوى الرطوبة (%)</h4>
+        <div class="chart-wrapper"><canvas id="humChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>🍃 جودة الهواء (MQ-135)</h4>
+        <div class="chart-wrapper"><canvas id="gasChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>☀️ إضاءة المكان (LDR)</h4>
+        <div class="chart-wrapper"><canvas id="ldrChart"></canvas></div>
+      </div>
+    </div>
+
     <div class="section-title">🎛️ لوحة التحكم والأجهزة</div>
     <div class="control-container">
       
@@ -240,7 +259,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         <h3>🌀 المروحة (Fan)</h3>
         <div class="switch-row">
           <span class="switch-label">حالة التشغيل</span>
-          <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
+          <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled', 'fan')"><span class="slider"></span></label>
         </div>
         <div class="timer-box">
           <div id="fanInputsBox">
@@ -266,7 +285,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         <h3>💨 الفواحة (Diffuser)</h3>
         <div class="switch-row">
           <span class="switch-label">حالة التشغيل</span>
-          <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled')"><span class="slider"></span></label>
+          <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled', 'diff')"><span class="slider"></span></label>
         </div>
         <div class="timer-box">
           <div id="diffInputsBox">
@@ -292,7 +311,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         <h3>💡 الكشافات (LEDs)</h3>
         <div class="switch-row">
           <span class="switch-label">حالة التشغيل</span>
-          <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled')"><span class="slider"></span></label>
+          <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled', 'led')"><span class="slider"></span></label>
         </div>
         <div class="timer-box">
           <div id="ledInputsBox">
@@ -337,7 +356,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 </div>
 
 <script>
-  // High-Performance Dynamic Background Canvas
+  // Dynamic Background Canvas
   const canvas = document.getElementById('eco-canvas');
   const ctx = canvas.getContext('2d');
   function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -439,6 +458,51 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+    },
+    elements: { line: { tension: 0.4 } }
+  };
+
+  function createChartConfig(color, label) {
+    return {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: label,
+          data: [],
+          borderColor: color,
+          backgroundColor: color.replace('1)', '0.15)'),
+          borderWidth: 2,
+          fill: true,
+          pointRadius: 2
+        }]
+      },
+      options: chartOptions
+    };
+  }
+
+  const tempChart = new Chart(document.getElementById('tempChart'), createChartConfig('rgba(244, 63, 94, 1)', 'Temperature'));
+  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(96, 165, 250, 1)', 'Humidity'));
+  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(56, 189, 248, 1)', 'Gas Level'));
+  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(255, 193, 7, 1)', 'Light LDR'));
+
+  function addChartData(chart, label, value) {
+    chart.data.labels.push(label);
+    chart.data.datasets[0].data.push(value);
+    if (chart.data.labels.length > 12) {
+      chart.data.labels.shift();
+      chart.data.datasets[0].data.shift();
+    }
+    chart.update('quiet');
+  }
+
   window.handleLogin = function() {
     const user = document.getElementById("usernameInput").value.trim();
     const pass = document.getElementById("passwordInput").value.trim();
@@ -479,16 +543,19 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   const activeUser = localStorage.getItem("silergy_user");
   if (activeUser && allowedUsers[activeUser]) showDashboard(activeUser);
 
-  // --- Real-time Sensor Readings ---
+  // Sensor Readings
   onValue(ref(db, 'readings'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
       if (data.gas !== undefined) {
         document.getElementById('gas').innerText = data.gas + " ppm";
         const gasPct = Math.min(100, (data.gas / 1000) * 100);
         const gasG = document.getElementById('gasGauge');
         gasG.style.width = gasPct + "%";
         gasG.style.backgroundColor = gasPct > 50 ? "#ef4444" : "#38bdf8";
+        addChartData(gasChart, now, data.gas);
       }
       if (data.temp !== undefined) {
         document.getElementById('temp').innerText = data.temp.toFixed(1) + " °C";
@@ -496,27 +563,30 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         const tempG = document.getElementById('tempGauge');
         tempG.style.width = tempPct + "%";
         tempG.style.backgroundColor = tempPct > 70 ? "#ef4444" : "#f43f5e";
+        addChartData(tempChart, now, data.temp);
       }
       if (data.hum !== undefined) {
         document.getElementById('hum').innerText = data.hum.toFixed(1) + " %";
         document.getElementById('humGauge').style.width = Math.min(100, data.hum) + "%";
         document.getElementById('humGauge').style.backgroundColor = "#60a5fa";
+        addChartData(humChart, now, data.hum);
       }
       if (data.ldr !== undefined) {
         document.getElementById('ldr').innerText = data.ldr;
         document.getElementById('ldrGauge').style.width = Math.min(100, (data.ldr / 4095) * 100) + "%";
         document.getElementById('ldrGauge').style.backgroundColor = "#ffc107";
+        addChartData(ldrChart, now, data.ldr);
       }
     }
   });
 
-  // --- Listen to Control Changes ---
+  // Controls Listener
   onValue(ref(db, 'controls'), (snapshot) => {
     const controls = snapshot.val();
     if (controls) {
-      if (controls.fanEnabled !== undefined && !localTimers.fan.interval) document.getElementById('fanSwitch').checked = controls.fanEnabled;
-      if (controls.diffuserEnabled !== undefined && !localTimers.diff.interval) document.getElementById('diffuserSwitch').checked = controls.diffuserEnabled;
-      if (controls.ledsEnabled !== undefined && !localTimers.led.interval) document.getElementById('ledsSwitch').checked = controls.ledsEnabled;
+      if (controls.fanEnabled !== undefined) document.getElementById('fanSwitch').checked = controls.fanEnabled;
+      if (controls.diffuserEnabled !== undefined) document.getElementById('diffuserSwitch').checked = controls.diffuserEnabled;
+      if (controls.ledsEnabled !== undefined) document.getElementById('ledsSwitch').checked = controls.ledsEnabled;
       if (controls.bmeEnabled !== undefined) document.getElementById('bmeSwitch').checked = controls.bmeEnabled;
       if (controls.gasEnabled !== undefined) document.getElementById('gasSwitch').checked = controls.gasEnabled;
       if (controls.mode) {
@@ -532,7 +602,15 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     set(ref(db, '/controls/mode'), mode);
   };
 
-  window.toggleControl = function(controlKey) {
+  // Timer States
+  let localTimers = {
+    fan: { seconds: 0, interval: null, isPaused: false },
+    diff: { seconds: 0, interval: null, isPaused: false },
+    led: { seconds: 0, interval: null, isPaused: false }
+  };
+
+  // Toggle switch handling with timer auto-reset when turned OFF
+  window.toggleControl = function(controlKey, timerDeviceType) {
     const elementMap = {
       'fanEnabled': 'fanSwitch',
       'diffuserEnabled': 'diffuserSwitch',
@@ -542,12 +620,11 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     };
     const isChecked = document.getElementById(elementMap[controlKey]).checked;
     set(ref(db, '/controls/' + controlKey), isChecked);
-  };
 
-  let localTimers = {
-    fan: { seconds: 0, interval: null, isPaused: false },
-    diff: { seconds: 0, interval: null, isPaused: false },
-    led: { seconds: 0, interval: null, isPaused: false }
+    // If turned OFF manually, stop and reset timer
+    if (!isChecked && timerDeviceType) {
+      resetDeviceTimer(timerDeviceType);
+    }
   };
 
   window.startDeviceTimer = function(type) {
@@ -582,6 +659,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
           document.getElementById(type + 'InputsBox').style.display = 'block';
           document.getElementById(type + 'ActiveBox').style.display = 'none';
           set(ref(db, '/controls/' + enabledPath), false);
+          set(ref(db, '/timers/' + timerPath), 0);
           document.getElementById(switchId).checked = false;
         } else {
           updateTimerUI(type);
@@ -600,15 +678,22 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     if (localTimers[type].interval) clearInterval(localTimers[type].interval);
     localTimers[type].interval = null;
     localTimers[type].seconds = 0;
-    
+    localTimers[type].isPaused = false;
+
+    let timerPath = (type === 'led' ? 'ledTimer' : type + 'Timer');
     let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
     let switchId = (type === 'fan' ? 'fanSwitch' : (type === 'diff' ? 'diffuserSwitch' : 'ledsSwitch'));
 
     set(ref(db, '/controls/' + enabledPath), false);
+    set(ref(db, '/timers/' + timerPath), 0);
     document.getElementById(switchId).checked = false;
 
     document.getElementById(type + 'InputsBox').style.display = 'block';
     document.getElementById(type + 'ActiveBox').style.display = 'none';
+    
+    // Reset pause button state icon
+    const pauseBtn = document.getElementById(type + 'PauseBtn');
+    if (pauseBtn) pauseBtn.innerText = "⏸️";
   };
 
   function updateTimerUI(type) {
