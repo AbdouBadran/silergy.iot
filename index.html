@@ -456,7 +456,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   const activeUser = localStorage.getItem("silergy_user");
   if (activeUser && allowedUsers[activeUser]) showDashboard(activeUser);
 
-  // --- استماع لقراءات الحساسات وتحديث الـ UI ---
+  // --- قراءات الحساسات ---
   onValue(ref(db, 'readings'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -479,13 +479,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     }
   });
 
-  // --- استماع لحالات الأجهزة وتحديث مفاتيح التبديل ---
+  // --- استماع حالة التحكم من Firebase مع الحفاظ على التايمر الشغال ---
   onValue(ref(db, 'controls'), (snapshot) => {
     const controls = snapshot.val();
     if (controls) {
-      if (controls.fanEnabled !== undefined) document.getElementById('fanSwitch').checked = controls.fanEnabled;
-      if (controls.diffuserEnabled !== undefined) document.getElementById('diffuserSwitch').checked = controls.diffuserEnabled;
-      if (controls.ledsEnabled !== undefined) document.getElementById('ledsSwitch').checked = controls.ledsEnabled;
+      if (controls.fanEnabled !== undefined && !localTimers.fan.interval) document.getElementById('fanSwitch').checked = controls.fanEnabled;
+      if (controls.diffuserEnabled !== undefined && !localTimers.diff.interval) document.getElementById('diffuserSwitch').checked = controls.diffuserEnabled;
+      if (controls.ledsEnabled !== undefined && !localTimers.led.interval) document.getElementById('ledsSwitch').checked = controls.ledsEnabled;
       if (controls.bmeEnabled !== undefined) document.getElementById('bmeSwitch').checked = controls.bmeEnabled;
       if (controls.gasEnabled !== undefined) document.getElementById('gasSwitch').checked = controls.gasEnabled;
       if (controls.mode) {
@@ -513,7 +513,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     set(ref(db, '/controls/' + controlKey), isChecked);
   };
 
-  // --- إدارة المؤقت لتفادي التعارض مع ESP32 ---
+  // --- التايمر المعالج ذكياً ---
   let localTimers = {
     fan: { seconds: 0, interval: null, isPaused: false },
     diff: { seconds: 0, interval: null, isPaused: false },
@@ -530,12 +530,14 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
 
     let timerPath = (type === 'led' ? 'ledTimer' : type + 'Timer');
     let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
+    let switchId = (type === 'fan' ? 'fanSwitch' : (type === 'diff' ? 'diffuserSwitch' : 'ledsSwitch'));
 
-    // 1. إرسال القيمة لـ ESP32 والأمر للتشغيل
+    // 1. تفعيل المفتاح تلقائياً وإرسال الحالة لـ Firebase والـ ESP32
+    document.getElementById(switchId).checked = true;
     set(ref(db, 'timers/' + timerPath), totalSeconds);
     set(ref(db, 'controls/' + enabledPath), true);
 
-    // 2. تفعيل العد التنازلي المباشر على المتصفح
+    // 2. تفعيل العد التنازلي للموقع
     localTimers[type].seconds = totalSeconds;
     localTimers[type].isPaused = false;
     
@@ -549,6 +551,10 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     localTimers[type].interval = setInterval(() => {
       if (!localTimers[type].isPaused) {
         localTimers[type].seconds--;
+        
+        // مزامنة الثواني المتبقية مع Firebase ليراها الـ ESP32
+        set(ref(db, 'timers/' + timerPath), localTimers[type].seconds);
+
         if (localTimers[type].seconds <= 0) {
           clearInterval(localTimers[type].interval);
           resetDeviceTimer(type);
@@ -562,11 +568,15 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   window.resetDeviceTimer = function(type) {
     let timerPath = (type === 'led' ? 'ledTimer' : type + 'Timer');
     let enabledPath = (type === 'fan' ? 'fanEnabled' : (type === 'diff' ? 'diffuserEnabled' : 'ledsEnabled'));
+    let switchId = (type === 'fan' ? 'fanSwitch' : (type === 'diff' ? 'diffuserSwitch' : 'ledsSwitch'));
 
     if (localTimers[type].interval) clearInterval(localTimers[type].interval);
+    localTimers[type].interval = null;
     localTimers[type].seconds = 0;
     localTimers[type].isPaused = false;
 
+    // إيقاف التشغيل وإعادة المفتاح OFF
+    document.getElementById(switchId).checked = false;
     set(ref(db, 'timers/' + timerPath), 0);
     set(ref(db, 'controls/' + enabledPath), false);
 
