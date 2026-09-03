@@ -458,6 +458,9 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+  let currentSystemMode = 'manual';
+  let latestTemp = null;
+
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -614,7 +617,18 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     }
   };
 
+  function checkAutoLogic() {
+    if (currentSystemMode === 'auto' && latestTemp !== null) {
+      if (latestTemp > 31) {
+        set(ref(db, 'controls/fanEnabled'), true);
+      } else {
+        set(ref(db, 'controls/fanEnabled'), false);
+      }
+    }
+  }
+
   window.setSystemMode = function(mode) {
+    currentSystemMode = mode;
     set(ref(db, 'controls/systemMode'), mode);
     if (mode === 'manual') {
       document.getElementById('modeManual').classList.add('active');
@@ -622,6 +636,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     } else {
       document.getElementById('modeAuto').classList.add('active');
       document.getElementById('modeManual').classList.remove('active');
+      checkAutoLogic();
     }
   };
 
@@ -698,10 +713,12 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     const data = snapshot.val();
     if (data) {
       if (data.temp !== undefined) {
+        latestTemp = parseFloat(data.temp);
         document.getElementById('temp').textContent = data.temp + ' °C';
-        document.getElementById('tempGauge').style.width = Math.min((parseFloat(data.temp) / 50) * 100, 100) + '%';
+        document.getElementById('tempGauge').style.width = Math.min((latestTemp / 50) * 100, 100) + '%';
         document.getElementById('tempGauge').style.backgroundColor = '#f43f5e';
         addChartData(tempChart, data.temp);
+        checkAutoLogic();
       }
       if (data.humidity !== undefined) {
         document.getElementById('hum').textContent = data.humidity + ' %';
@@ -748,7 +765,15 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       if (document.getElementById('gasSwitch')) document.getElementById('gasSwitch').checked = data.gasEnabled || false;
 
       if (data.systemMode) {
-        window.setSystemMode(data.systemMode);
+        currentSystemMode = data.systemMode;
+        if (data.systemMode === 'manual') {
+          document.getElementById('modeManual').classList.add('active');
+          document.getElementById('modeAuto').classList.remove('active');
+        } else {
+          document.getElementById('modeAuto').classList.add('active');
+          document.getElementById('modeManual').classList.remove('active');
+          checkAutoLogic();
+        }
       }
     }
   });
