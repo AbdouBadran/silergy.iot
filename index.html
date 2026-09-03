@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
 
 <style>
+/* ... جميع أكواد الـ CSS الأصلية كما هي بدون تغيير ... */
 :root {
   --primary-gold: #ffc107;
   --solar-orange: #ff9800;
@@ -140,6 +141,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 </style>
 </head>
 <body>
+<!-- ... أكواد HTML المتبقية (رسم الخلفيات وشاشة تسجيل الدخول والواجهة) كما هي تماماً في مصدرك ... -->
 <canvas id="eco-canvas"></canvas>
 <div class="bg-layer"><div class="sun-glow"></div></div>
 
@@ -357,6 +359,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 </div>
 
 <script>
+  // ... أكواد الأنيميشن والتسجيل (SilkWorm, ElectricPulse) كما هي ...
   const canvas = document.getElementById('eco-canvas');
   const ctx = canvas.getContext('2d');
   function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -458,8 +461,9 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  let currentSystemMode = 'manual';
-  let latestTemp = null;
+  // ✅ [تعديل جديد] - إضافة متغيرات لحفظ حالة النظام محلياً لسهولة التحكم[cite: 6]
+  let currentSystemMode = 'manual'; // الوضع الافتراضي
+  let currentFanStatus = false;     // حالة المروحة الحالية
 
   const chartOptions = {
     responsive: true,
@@ -583,7 +587,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     showDashboard(savedUser);
   }
 
-  // --- إدارات التايمر والأزرار المفتاحية ---
   const activeTimers = {
     fan: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'fanEnabled' },
     diff: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'diffuserEnabled' },
@@ -600,7 +603,16 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     let elementId = '';
     let deviceKey = '';
 
-    if (path === 'fanEnabled') { elementId = 'fanSwitch'; deviceKey = 'fan'; }
+    // ✅ [تعديل جديد] - منع التحكم اليدوي في المروحة إذا كان الوضع Auto[cite: 6]
+    if (path === 'fanEnabled') { 
+      if (currentSystemMode === 'auto') {
+        alert("النظام حالياً في وضع Auto. سيتم التحكم بالمروحة تلقائياً. الرجاء التحويل إلى Manual للتحكم اليدوي.");
+        document.getElementById('fanSwitch').checked = currentFanStatus; // إرجاع شكل الزر لشكله الأصلي
+        return;
+      }
+      elementId = 'fanSwitch'; 
+      deviceKey = 'fan'; 
+    }
     else if (path === 'diffuserEnabled') { elementId = 'diffuserSwitch'; deviceKey = 'diff'; }
     else if (path === 'ledsEnabled') { elementId = 'ledsSwitch'; deviceKey = 'led'; }
     else if (path === 'bmeEnabled') { elementId = 'bmeSwitch'; }
@@ -617,27 +629,9 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     }
   };
 
-  function checkAutoLogic() {
-    if (currentSystemMode === 'auto' && latestTemp !== null) {
-      if (latestTemp > 31) {
-        set(ref(db, 'controls/fanEnabled'), true);
-      } else {
-        set(ref(db, 'controls/fanEnabled'), false);
-      }
-    }
-  }
-
+  // ✅ [تعديل جديد] - تم تغيير وظيفة setSystemMode لإرسال الأمر فقط دون تداخل (Loop)[cite: 6]
   window.setSystemMode = function(mode) {
-    currentSystemMode = mode;
     set(ref(db, 'controls/systemMode'), mode);
-    if (mode === 'manual') {
-      document.getElementById('modeManual').classList.add('active');
-      document.getElementById('modeAuto').classList.remove('active');
-    } else {
-      document.getElementById('modeAuto').classList.add('active');
-      document.getElementById('modeManual').classList.remove('active');
-      checkAutoLogic();
-    }
   };
 
   window.startDeviceTimer = function(deviceKey) {
@@ -713,12 +707,20 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     const data = snapshot.val();
     if (data) {
       if (data.temp !== undefined) {
-        latestTemp = parseFloat(data.temp);
         document.getElementById('temp').textContent = data.temp + ' °C';
-        document.getElementById('tempGauge').style.width = Math.min((latestTemp / 50) * 100, 100) + '%';
+        document.getElementById('tempGauge').style.width = Math.min((parseFloat(data.temp) / 50) * 100, 100) + '%';
         document.getElementById('tempGauge').style.backgroundColor = '#f43f5e';
         addChartData(tempChart, data.temp);
-        checkAutoLogic();
+
+        // ✅ [تعديل جديد] - منطق الـ Auto يراقب الحرارة هنا ويتخذ قرار التشغيل/الإيقاف[cite: 6]
+        if (currentSystemMode === 'auto') {
+          const currentTemp = parseFloat(data.temp);
+          if (currentTemp > 31 && !currentFanStatus) {
+            set(ref(db, 'controls/fanEnabled'), true);
+          } else if (currentTemp <= 31 && currentFanStatus) {
+            set(ref(db, 'controls/fanEnabled'), false);
+          }
+        }
       }
       if (data.humidity !== undefined) {
         document.getElementById('hum').textContent = data.humidity + ' %';
@@ -745,6 +747,12 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   onValue(ref(db, 'controls'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
+      
+      // ✅ [تعديل جديد] تحديث متغير المروحة الداخلي[cite: 6]
+      if (data.fanEnabled !== undefined) {
+        currentFanStatus = data.fanEnabled;
+      }
+
       const devices = [
         { switchId: 'fanSwitch', key: 'fan', state: data.fanEnabled },
         { switchId: 'diffuserSwitch', key: 'diff', state: data.diffuserEnabled },
@@ -764,15 +772,15 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       if (document.getElementById('bmeSwitch')) document.getElementById('bmeSwitch').checked = data.bmeEnabled || false;
       if (document.getElementById('gasSwitch')) document.getElementById('gasSwitch').checked = data.gasEnabled || false;
 
+      // ✅ [تعديل جديد] تحديث متغيرات وأزرار الوضع بشكل سليم دون إحداث Loop[cite: 6]
       if (data.systemMode) {
         currentSystemMode = data.systemMode;
-        if (data.systemMode === 'manual') {
+        if (currentSystemMode === 'manual') {
           document.getElementById('modeManual').classList.add('active');
           document.getElementById('modeAuto').classList.remove('active');
         } else {
           document.getElementById('modeAuto').classList.add('active');
           document.getElementById('modeManual').classList.remove('active');
-          checkAutoLogic();
         }
       }
     }
