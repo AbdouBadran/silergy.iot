@@ -8,181 +8,172 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
 
 <style>
-/* === إعدادات الألوان المشبعة والأساسيات === */
+/* === إعدادات الألوان المستوحاة من التصميم المرفق === */
 :root {
-  --primary-gold: #ffcc00;
-  --solar-orange: #ff6b00;
-  --leaf-green: #059669;
-  --success-glow: #10b981;
-  --ee-cyan: #0ea5e9;
-  --bg-dark: #070b14;
-  --card-bg: rgba(15, 23, 42, 0.85);
-  --border-color: rgba(255, 204, 0, 0.2);
-  --danger-red: #ef4444;
+  --primary-brand: #008060; /* الأخضر الزاهي للأزرار والعلامات */
+  --accent-light: #f4f0e6; /* اللون السكري/الكريمي */
+  --bg-dark: #004c3f; /* الأخضر الداكن للخلفية */
+  --card-bg: #f9f8f6; /* خلفية الكروت الفاتحة */
+  --border-color: rgba(0, 128, 96, 0.15);
+  --text-dark: #212326; /* نص داكن للكروت الفاتحة */
+  --text-light: #ffffff; /* نص فاتح للخلفية الداكنة */
+  --danger-red: #d82c0d;
+  --ee-cyan: #008060;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', 'Plus Jakarta Sans', sans-serif; }
-body { min-height: 100vh; color: #f8fafc; background: var(--bg-dark); position: relative; overflow-x: hidden; padding-bottom: 40px; }
+body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); position: relative; overflow-x: hidden; padding-bottom: 40px; }
 
-/* === خلفية الطاقة الشمسية والأنيميشن === */
+/* === خلفية الأنيميشن (معدلة لتناسب اللون الأخضر) === */
 #eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.6; }
 .solar-environment { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
 .sun-orb {
     position: absolute; top: -150px; right: -150px; width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(255,165,0,0.3) 0%, rgba(255,107,0,0.1) 40%, transparent 70%);
-    border-radius: 50%;
-    animation: pulseSun 6s infinite alternate ease-in-out;
+    background: radial-gradient(circle, rgba(244,240,230,0.15) 0%, rgba(0,128,96,0.1) 40%, transparent 70%);
+    border-radius: 50%; animation: pulseSun 6s infinite alternate ease-in-out;
 }
 .energy-dots {
     position: absolute; width: 100%; height: 100%;
-    background-image: radial-gradient(rgba(255, 204, 0, 0.15) 1px, transparent 1px);
-    background-size: 35px 35px;
-    animation: moveDots 20s linear infinite;
+    background-image: radial-gradient(rgba(244, 240, 230, 0.08) 1px, transparent 1px);
+    background-size: 35px 35px; animation: moveDots 20s linear infinite;
 }
-@keyframes pulseSun { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; filter: brightness(1.2); } }
+@keyframes pulseSun { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
 @keyframes moveDots { 0% { transform: translateY(0); } 100% { transform: translateY(35px); } }
 
 /* === شريط التنقل (Navbar) === */
 .sticky-navbar {
   position: sticky; top: 0; left: 0; width: 100%; z-index: 1000;
-  background: rgba(7, 11, 20, 0.8); backdrop-filter: blur(15px);
-  border-bottom: 1px solid var(--border-color); padding: 12px 30px;
-  display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  background: rgba(0, 76, 63, 0.95); backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255,255,255,0.05); padding: 15px 30px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
-.navbar-brand { font-size: 20px; font-weight: 900; color: var(--primary-gold); direction: ltr; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 204, 0, 0.3); }
+.navbar-brand { font-size: 22px; font-weight: 900; color: var(--accent-light); direction: ltr; letter-spacing: 1px; }
 .nav-actions { display: flex; align-items: center; gap: 16px; }
 
-.mode-toggle { display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-.mode-btn { border: none; background: transparent; color: #94a3b8; padding: 6px 16px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.3s ease; }
-.mode-btn.active { background: var(--primary-gold); color: #000; box-shadow: 0 0 10px rgba(255, 204, 0, 0.4); }
+.mode-toggle { display: flex; align-items: center; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 12px; }
+.mode-btn { border: none; background: transparent; color: rgba(255,255,255,0.7); padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.3s ease; }
+.mode-btn.active { background: var(--accent-light); color: var(--bg-dark); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-.user-welcome-badge { display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; direction: ltr; }
-.user-welcome-text { font-size: 13px; font-weight: 700; color: var(--ee-cyan); }
-.logout-btn { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger-red); color: var(--danger-red); padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-.logout-btn:hover { background: var(--danger-red); color: #fff; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+.user-welcome-badge { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 12px; direction: ltr; }
+.user-welcome-text { font-size: 14px; font-weight: 700; color: var(--accent-light); }
+.logout-btn { background: rgba(216, 44, 13, 0.1); border: 1px solid var(--danger-red); color: #ffb3a7; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.logout-btn:hover { background: var(--danger-red); color: #fff; }
 
 /* === شاشات الدخول والترحيب === */
 #login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 1; transition: 0.5s ease; }
-.login-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 40px 30px; width: 100%; max-width: 400px; text-align: center; backdrop-filter: blur(20px); box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+.login-card { background: var(--card-bg); border-radius: 24px; padding: 40px 35px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
 .login-card.animate-exit { opacity: 0; transform: scale(0.95) translateY(-20px); transition: 0.5s; }
-.login-title { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 20px; letter-spacing: 1px; }
-.input-group { margin-bottom: 15px; text-align: left; }
-.input-group label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; font-weight: 700; }
-.input-group input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); color: #fff; outline: none; transition: 0.3s; direction: ltr; }
-.input-group input:focus { border-color: var(--primary-gold); box-shadow: 0 0 10px rgba(255, 204, 0, 0.2); }
+.login-title { font-size: 28px; font-weight: 900; color: var(--text-dark); margin-bottom: 20px; letter-spacing: 1px; }
+.input-group { margin-bottom: 18px; text-align: left; }
+.input-group label { display: block; font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700; }
+.input-group input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: #fff; color: var(--text-dark); outline: none; transition: 0.3s; direction: ltr; font-size: 14px; }
+.input-group input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 3px rgba(0,128,96,0.1); }
 .password-wrapper { position: relative; }
-.toggle-password { position: absolute; right: 12px; top: 12px; cursor: pointer; color: #94a3b8; }
-.login-btn { width: 100%; padding: 12px; border: none; border-radius: 6px; background: var(--primary-gold); color: #000; font-size: 15px; font-weight: 900; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-.login-btn:hover { background: var(--solar-orange); color: #fff; box-shadow: 0 5px 15px rgba(255, 107, 0, 0.4); }
-.error-msg { color: var(--danger-red); font-size: 12px; margin-top: 10px; display: none; font-weight: 700; }
-.warning-badge { font-size: 12px; color: var(--primary-gold); margin-bottom: 20px; display: inline-block; }
+.toggle-password { position: absolute; right: 14px; top: 14px; cursor: pointer; color: #5c5f62; }
+.login-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--primary-brand); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+.login-btn:hover { background: #005e46; transform: translateY(-2px); }
+.error-msg { color: var(--danger-red); font-size: 13px; margin-top: 12px; display: none; font-weight: 700; }
+.warning-badge { font-size: 13px; color: var(--primary-brand); background: rgba(0,128,96,0.1); padding: 6px 12px; border-radius: 20px; margin-bottom: 25px; display: inline-block; font-weight: 700;}
 
 #welcome-overlay { position: fixed; inset: 0; z-index: 10000; background: var(--bg-dark); display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.5s; }
-.welcome-anim-text { font-size: 36px; font-weight: 900; color: var(--primary-gold); text-shadow: 0 0 20px var(--primary-gold); animation: pulseScale 1s infinite alternate; }
+.welcome-anim-text { font-size: 36px; font-weight: 900; color: var(--accent-light); animation: pulseScale 1s infinite alternate; }
 @keyframes pulseScale { 0% { transform: scale(0.95); } 100% { transform: scale(1.05); } }
 
-/* === تخطيط لوحة التحكم (مستوحى من الصورة) === */
-#dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease; padding: 20px 30px; }
+/* === تخطيط لوحة التحكم === */
+#dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease; padding: 30px 40px; }
 #dashboard-screen.animate-enter { opacity: 1; }
 
 .dashboard-banner {
-    background: linear-gradient(90deg, rgba(255,204,0,0.1), rgba(16,185,129,0.1));
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 15px 25px;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
+    background: var(--primary-brand);
+    border-radius: 20px;
+    padding: 20px 30px;
+    margin-bottom: 30px;
+    display: flex; align-items: center; gap: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
-.banner-title { font-size: 22px; font-weight: 900; color: #fff; }
-.status-dot { width: 10px; height: 10px; background: var(--success-glow); border-radius: 50%; box-shadow: 0 0 10px var(--success-glow); animation: pulseDot 1.5s infinite; }
-@keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.banner-title { font-size: 24px; font-weight: 900; color: #fff; }
+.status-dot { width: 12px; height: 12px; background: #aee9d1; border-radius: 50%; box-shadow: 0 0 15px #aee9d1; animation: pulseDot 1.5s infinite; }
+@keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
 /* التخطيط الثنائي */
-.main-layout {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 25px;
-    margin-bottom: 25px;
-}
-@media(max-width: 992px) { .main-layout { grid-template-columns: 1fr; } }
+.main-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 30px; }
+@media(max-width: 992px) { .main-layout { grid-template-columns: 1fr; } #dashboard-screen { padding: 20px; } }
 
-/* === الكروت والويدجات (حواف 10px) === */
+/* === الكروت والويدجات === */
 .widget-box {
     background: var(--card-bg);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    padding: 20px;
-    backdrop-filter: blur(10px);
-    transition: transform 0.3s, border-color 0.3s;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 24px;
+    padding: 25px;
+    color: var(--text-dark);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
 }
-.widget-box:hover { border-color: var(--border-color); transform: translateY(-3px); }
+.widget-box:hover { transform: translateY(-4px); }
 
-/* عمود الحساسات (اليمين) - عرض أفقي مضغوط */
+/* عمود الحساسات (اليمين) */
 .sensors-stack { display: flex; flex-direction: column; gap: 15px; }
 .sensor-card {
     display: flex; align-items: center; justify-content: space-between;
-    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 8px; padding: 15px 20px; transition: 0.3s;
+    background: #ffffff; border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px; padding: 18px 20px; transition: 0.3s;
 }
-.sensor-card:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.2); }
-.sensor-info h4 { font-size: 13px; color: #94a3b8; font-weight: 700; margin-bottom: 5px; }
-.sensor-value { font-size: 24px; font-weight: 900; }
-.sensor-gauge { width: 100px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-.gauge-fill { height: 100%; width: 0%; transition: 0.5s; border-radius: 4px; }
+.sensor-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.sensor-info h4 { font-size: 14px; color: #5c5f62; font-weight: 700; margin-bottom: 5px; }
+.sensor-value { font-size: 26px; font-weight: 900; }
+.sensor-gauge { width: 110px; height: 8px; background: rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden; }
+.gauge-fill { height: 100%; width: 0%; transition: 0.5s; border-radius: 10px; }
 
 /* عمود المنحنيات (اليسار) */
-.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
 @media(max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
 .chart-container { height: 200px; width: 100%; margin-top: 15px; }
-.widget-title { font-size: 16px; color: #fff; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 10px; }
+.widget-title { font-size: 18px; color: var(--text-dark); font-weight: 900; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 12px; margin-bottom: 15px; }
 
 /* === لوحة التحكم السفلية (Grid) === */
-.controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+.controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
 .control-item { display: flex; flex-direction: column; }
-.switch-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
-.switch-label { font-size: 14px; font-weight: 700; color: #e2e8f0; }
+.switch-row { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 15px 18px; border-radius: 16px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05); }
+.switch-label { font-size: 15px; font-weight: 800; color: var(--text-dark); }
 
 /* أزرار التشغيل (Toggle) */
-.switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+.switch { position: relative; display: inline-block; width: 54px; height: 30px; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; inset: 0; background-color: #334155; transition: 0.3s; border-radius: 20px; }
-.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
-input:checked + .slider { background-color: var(--primary-gold); }
-input:checked + .slider:before { transform: translateX(24px); background-color: #000; }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: #d1d5db; transition: 0.3s; border-radius: 30px; }
+.slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: 0.3s; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+input:checked + .slider { background-color: var(--primary-brand); }
+input:checked + .slider:before { transform: translateX(24px); }
 
 /* المؤقتات */
-.timer-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); }
-.timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; direction: ltr; }
-.timer-inputs label { font-size: 10px; color: #94a3b8; display: block; text-align: center; margin-bottom: 4px; }
-.timer-inputs input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.9); color: #fff; text-align: center; font-weight: bold; outline: none; }
-.timer-inputs input:focus { border-color: var(--primary-gold); }
-.timer-btn { width: 100%; padding: 10px; border: none; border-radius: 6px; background: rgba(255,255,255,0.1); color: #fff; font-weight: 700; cursor: pointer; transition: 0.3s; }
-.timer-btn:hover { background: var(--primary-gold); color: #000; }
+.timer-box { background: rgba(0,0,0,0.02); padding: 18px; border-radius: 16px; border: 1px dashed rgba(0,0,0,0.15); }
+.timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; direction: ltr; }
+.timer-inputs label { font-size: 11px; color: #5c5f62; display: block; text-align: center; margin-bottom: 6px; font-weight: 700;}
+.timer-inputs input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); background: #ffffff; color: var(--text-dark); text-align: center; font-weight: 900; outline: none; font-size: 15px;}
+.timer-inputs input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 2px rgba(0,128,96,0.1); }
+.timer-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--primary-brand); color: #fff; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 14px;}
+.timer-btn:hover { background: #005e46; transform: translateY(-2px);}
 
-.timer-active-container { display: none; flex-direction: column; align-items: center; gap: 10px; }
-.countdown-display { width: 100%; padding: 10px; background: rgba(255, 204, 0, 0.1); border: 1px solid var(--primary-gold); border-radius: 6px; text-align: center; font-family: monospace; font-size: 22px; color: var(--primary-gold); font-weight: bold; letter-spacing: 2px; }
+.timer-active-container { display: none; flex-direction: column; align-items: center; gap: 12px; }
+.countdown-display { width: 100%; padding: 12px; background: rgba(0, 128, 96, 0.1); border: 2px solid var(--primary-brand); border-radius: 12px; text-align: center; font-family: monospace; font-size: 24px; color: var(--primary-brand); font-weight: 900; letter-spacing: 2px; }
 .circle-actions { display: flex; gap: 15px; }
-.circle-btn { width: 36px; height: 36px; border-radius: 50%; border: none; font-size: 14px; cursor: pointer; background: rgba(255,255,255,0.1); color: #fff; transition: 0.2s; }
+.circle-btn { width: 42px; height: 42px; border-radius: 50%; border: none; font-size: 16px; cursor: pointer; background: #ffffff; color: var(--text-dark); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.2s; }
 .circle-btn:hover { transform: scale(1.1); }
-.circle-btn.pause:hover { background: #f59e0b; color: #000; }
+.circle-btn.pause:hover { background: #f4f0e6; color: var(--primary-brand); }
 .circle-btn.reset:hover { background: var(--danger-red); color: #fff; }
 
-footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
-.author-footer { font-size: 14px; font-weight: 900; color: #94a3b8; letter-spacing: 2px; }
+footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); }
+.author-footer { font-size: 14px; font-weight: 900; color: rgba(255,255,255,0.5); letter-spacing: 2px; }
 </style>
 </head>
 <body>
 
-<!-- خلفية الأنيميشن -->
 <div class="solar-environment">
     <div class="energy-dots"></div>
     <div class="sun-orb"></div>
 </div>
 <canvas id="eco-canvas"></canvas>
 
-<!-- شاشة الدخول -->
 <div id="login-screen">
   <div class="login-card" id="loginCard">
     <div class="login-title">SILERGY LOGIN</div>
@@ -206,16 +197,15 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   </div>
 </div>
 
-<!-- الترحيب -->
 <div id="welcome-overlay">
   <div class="welcome-anim-text">جاري تهيئة النظام...</div>
 </div>
 
-<!-- لوحة التحكم -->
 <div id="dashboard-screen">
   
   <div class="sticky-navbar">
     <div class="navbar-brand">SILERGY ⚡</div>
+  
     <div class="nav-actions">
       <div class="mode-toggle">
         <button class="mode-btn active" id="modeManual" onclick="setSystemMode('manual')">يدوي</button>
@@ -232,78 +222,74 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
       <div class="status-dot"></div>
       <div>
           <div class="banner-title">لوحة المراقبة الذكية</div>
-          <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">جميع الحساسات تعمل بكفاءة ويتم تحديث البيانات لحظياً</div>
+          <div style="font-size: 14px; color: rgba(255,255,255,0.8); margin-top: 6px; font-weight: 600;">جميع الحساسات تعمل بكفاءة ويتم تحديث البيانات لحظياً</div>
       </div>
   </div>
 
-  <!-- التخطيط الرئيسي: منحنيات (يسار) وحساسات (يمين) -->
   <div class="main-layout">
       
-      <!-- العمود الأكبر: المنحنيات -->
       <div class="widget-box">
           <div class="widget-title">📈 التحليل البياني اللحظي</div>
           <div class="charts-grid">
               <div>
-                  <h4 style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">الحرارة (°C)</h4>
+                  <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">الحرارة (°C)</h4>
                   <div class="chart-container"><canvas id="tempChart"></canvas></div>
               </div>
               <div>
-                  <h4 style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">الرطوبة (%)</h4>
+                  <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">الرطوبة (%)</h4>
                   <div class="chart-container"><canvas id="humChart"></canvas></div>
               </div>
               <div>
-                  <h4 style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">جودة الهواء</h4>
+                  <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">جودة الهواء</h4>
                   <div class="chart-container"><canvas id="gasChart"></canvas></div>
               </div>
               <div>
-                  <h4 style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">مستوى الإضاءة</h4>
+                  <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">مستوى الإضاءة</h4>
                   <div class="chart-container"><canvas id="ldrChart"></canvas></div>
               </div>
           </div>
       </div>
 
-      <!-- العمود الأصغر: قراءات الحساسات المكدسة -->
       <div class="widget-box">
           <div class="widget-title">📊 القراءات الحالية</div>
           <div class="sensors-stack">
               <div class="sensor-card">
                   <div class="sensor-info">
                       <h4>درجة الحرارة</h4>
-                      <div id="temp" class="sensor-value" style="color: #ef4444;">--</div>
+                      <div id="temp" class="sensor-value" style="color: #d82c0d;">--</div>
                   </div>
                   <div class="sensor-gauge"><div id="tempGauge" class="gauge-fill"></div></div>
               </div>
               <div class="sensor-card">
                   <div class="sensor-info">
                       <h4>الرطوبة</h4>
-                      <div id="hum" class="sensor-value" style="color: #0ea5e9;">--</div>
+                      <div id="hum" class="sensor-value" style="color: #008060;">--</div>
                   </div>
                   <div class="sensor-gauge"><div id="humGauge" class="gauge-fill"></div></div>
               </div>
               <div class="sensor-card">
                   <div class="sensor-info">
                       <h4>جودة الهواء (MQ-135)</h4>
-                      <div id="gas" class="sensor-value" style="color: #10b981;">--</div>
+                      <div id="gas" class="sensor-value" style="color: #004c3f;">--</div>
                   </div>
                   <div class="sensor-gauge"><div id="gasGauge" class="gauge-fill"></div></div>
               </div>
               <div class="sensor-card">
                   <div class="sensor-info">
                       <h4>الإضاءة (LDR)</h4>
-                      <div id="ldr" class="sensor-value" style="color: var(--primary-gold);">--</div>
+                      <div id="ldr" class="sensor-value" style="color: #d8a00d;">--</div>
                   </div>
                   <div class="sensor-gauge"><div id="ldrGauge" class="gauge-fill"></div></div>
               </div>
           </div>
           
-          <!-- مفاتيح تشغيل الحساسات في نفس العمود -->
-          <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+          <div style="margin-top: 25px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 20px;">
               <div class="switch-row" style="background: transparent; border: none; padding: 5px 0;">
-                  <span class="switch-label" style="font-size: 13px;">طاقة BME280</span>
+                  <span class="switch-label" style="font-size: 14px;">طاقة BME280</span>
                   <label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bmeEnabled')"><span class="slider"></span></label>
               </div>
               <div class="switch-row" style="background: transparent; border: none; padding: 5px 0; margin-bottom: 0;">
-                  <span class="switch-label" style="font-size: 13px;">طاقة حساس الغاز</span>
+                  <span class="switch-label" style="font-size: 14px;">طاقة حساس الغاز</span>
                   <label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasEnabled')"><span class="slider"></span></label>
               </div>
           </div>
@@ -311,10 +297,8 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
 
   </div>
 
-  <!-- الأجهزة والمؤقتات بالأسفل -->
   <div class="controls-grid">
       
-      <!-- المروحة -->
       <div class="widget-box control-item">
           <div class="widget-title">🌀 المروحة الذكية</div>
           <div class="switch-row">
@@ -340,7 +324,6 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
           </div>
       </div>
 
-      <!-- الفواحة -->
       <div class="widget-box control-item">
           <div class="widget-title">💨 الفواحة (Diffuser)</div>
           <div class="switch-row">
@@ -366,7 +349,6 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
           </div>
       </div>
 
-      <!-- الإضاءة -->
       <div class="widget-box control-item">
           <div class="widget-title">💡 كشافات LED</div>
           <div class="switch-row">
@@ -404,9 +386,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
-
+  
   class SilkWorm {
-    constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.radius = Math.random() * 1.5 + 1; this.history = []; }
+    constructor() { 
+      this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
+      this.radius = Math.random() * 1.5 + 1; this.history = [];
+    }
     update() {
       this.x += this.vx; this.y += this.vy;
       if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
@@ -420,8 +406,9 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
         let pt = this.history[i];
         if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
       }
-      ctx.strokeStyle = "rgba(255, 204, 0, 0.15)"; ctx.lineWidth = 1; ctx.stroke();
-      ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = "#ffcc00"; ctx.fill();
+      ctx.strokeStyle = "rgba(244, 240, 230, 0.15)";
+      ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = "#f4f0e6"; ctx.fill();
     }
   }
 
@@ -432,7 +419,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     requestAnimationFrame(renderEcoCanvas);
   }
   renderEcoCanvas();
-
+  
   // إظهار كلمة المرور
   function togglePasswordVisibility() {
     const pwd = document.getElementById("passwordInput");
@@ -440,7 +427,6 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   }
 </script>
 
-<!-- Firebase Logic (محفوظ كما هو بالظبط) -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -451,34 +437,32 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     "Anas Wafa": "anaswafa", "Gamal Rajab": "elsheekhgamal", "Aya Ellaban": "123654789",
     "Alaa Elshobakey": "123654789", "Mariam Ibrahim": "123654789"
   };
-
   const firebaseConfig = {
     apiKey: "AIzaSyBX1PQUhlbiubiQeuY62nN4qjVvMp-NwLI", authDomain: "summer-ca623.firebaseapp.com",
     databaseURL: "https://summer-ca623-default-rtdb.firebaseio.com", projectId: "summer-ca623",
     storageBucket: "summer-ca623.firebasestorage.app", messagingSenderId: "798032639895",
     appId: "1:798032639895:web:7583b8eb505bc30adf36d2", measurementId: "G-9S6PRSR0XM"
   };
-
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
   let currentSystemMode = 'manual';
   let currentFanStatus = false;
-
-  const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-    scales: { x: { display: false }, y: { min: 0, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } } },
+  
+  const chartOptions = { 
+    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+    scales: { x: { display: false }, y: { min: 0, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#5c5f62', font: { size: 10 } } } },
     elements: { line: { tension: 0.4 } }
   };
-
   function createChartConfig(color) {
     return { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: color, backgroundColor: color.replace('1)', '0.15)'), borderWidth: 2, fill: true, pointRadius: 2 }] }, options: chartOptions };
   }
 
-  const tempChart = new Chart(document.getElementById('tempChart'), createChartConfig('rgba(239, 68, 68, 1)'));
-  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(14, 165, 233, 1)'));
-  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(16, 185, 129, 1)'));
-  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(255, 204, 0, 1)'));
-
+  const tempChart = new Chart(document.getElementById('tempChart'), createChartConfig('rgba(216, 44, 13, 1)'));
+  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(0, 128, 96, 1)'));
+  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(0, 76, 63, 1)'));
+  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(216, 160, 13, 1)'));
+  
   function addChartData(chart, rawValue) {
     const val = parseFloat(rawValue);
     if (isNaN(val) || val < 0) return;
@@ -499,10 +483,11 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
       setTimeout(() => { document.getElementById("login-screen").style.display = "none"; playWelcomeAnimation(user); }, 500);
     } else { document.getElementById("errorMsg").style.display = "block"; }
   };
-
+  
   function playWelcomeAnimation(username) {
     const overlay = document.getElementById("welcome-overlay");
-    overlay.style.display = "flex"; setTimeout(() => { overlay.style.opacity = "1"; }, 10);
+    overlay.style.display = "flex";
+    setTimeout(() => { overlay.style.opacity = "1"; }, 10);
     setTimeout(() => { overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; showDashboard(username); }, 500); }, 1500);
   }
 
@@ -517,9 +502,10 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     localStorage.removeItem("silergy_user");
     location.reload();
   };
-
+  
   const savedUser = localStorage.getItem("silergy_user");
-  if (savedUser && allowedUsers[savedUser]) { document.getElementById("login-screen").style.display = "none"; showDashboard(savedUser); }
+  if (savedUser && allowedUsers[savedUser]) { document.getElementById("login-screen").style.display = "none"; showDashboard(savedUser);
+  }
 
   const activeTimers = {
     fan: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'fanEnabled' },
@@ -527,17 +513,22 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
     led: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'ledsEnabled' }
   };
   const timerFbKeys = { fan: 'fanTimer', diff: 'diffTimer', led: 'ledTimer' };
-
+  
   window.toggleControl = function(path) {
     let elementId = ''; let deviceKey = '';
     if (path === 'fanEnabled') { 
-      if (currentSystemMode === 'auto') { alert("قم بالتحويل للوضع اليدوي (Manual) للتحكم بالمروحة."); document.getElementById('fanSwitch').checked = currentFanStatus; return; }
-      elementId = 'fanSwitch'; deviceKey = 'fan'; 
+      if (currentSystemMode === 'auto') { alert("قم بالتحويل للوضع اليدوي (Manual) للتحكم بالمروحة.");
+      document.getElementById('fanSwitch').checked = currentFanStatus; return; }
+      elementId = 'fanSwitch'; deviceKey = 'fan';
     }
-    else if (path === 'diffuserEnabled') { elementId = 'diffuserSwitch'; deviceKey = 'diff'; }
-    else if (path === 'ledsEnabled') { elementId = 'ledsSwitch'; deviceKey = 'led'; }
-    else if (path === 'bmeEnabled') { elementId = 'bmeSwitch'; }
-    else if (path === 'gasEnabled') { elementId = 'gasSwitch'; }
+    else if (path === 'diffuserEnabled') { elementId = 'diffuserSwitch'; deviceKey = 'diff';
+    }
+    else if (path === 'ledsEnabled') { elementId = 'ledsSwitch'; deviceKey = 'led';
+    }
+    else if (path === 'bmeEnabled') { elementId = 'bmeSwitch';
+    }
+    else if (path === 'gasEnabled') { elementId = 'gasSwitch';
+    }
 
     const el = document.getElementById(elementId);
     if (el) {
@@ -547,7 +538,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   };
 
   window.setSystemMode = function(mode) { set(ref(db, 'controls/systemMode'), mode); };
-
+  
   window.startDeviceTimer = function(deviceKey) {
     let totalSeconds = (parseInt(document.getElementById(deviceKey + 'Hours').value) || 0) * 3600 + (parseInt(document.getElementById(deviceKey + 'Mins').value) || 0) * 60 + (parseInt(document.getElementById(deviceKey + 'Secs').value) || 0);
     if (totalSeconds <= 0) return;
@@ -569,17 +560,19 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
   window.togglePauseTimer = function(deviceKey, btnId) {
     if (!activeTimers[deviceKey].timerId) return;
     activeTimers[deviceKey].isPaused = !activeTimers[deviceKey].isPaused;
-    document.getElementById(btnId).textContent = activeTimers[deviceKey].isPaused ? '▶️' : '⏸️';
+    document.getElementById(btnId).textContent = activeTimers[deviceKey].isPaused ?
+    '▶️' : '⏸️';
   };
 
   window.resetDeviceTimer = function(deviceKey) {
-    if (activeTimers[deviceKey].timerId) { clearInterval(activeTimers[deviceKey].timerId); activeTimers[deviceKey].timerId = null; }
+    if (activeTimers[deviceKey].timerId) { clearInterval(activeTimers[deviceKey].timerId); activeTimers[deviceKey].timerId = null;
+    }
     activeTimers[deviceKey].remainingSecs = 0; activeTimers[deviceKey].isPaused = false;
     if (timerFbKeys[deviceKey]) set(ref(db, 'timers/' + timerFbKeys[deviceKey]), -1);
     document.getElementById(deviceKey + 'InputsBox').style.display = 'block';
     document.getElementById(deviceKey + 'ActiveBox').style.display = 'none';
   };
-
+  
   function updateTimerDisplay(deviceKey) {
     let total = activeTimers[deviceKey].remainingSecs;
     document.getElementById(deviceKey + 'Countdown').textContent = `${Math.floor(total / 3600).toString().padStart(2, '0')}:${Math.floor((total % 3600) / 60).toString().padStart(2, '0')}:${(total % 60).toString().padStart(2, '0')}`;
@@ -592,7 +585,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
       if (data.temp !== undefined) {
         document.getElementById('temp').textContent = data.temp + ' °C';
         document.getElementById('tempGauge').style.width = Math.min((parseFloat(data.temp) / 50) * 100, 100) + '%';
-        document.getElementById('tempGauge').style.backgroundColor = '#ef4444';
+        document.getElementById('tempGauge').style.backgroundColor = '#d82c0d';
         addChartData(tempChart, data.temp);
         if (currentSystemMode === 'auto') {
           if (parseFloat(data.temp) > 31 && !currentFanStatus) set(ref(db, 'controls/fanEnabled'), true);
@@ -602,19 +595,19 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
       if (data.humidity !== undefined) {
         document.getElementById('hum').textContent = data.humidity + ' %';
         document.getElementById('humGauge').style.width = Math.min(parseFloat(data.humidity), 100) + '%';
-        document.getElementById('humGauge').style.backgroundColor = '#0ea5e9';
+        document.getElementById('humGauge').style.backgroundColor = '#008060';
         addChartData(humChart, data.humidity);
       }
       if (data.gas !== undefined) {
         document.getElementById('gas').textContent = data.gas;
         document.getElementById('gasGauge').style.width = Math.min((parseFloat(data.gas) / 1024) * 100, 100) + '%';
-        document.getElementById('gasGauge').style.backgroundColor = '#10b981';
+        document.getElementById('gasGauge').style.backgroundColor = '#004c3f';
         addChartData(gasChart, data.gas);
       }
       if (data.ldr !== undefined) {
         document.getElementById('ldr').textContent = data.ldr;
         document.getElementById('ldrGauge').style.width = Math.min((parseFloat(data.ldr) / 1024) * 100, 100) + '%';
-        document.getElementById('ldrGauge').style.backgroundColor = 'var(--primary-gold)';
+        document.getElementById('ldrGauge').style.backgroundColor = '#d8a00d';
         addChartData(ldrChart, data.ldr);
       }
     }
@@ -629,7 +622,8 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1p
         const key = ['fanEnabled', 'diffuserEnabled', 'ledsEnabled'][i];
         const devKey = ['fan', 'diff', 'led'][i];
         const el = document.getElementById(id);
-        if (el) { el.checked = data[key] || false; if (!data[key] && activeTimers[devKey].remainingSecs > 0) resetDeviceTimer(devKey); }
+        if (el) { 
+          el.checked = data[key] || false; if (!data[key] && activeTimers[devKey].remainingSecs > 0) resetDeviceTimer(devKey); }
       });
       if (document.getElementById('bmeSwitch')) document.getElementById('bmeSwitch').checked = data.bmeEnabled || false;
       if (document.getElementById('gasSwitch')) document.getElementById('gasSwitch').checked = data.gasEnabled || false;
