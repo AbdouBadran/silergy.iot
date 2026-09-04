@@ -5,151 +5,242 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SILERGY - Smart Environment Control</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
 
 <style>
-/* ... جميع أكواد الـ CSS الأصلية كما هي بدون تغيير ... */
+/* =========================================================
+   التصميم الجديد المستوحى من الصورة (image_491a4e.jpg)
+========================================================= */
 :root {
-  --primary-gold: #ffc107;
-  --solar-orange: #ff9800;
-  --leaf-green: #10b981;
-  --ee-cyan: #06b6d4;
-  --bg-dark: #020617;
-  --card-bg: rgba(15, 23, 42, 0.65);
-  --border-glow: rgba(16, 185, 129, 0.25);
-  --danger-red: #ef4444;
-  --dynamic-accent: var(--ee-cyan);
+  --main-orange: #EA582C;
+  --main-yellow: #F3A01C;
+  --main-blue: #8CBEE0;
+  --main-black: #000000;
+  --main-white: #FFFFFF;
+  --bg-light: #F7F7F7;
+  --text-gray: #555555;
+  --border-color: #E0E0E0;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', 'Plus Jakarta Sans', sans-serif; }
-body { min-height: 100vh; color: #f8fafc; background: var(--bg-dark); position: relative; overflow-x: hidden; padding-bottom: 40px; }
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  font-family: 'Plus Jakarta Sans', 'Tajawal', sans-serif; 
+}
 
-#eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-.bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: -2; background: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, rgba(2, 6, 23, 0.98) 70%); }
-.sun-glow { position: absolute; top: -100px; right: -100px; width: 450px; height: 450px; background: radial-gradient(circle, var(--dynamic-accent) 0%, transparent 70%); border-radius: 50%; filter: blur(60px); opacity: 0.35; transition: all 1s ease; }
+body { 
+  min-height: 100vh; 
+  color: var(--main-black); 
+  background: var(--main-white); 
+  position: relative; 
+  overflow-x: hidden; 
+  padding-bottom: 0; 
+}
 
+/* خلفية الأنميشن - تم تعديلها لتناسب المظهر الفاتح */
+#eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.4; }
+.bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: -2; background: var(--main-white); }
+
+/* =========================================================
+   شريط التنقل (Navbar)
+========================================================= */
 .sticky-navbar {
   position: sticky; top: 0; left: 0; width: 100%; z-index: 1000;
-  background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 14px 30px;
-  display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  background: var(--main-white);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0;
+  display: flex; justify-content: space-between; align-items: center; 
+  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
 }
-.navbar-brand { font-size: 22px; font-weight: 900; background: linear-gradient(90deg, var(--primary-gold), var(--ee-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; direction: ltr; letter-spacing: 1px; }
-.nav-actions { display: flex; align-items: center; gap: 16px; }
+.navbar-brand { 
+  font-size: 24px; font-weight: 900; color: var(--main-black);
+  padding: 20px 30px; direction: ltr; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 10px;
+}
+.navbar-brand::before {
+  content: "⚡"; font-size: 20px;
+}
+.nav-actions { display: flex; align-items: stretch; height: 100%; }
 
-.mode-toggle { display: flex; align-items: center; background: rgba(255,255,255,0.04); padding: 4px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); }
-.mode-btn { border: none; background: transparent; color: #94a3b8; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.3s ease; }
-.mode-btn.active { background: var(--leaf-green); color: #020813; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+.mode-toggle { display: flex; align-items: stretch; height: 100%; }
+.mode-btn { 
+  border: none; background: var(--main-white); color: var(--main-black); 
+  padding: 0 30px; font-size: 14px; font-weight: 800; 
+  cursor: pointer; transition: 0.3s ease; text-transform: uppercase;
+}
+.mode-btn.active#modeManual { background: var(--main-orange); color: var(--main-white); }
+.mode-btn.active#modeAuto { background: var(--main-yellow); color: var(--main-white); }
 
-.user-welcome-badge { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 6px 16px; border-radius: 30px; direction: ltr; }
-.user-welcome-text { font-size: 14px; font-weight: 700; color: var(--ee-cyan); }
-.logout-btn { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger-red); color: var(--danger-red); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-.logout-btn:hover { background: var(--danger-red); color: #fff; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); transform: scale(1.05); }
+.user-welcome-badge { 
+  display: flex; align-items: center; gap: 12px; 
+  background: var(--main-black); padding: 0 25px; 
+  direction: ltr; color: var(--main-white);
+}
+.user-welcome-text { font-size: 14px; font-weight: 700; }
+.logout-btn { 
+  background: transparent; border: 1px solid var(--main-white); 
+  color: var(--main-white); padding: 6px 14px; 
+  font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; 
+}
+.logout-btn:hover { background: var(--main-white); color: var(--main-black); }
 
-#login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 1; transition: opacity 0.5s ease; }
+/* =========================================================
+   شاشة تسجيل الدخول
+========================================================= */
+#login-screen { 
+  position: fixed; inset: 0; z-index: 9999; background: var(--bg-light); 
+  display: flex; align-items: center; justify-content: center; padding: 20px; 
+}
 .login-card {
-  background: var(--card-bg); border: 1.5px solid var(--border-glow); border-radius: 28px; padding: 45px 35px; width: 100%; max-width: 440px; text-align: center; backdrop-filter: blur(24px) saturate(180%); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
-  animation: loginAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  background: var(--main-white); border: 1px solid var(--border-color); 
+  padding: 50px 40px; width: 100%; max-width: 440px; text-align: center; 
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
 }
-@keyframes loginAppear { 0% { opacity: 0; transform: scale(0.85) translateY(40px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-.login-card.animate-exit { animation: loginExit 0.5s ease forwards !important; }
-@keyframes loginExit { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.9) translateY(-30px); } }
-
-.login-title { font-size: 30px; font-weight: 900; background: linear-gradient(90deg, var(--primary-gold), #ffffff, var(--leaf-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
-.warning-badge { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255, 193, 7, 0.08); border: 1px solid rgba(255, 193, 7, 0.25); color: var(--primary-gold); padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 25px; direction: ltr; }
+.login-title { font-size: 32px; font-weight: 900; color: var(--main-black); margin-bottom: 12px; text-transform: uppercase; }
+.warning-badge { 
+  display: inline-block; background: var(--main-black); color: var(--main-white); 
+  padding: 8px 18px; font-size: 12px; font-weight: 700; margin-bottom: 30px; direction: ltr; 
+}
 .input-group { margin-bottom: 20px; text-align: left; }
-.input-group label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 8px; font-weight: 700; }
+.input-group label { display: block; font-size: 14px; color: var(--main-black); margin-bottom: 8px; font-weight: 800; }
 .password-wrapper { position: relative; display: flex; align-items: center; }
-.password-wrapper input { padding-right: 45px !important; }
-.toggle-password { position: absolute; right: 14px; cursor: pointer; user-select: none; font-size: 18px; color: #94a3b8; transition: 0.2s; }
-.toggle-password:hover { color: var(--ee-cyan); }
-.input-group input { width: 100%; padding: 14px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(15, 23, 42, 0.9); color: #fff; font-size: 15px; outline: none; transition: 0.3s; direction: ltr; }
-.input-group input:focus { border-color: var(--leaf-green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.25); }
-.login-btn { width: 100%; padding: 14px; border: none; border-radius: 14px; background: linear-gradient(90deg, var(--leaf-green), var(--ee-cyan)); color: #020813; font-size: 16px; font-weight: 900; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-.login-btn:hover { filter: brightness(1.2); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3); }
-.error-msg { color: var(--danger-red); font-size: 13px; margin-top: 12px; display: none; font-weight: 700; }
+.input-group input { 
+  width: 100%; padding: 15px; border: 1px solid var(--border-color); 
+  background: var(--bg-light); color: var(--main-black); font-size: 15px; 
+  outline: none; transition: 0.3s; direction: ltr; 
+}
+.input-group input:focus { border-color: var(--main-black); }
+.toggle-password { position: absolute; right: 14px; cursor: pointer; font-size: 18px; }
+.login-btn { 
+  width: 100%; padding: 16px; border: none; background: var(--main-orange); 
+  color: var(--main-white); font-size: 16px; font-weight: 900; 
+  cursor: pointer; margin-top: 10px; transition: 0.3s; text-transform: uppercase;
+}
+.login-btn:hover { background: var(--main-black); }
+.error-msg { color: var(--main-orange); font-size: 14px; margin-top: 15px; display: none; font-weight: 700; }
+.forgot-btn { background: transparent; border: none; color: var(--text-gray); font-size: 13px; font-weight: 700; margin-top: 20px; cursor: pointer; text-decoration: underline; }
+.troll-msg { display: none; background: #ffebeb; color: var(--main-orange); padding: 15px; margin-top: 15px; font-weight: 700; font-size: 13px; line-height: 1.5; direction: ltr; }
 
-.forgot-btn { background: transparent; border: none; color: #94a3b8; font-size: 13px; font-weight: 700; margin-top: 18px; cursor: pointer; transition: 0.2s; text-decoration: underline; display: inline-block; direction: ltr; }
-.forgot-btn:hover { color: var(--primary-gold); }
-.troll-msg { display: none; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; font-size: 13px; font-weight: 700; padding: 12px; border-radius: 12px; margin-top: 14px; direction: ltr; line-height: 1.5; }
+/* شاشة الترحيب */
+#welcome-overlay { position: fixed; inset: 0; z-index: 10000; background: var(--main-white); display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.5s ease; }
+.welcome-anim-text { font-size: 48px; font-weight: 900; color: var(--main-orange); text-transform: uppercase; }
 
-#welcome-overlay { position: fixed; inset: 0; z-index: 10000; background: var(--bg-dark); display: none; align-items: center; justify-content: center; flex-direction: column; opacity: 0; transition: opacity 0.5s ease; }
-.welcome-anim-text { font-size: 42px; font-weight: 900; background: linear-gradient(90deg, var(--primary-gold), var(--ee-cyan), var(--leaf-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulseScale 1.5s infinite ease-in-out; text-align: center; padding: 0 20px; }
-@keyframes pulseScale { 0%, 100% { transform: scale(0.98); filter: drop-shadow(0 0 15px rgba(6,182,212,0.4)); } 50% { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(16,185,129,0.7)); } }
+/* =========================================================
+   لوحة التحكم (Dashboard)
+========================================================= */
+#dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease; }
+#dashboard-screen.animate-enter { opacity: 1; }
 
-#dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease; }
-#dashboard-screen.animate-enter { opacity: 1; transform: scale(1); filter: blur(0px); }
-#dashboard-screen.animate-exit { opacity: 0; transform: scale(0.95); filter: blur(10px); }
+/* قسم العنوان الكبير (Hero Section) */
+.hero-section {
+  padding: 80px 20px; text-align: left; background: var(--bg-light);
+  border-bottom: 1px solid var(--border-color);
+}
+.hero-container { max-width: 1200px; margin: 0 auto; }
+.hero-section h1 { 
+  font-size: 70px; font-weight: 900; line-height: 1.1; 
+  color: var(--main-black); margin-bottom: 15px; direction: ltr; text-transform: uppercase;
+}
+.hero-section h1 span { color: var(--main-orange); }
+.hero-section p { max-width: 500px; color: var(--text-gray); font-size: 15px; line-height: 1.6; direction: ltr; font-weight: 600; margin-bottom: 30px; }
+.hero-btn { 
+  background: var(--main-black); color: var(--main-white); padding: 15px 40px; 
+  font-size: 14px; font-weight: 800; text-transform: uppercase; display: inline-block; cursor: pointer;
+}
 
-.container { max-width: 1140px; margin: 30px auto 0 auto; position: relative; z-index: 1; padding: 0 20px; }
-.header { text-align: center; margin-bottom: 35px; }
-h1 { font-size: 38px; font-weight: 900; background: linear-gradient(90deg, #ffc107, #ffffff, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; direction: ltr; letter-spacing: 0.5px; }
-.section-title { font-size: 20px; font-weight: 800; color: var(--leaf-green); margin: 35px 0 20px 0; border-bottom: 1.5px solid rgba(16, 185, 129, 0.2); padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; margin-bottom: 25px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 50px 20px; }
 
-.card { background: var(--card-bg); border: 1px solid var(--border-glow); border-radius: 24px; padding: 28px 22px; text-align: center; backdrop-filter: blur(16px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-.card:hover { transform: translateY(-8px); border-color: var(--ee-cyan); box-shadow: 0 20px 40px rgba(6, 182, 212, 0.25); }
-.card-title { font-size: 14px; color: #94a3b8; font-weight: 700; margin-bottom: 10px; }
-.card-value { font-size: 36px; font-weight: 900; margin-bottom: 14px; letter-spacing: -0.5px; }
-.gauge-container { width: 100%; background: rgba(255,255,255,0.06); height: 8px; border-radius: 6px; overflow: hidden; position: relative; margin-top: 10px; }
-.gauge-bar { height: 100%; width: 0%; transition: width 0.6s ease, background-color 0.6s ease; border-radius: 6px; }
+/* 1. قسم الأرقام الكبيرة (القراءات) */
+.stats-grid { 
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+  gap: 30px; margin-bottom: 60px; direction: ltr; text-align: left;
+}
+.stat-card { padding: 10px; }
+.stat-value { font-size: 65px; font-weight: 900; color: var(--main-orange); line-height: 1; margin-bottom: 10px; }
+.stat-title { font-size: 18px; color: var(--main-black); font-weight: 900; text-transform: capitalize; }
+.gauge-container { width: 100%; background: var(--border-color); height: 6px; margin-top: 15px; }
+.gauge-bar { height: 100%; width: 0%; background-color: var(--main-black) !important; transition: 0.6s ease; } /* لون موحد للشريط */
 
-.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(48%, 1fr)); gap: 22px; margin-top: 25px; }
-.chart-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 22px; backdrop-filter: blur(16px); position: relative; height: 320px; display: flex; flex-direction: column; }
-.chart-card h4 { font-size: 16px; color: #e2e8f0; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+/* 2. قسم البلوكات السفلية (التحكم) */
+.blocks-grid { 
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+  gap: 0; margin-bottom: 50px;
+}
+.block-card { padding: 50px 40px; text-align: left; direction: ltr; }
+.block-card h3 { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+
+/* تلوين البلوكات حسب الصورة المرجعية */
+.block-black { background: var(--main-black); color: var(--main-white); }
+.block-black .switch-label { color: var(--main-white); }
+.block-black .gauge-container { background: #333; }
+
+.block-blue { background: var(--main-blue); color: var(--main-white); }
+.block-blue .switch-label { color: var(--main-white); }
+
+.block-white { background: var(--bg-light); color: var(--main-black); border: 1px solid var(--border-color); }
+
+/* أزرار التبديل (Switches) معدلة لتناسب التصميم المسطح */
+.switch-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+.block-white .switch-row { border-bottom-color: var(--border-color); }
+.switch-label { font-size: 16px; font-weight: 800; }
+.switch { position: relative; display: inline-block; width: 60px; height: 30px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: 0.3s; }
+.slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: 0.3s; }
+input:checked + .slider { background-color: var(--main-orange); }
+input:checked + .slider:before { transform: translateX(30px); }
+
+/* المؤقتات */
+.timer-box { margin-top: 20px; }
+.timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+.timer-group label { display: block; font-size: 11px; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; }
+.timer-box input { 
+  width: 100%; padding: 12px; border: none; background: rgba(255,255,255,0.1); 
+  color: inherit; font-size: 16px; text-align: center; font-weight: 800; outline: none; border-bottom: 2px solid transparent;
+}
+.block-white .timer-box input { background: var(--main-white); border: 1px solid var(--border-color); color: var(--main-black); }
+.timer-box input:focus { border-bottom-color: var(--main-orange); }
+.timer-btn { 
+  width: 100%; padding: 15px; border: none; background: var(--main-orange); 
+  color: var(--main-white); font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: 0.3s;
+}
+.timer-btn:hover { background: var(--main-black); }
+.block-black .timer-btn:hover { background: var(--main-white); color: var(--main-black); }
+
+.timer-active-container { display: none; flex-direction: column; gap: 15px; align-items: center; }
+.countdown-display { font-size: 36px; font-weight: 900; letter-spacing: 2px; }
+.circle-actions { display: flex; gap: 15px; }
+.circle-btn { 
+  width: 45px; height: 45px; border: none; background: rgba(255,255,255,0.2); 
+  color: inherit; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.block-white .circle-btn { background: var(--border-color); }
+.circle-btn:hover { background: var(--main-orange); color: var(--main-white); }
+
+/* قسم الحساسات الإضافية والرسوم البيانية */
+.section-header { font-size: 30px; font-weight: 900; margin: 60px 0 30px; text-transform: uppercase; color: var(--main-black); border-top: 2px solid var(--main-black); padding-top: 20px; }
+
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(48%, 1fr)); gap: 30px; }
+.chart-card { background: var(--bg-light); border: 1px solid var(--border-color); padding: 30px; height: 350px; display: flex; flex-direction: column; }
+.chart-card h4 { font-size: 18px; color: var(--main-black); font-weight: 900; margin-bottom: 20px; text-transform: uppercase; }
 .chart-wrapper { position: relative; flex: 1; width: 100%; height: 100%; }
 
-.switch-row { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.05); }
-.switch-label { font-size: 15px; font-weight: 700; color: #e2e8f0; }
-.switch { position: relative; display: inline-block; width: 64px; height: 32px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; inset: 0; background-color: #334155; transition: 0.3s; border-radius: 32px; border: 1px solid rgba(255,255,255,0.15); }
-.slider:before { position: absolute; content: "OFF"; height: 26px; width: 32px; left: 2px; bottom: 2px; background-color: #cbd5e1; transition: 0.3s; border-radius: 28px; font-size: 10px; font-weight: 900; color: #1e293b; display: flex; align-items: center; justify-content: center; }
-input:checked + .slider { background-color: #10b981; }
-input:checked + .slider:before { content: "ON"; transform: translateX(28px); background-color: #ffffff; color: #065f46; }
+footer { background: var(--main-black); padding: 40px; text-align: center; color: var(--main-white); margin-top: 60px; }
+.author-footer { font-size: 24px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
 
-.control-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; }
-.control-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 28px; backdrop-filter: blur(16px); transition: 0.3s; }
-.control-card:hover { border-color: var(--border-glow); }
-.control-card h3 { color: #fff; font-size: 19px; font-weight: 800; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; }
-
-.timer-box { margin-top: 14px; background: rgba(2, 6, 23, 0.4); padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); }
-.timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; direction: ltr; }
-.timer-group { display: flex; flex-direction: column; align-items: center; }
-.timer-group label { font-size: 11px; color: #94a3b8; margin-bottom: 4px; font-weight: 700; direction: rtl; }
-.timer-box input { width: 100%; padding: 9px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: rgba(15,23,42,0.9); color: #fff; font-size: 14px; text-align: center; font-weight: 700; outline: none; }
-.timer-box input:focus { border-color: var(--ee-cyan); }
-.timer-btn { width: 100%; padding: 11px; border: none; border-radius: 12px; background: var(--ee-cyan); color: #030a16; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; }
-.timer-btn:hover { filter: brightness(1.15); transform: translateY(-1px); box-shadow: 0 5px 15px rgba(6,182,212,0.3); }
-
-.timer-active-container { display: none; flex-direction: column; gap: 14px; align-items: center; width: 100%; padding: 5px 0; }
-.countdown-display { width: 100%; padding: 12px; background: rgba(6, 182, 212, 0.08); border: 1.5px solid var(--ee-cyan); border-radius: 14px; text-align: center; font-family: monospace; font-size: 26px; color: var(--ee-cyan); font-weight: 800; box-shadow: 0 0 20px rgba(6,182,212,0.25); letter-spacing: 2px; }
-
-.circle-actions { display: flex; gap: 20px; justify-content: center; align-items: center; width: 100%; }
-.circle-btn { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s ease; border: 1.5px solid transparent; background: rgba(255,255,255,0.05); }
-.circle-btn:hover { transform: scale(1.15); }
-.circle-btn.pause { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 12px rgba(245, 158, 11, 0.25); }
-.circle-btn.pause:hover { background: #f59e0b; color: #000; }
-.circle-btn.reset { border-color: var(--danger-red); color: var(--danger-red); background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 12px rgba(239, 68, 68, 0.25); }
-.circle-btn.reset:hover { background: var(--danger-red); color: #fff; }
-
-.centered-row { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin-top: 22px; }
-.centered-row .control-card { flex: 1; max-width: 500px; min-width: 300px; }
-
-footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.08); }
-.author-footer { display: inline-block; font-size: 18px; font-weight: 900; color: var(--primary-gold); padding: 12px 32px; border-radius: 30px; border: 1.5px solid var(--primary-gold); box-shadow: 0 0 20px rgba(255,193,7,0.25); letter-spacing: 1px; }
 </style>
 </head>
 <body>
-<!-- ... أكواد HTML المتبقية (رسم الخلفيات وشاشة تسجيل الدخول والواجهة) كما هي تماماً في مصدرك ... -->
+
 <canvas id="eco-canvas"></canvas>
-<div class="bg-layer"><div class="sun-glow"></div></div>
+<div class="bg-layer"></div>
 
 <!-- Login Screen -->
 <div id="login-screen">
   <div class="login-card" id="loginCard">
-    <div class="login-title">Welcome To SILERGY</div>
-    <div class="warning-badge"><span>⚠️</span> Only SILERGY members have access</div>
+    <div class="login-title">System Access</div>
+    <div class="warning-badge">SILERGY MEMBERS ONLY</div>
     
     <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
       <div class="input-group">
@@ -163,152 +254,153 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
           <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
         </div>
       </div>
-      <button type="submit" class="login-btn">تسجيل الدخول</button>
+      <button type="submit" class="login-btn">Login to Dashboard</button>
       
       <div>
         <button type="button" class="forgot-btn" onclick="showTrollMsg()">Forgot Password?</button>
       </div>
       <div id="trollMsg" class="troll-msg">
-        😏 Nice try! But if you need to reset the password, you are definitely NOT a SILERGY team member! 🤣 The SILERGY team never forgets! 😈
+        NICE TRY! If you need to reset the password, you are definitely NOT a SILERGY team member!
       </div>
 
-      <div id="errorMsg" class="error-msg">⚠️ Invalid Username or Password!</div>
+      <div id="errorMsg" class="error-msg">INVALID CREDENTIALS</div>
     </form>
   </div>
 </div>
 
 <!-- Welcome Overlay -->
 <div id="welcome-overlay">
-  <div class="welcome-anim-text">Welcome to our project</div>
+  <div class="welcome-anim-text">Initializing</div>
 </div>
 
 <!-- Dashboard Screen -->
 <div id="dashboard-screen">
+  <!-- Navbar -->
   <div class="sticky-navbar">
-    <div class="navbar-brand">Silergy project</div>
-    
+    <div class="navbar-brand">SILERGY.</div>
     <div class="nav-actions">
       <div class="mode-toggle">
         <button class="mode-btn active" id="modeManual" onclick="setSystemMode('manual')">Manual</button>
         <button class="mode-btn" id="modeAuto" onclick="setSystemMode('auto')">Auto</button>
       </div>
-
       <div class="user-welcome-badge">
-        <div class="user-welcome-text" id="welcomeUserDisplay">Welcome, User</div>
-        <button class="logout-btn" onclick="handleLogout()">خروج</button>
+        <div class="user-welcome-text" id="welcomeUserDisplay">User</div>
+        <button class="logout-btn" onclick="handleLogout()">LOGOUT</button>
       </div>
     </div>
   </div>
 
-  <div class="container">
-    <div class="header">
-      <h1>SILERGY Control Dashboard</h1>
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-container">
+      <h1>SMART ENVIRONMENT<br><span>CONTROL SYSTEM</span></h1>
+      <p>I'm a control panel. Monitor real-time analytics, manage device states, and automate environmental responses directly from this interface.</p>
+      <div class="hero-btn">System Active</div>
     </div>
+  </div>
 
-    <!-- 1. الحساسات والقراءات -->
-    <div class="section-title">
-      <span>📊 قراءات الحساسات الحية والمؤشرات</span>
-    </div>
-    <div class="grid">
-      <div class="card">
-        <div class="card-title">Air Quality (جودة الهواء)</div>
-        <div id="gas" class="card-value" style="color: #38bdf8;">--</div>
+  <div class="container">
+    
+    <!-- 1. الحساسات والقراءات (Stats Section) -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div id="gas" class="stat-value">0</div>
+        <div class="stat-title">Air Quality (PPM)</div>
         <div class="gauge-container"><div id="gasGauge" class="gauge-bar"></div></div>
       </div>
-      <div class="card">
-        <div class="card-title">درجة الحرارة</div>
-        <div id="temp" class="card-value" style="color: #f43f5e;">--</div>
+      <div class="stat-card">
+        <div id="temp" class="stat-value">0</div>
+        <div class="stat-title">Temperature (°C)</div>
         <div class="gauge-container"><div id="tempGauge" class="gauge-bar"></div></div>
       </div>
-      <div class="card">
-        <div class="card-title">الرطوبة</div>
-        <div id="hum" class="card-value" style="color: #60a5fa;">--</div>
+      <div class="stat-card">
+        <div id="hum" class="stat-value">0</div>
+        <div class="stat-title">Humidity (%)</div>
         <div class="gauge-container"><div id="humGauge" class="gauge-bar"></div></div>
       </div>
-      <div class="card">
-        <div class="card-title">مستوى الإضاءة (LDR)</div>
-        <div id="ldr" class="card-value" style="color: #ffc107;">--</div>
+      <div class="stat-card">
+        <div id="ldr" class="stat-value">0</div>
+        <div class="stat-title">Light Level (LDR)</div>
         <div class="gauge-container"><div id="ldrGauge" class="gauge-bar"></div></div>
       </div>
     </div>
 
-    <!-- 2. لوحة التحكم والأجهزة -->
-    <div class="section-title">🎛️ لوحة التحكم والأجهزة</div>
-    <div class="control-container">
+    <!-- 2. لوحة التحكم (Control Blocks) -->
+    <div class="blocks-grid">
       
-      <!-- Fan Card -->
-      <div class="control-card">
-        <h3>🌀 المروحة (Fan)</h3>
+      <!-- Fan Card (Black Block) -->
+      <div class="block-card block-black">
+        <h3>FAN CONTROL</h3>
         <div class="switch-row">
-          <span class="switch-label">حالة التشغيل</span>
+          <span class="switch-label">Power Status</span>
           <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
         </div>
         <div class="timer-box">
           <div id="fanInputsBox">
             <div class="timer-inputs">
-              <div class="timer-group"><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
-              <div class="timer-group"><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
-              <div class="timer-group"><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
+              <div class="timer-group"><label>HR</label><input type="number" id="fanHours" value="0" min="0"></div>
+              <div class="timer-group"><label>MIN</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
+              <div class="timer-group"><label>SEC</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
             </div>
-            <button class="timer-btn" onclick="startDeviceTimer('fan')">ابدأ المؤقت ⏱️</button>
+            <button class="timer-btn" onclick="startDeviceTimer('fan')">SET TIMER</button>
           </div>
           <div id="fanActiveBox" class="timer-active-container">
             <div id="fanCountdown" class="countdown-display">00:00:00</div>
             <div class="circle-actions">
-              <button id="fanPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('fan', 'fanPauseBtn')">⏸️</button>
-              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('fan')">🔄</button>
+              <button id="fanPauseBtn" class="circle-btn" onclick="togglePauseTimer('fan', 'fanPauseBtn')">⏸️</button>
+              <button class="circle-btn" onclick="resetDeviceTimer('fan')">🔄</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Diffuser Card -->
-      <div class="control-card">
-        <h3>💨 الفواحة (Diffuser)</h3>
+      <!-- Diffuser Card (Light Blue Block) -->
+      <div class="block-card block-blue">
+        <h3>DIFFUSER</h3>
         <div class="switch-row">
-          <span class="switch-label">حالة التشغيل</span>
+          <span class="switch-label">Power Status</span>
           <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled')"><span class="slider"></span></label>
         </div>
         <div class="timer-box">
           <div id="diffInputsBox">
             <div class="timer-inputs">
-              <div class="timer-group"><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
-              <div class="timer-group"><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
-              <div class="timer-group"><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
+              <div class="timer-group"><label>HR</label><input type="number" id="diffHours" value="0" min="0"></div>
+              <div class="timer-group"><label>MIN</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
+              <div class="timer-group"><label>SEC</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
             </div>
-            <button class="timer-btn" onclick="startDeviceTimer('diff')">ابدأ المؤقت ⏱️</button>
+            <button class="timer-btn" onclick="startDeviceTimer('diff')">SET TIMER</button>
           </div>
           <div id="diffActiveBox" class="timer-active-container">
             <div id="diffCountdown" class="countdown-display">00:00:00</div>
             <div class="circle-actions">
-              <button id="diffPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('diff', 'diffPauseBtn')">⏸️</button>
-              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('diff')">🔄</button>
+              <button id="diffPauseBtn" class="circle-btn" onclick="togglePauseTimer('diff', 'diffPauseBtn')">⏸️</button>
+              <button class="circle-btn" onclick="resetDeviceTimer('diff')">🔄</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- LEDs Card -->
-      <div class="control-card">
-        <h3>💡 الكشافات (LEDs)</h3>
+      <!-- LEDs Card (White Block) -->
+      <div class="block-card block-white">
+        <h3>LIGHTING</h3>
         <div class="switch-row">
-          <span class="switch-label">حالة التشغيل</span>
+          <span class="switch-label">Power Status</span>
           <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled')"><span class="slider"></span></label>
         </div>
         <div class="timer-box">
           <div id="ledInputsBox">
             <div class="timer-inputs">
-              <div class="timer-group"><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
-              <div class="timer-group"><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
-              <div class="timer-group"><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
+              <div class="timer-group"><label>HR</label><input type="number" id="ledHours" value="0" min="0"></div>
+              <div class="timer-group"><label>MIN</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
+              <div class="timer-group"><label>SEC</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
             </div>
-            <button class="timer-btn" onclick="startDeviceTimer('led')">ابدأ المؤقت ⏱️</button>
+            <button class="timer-btn" onclick="startDeviceTimer('led')">SET TIMER</button>
           </div>
           <div id="ledActiveBox" class="timer-active-container">
             <div id="ledCountdown" class="countdown-display">00:00:00</div>
             <div class="circle-actions">
-              <button id="ledPauseBtn" class="circle-btn pause" title="إيقاف/استئناف" onclick="togglePauseTimer('led', 'ledPauseBtn')">⏸️</button>
-              <button class="circle-btn reset" title="إعادة ضبط" onclick="resetDeviceTimer('led')">🔄</button>
+              <button id="ledPauseBtn" class="circle-btn" onclick="togglePauseTimer('led', 'ledPauseBtn')">⏸️</button>
+              <button class="circle-btn" onclick="resetDeviceTimer('led')">🔄</button>
             </div>
           </div>
         </div>
@@ -316,102 +408,75 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 
     </div>
 
-    <div class="centered-row">
-      <div class="control-card">
-        <h3>🌡️ حساس البيئة (BME280)</h3>
-        <div class="switch-row" style="margin-top: 10px;">
-          <span class="switch-label">تشغيل الحساس</span>
+    <!-- مفاتيح الحساسات الإضافية -->
+    <div class="blocks-grid" style="grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px;">
+      <div class="block-card block-white" style="padding: 30px;">
+        <h3>BME280 SENSOR</h3>
+        <div class="switch-row" style="border:none; padding:0; margin:0;">
+          <span class="switch-label">Enable Sensor</span>
           <label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bmeEnabled')"><span class="slider"></span></label>
         </div>
       </div>
-      <div class="control-card">
-        <h3>🎛️ حساس الغاز (Air Quality)</h3>
-        <div class="switch-row" style="margin-top: 10px;">
-          <span class="switch-label">تشغيل الحساس</span>
+      <div class="block-card block-white" style="padding: 30px;">
+        <h3>GAS SENSOR</h3>
+        <div class="switch-row" style="border:none; padding:0; margin:0;">
+          <span class="switch-label">Enable Sensor</span>
           <label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasEnabled')"><span class="slider"></span></label>
         </div>
       </div>
     </div>
 
-    <!-- 3. المنحنيات البيانية -->
-    <div class="section-title">📈 المنحنيات البيانية التفاعلية (Real-Time Analytics)</div>
+    <!-- 3. المنحنيات البيانية (Charts) -->
+    <div class="section-header">Real-Time Analytics</div>
     <div class="charts-grid">
       <div class="chart-card">
-        <h4>🌡️ تغير درجة الحرارة (°C)</h4>
+        <h4>Temperature (°C)</h4>
         <div class="chart-wrapper"><canvas id="tempChart"></canvas></div>
       </div>
       <div class="chart-card">
-        <h4>💧 تغير مستوى الرطوبة (%)</h4>
+        <h4>Humidity (%)</h4>
         <div class="chart-wrapper"><canvas id="humChart"></canvas></div>
       </div>
       <div class="chart-card">
-        <h4>🍃 جودة الهواء (MQ-135)</h4>
+        <h4>Gas Level (MQ-135)</h4>
         <div class="chart-wrapper"><canvas id="gasChart"></canvas></div>
       </div>
       <div class="chart-card">
-        <h4>☀️ إضاءة المكان (LDR)</h4>
+        <h4>Light Level (LDR)</h4>
         <div class="chart-wrapper"><canvas id="ldrChart"></canvas></div>
       </div>
     </div>
 
-    <footer><div class="author-footer">BY SILERGY</div></footer>
   </div>
+  
+  <footer>
+    <div class="author-footer">SILERGY PROJECT</div>
+  </footer>
 </div>
 
 <script>
-  // ... أكواد الأنيميشن والتسجيل (SilkWorm, ElectricPulse) كما هي ...
+  //[cite: 10] أنيميشن خفيف متوافق مع المظهر الفاتح
   const canvas = document.getElementById('eco-canvas');
   const ctx = canvas.getContext('2d');
   function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  class SilkWorm {
-    constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.vx = (Math.random() - 0.5) * 0.8; this.vy = (Math.random() - 0.5) * 0.8; this.radius = Math.random() * 2 + 1.5; this.history = []; }
-    update() {
-      this.x += this.vx; this.y += this.vy;
-      if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-      if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-      this.history.push({x: this.x, y: this.y});
-      if (this.history.length > 8) this.history.shift();
-    }
-    draw() {
-      ctx.beginPath();
-      for (let i = 0; i < this.history.length; i++) {
-        let pt = this.history[i];
-        if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
-      }
-      ctx.strokeStyle = "rgba(16, 185, 129, 0.25)"; ctx.lineWidth = 1; ctx.stroke();
-      ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = "#10b981"; ctx.shadowBlur = 8; ctx.shadowColor = "#10b981"; ctx.fill(); ctx.shadowBlur = 0;
-    }
-  }
-
-  class ElectricPulse {
+  class LightPulse {
     constructor() { this.reset(); }
-    reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.length = Math.random() * 80 + 40; this.speed = Math.random() * 3 + 2; this.dir = Math.random() > 0.5 ? 'H' : 'V'; this.progress = 0; }
+    reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.length = Math.random() * 80 + 40; this.speed = Math.random() * 2 + 1; this.dir = Math.random() > 0.5 ? 'H' : 'V'; this.progress = 0; }
     update() { this.progress += this.speed; if (this.progress > this.length) this.reset(); }
     draw() {
       ctx.beginPath();
       if (this.dir === 'H') { ctx.moveTo(this.x, this.y); ctx.lineTo(this.x + this.progress, this.y); }
       else { ctx.moveTo(this.x, this.y); ctx.lineTo(this.x, this.y + this.progress); }
-      ctx.strokeStyle = "rgba(6, 182, 212, 0.5)"; ctx.lineWidth = 1.5; ctx.shadowBlur = 10; ctx.shadowColor = "#06b6d4"; ctx.stroke(); ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.05)"; ctx.lineWidth = 1; ctx.stroke(); 
     }
   }
-
-  const worms = Array.from({ length: 35 }, () => new SilkWorm());
-  const pulses = Array.from({ length: 15 }, () => new ElectricPulse());
-
-  function drawSolarGrid() {
-    ctx.strokeStyle = "rgba(255, 193, 7, 0.03)"; ctx.lineWidth = 1; let step = 60;
-    for (let x = 0; x < canvas.width; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
-    for (let y = 0; y < canvas.height; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
-  }
-
+  const pulses = Array.from({ length: 20 }, () => new LightPulse());
   function renderEcoCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawSolarGrid();
     pulses.forEach(p => { p.update(); p.draw(); });
-    worms.forEach(w => { w.update(); w.draw(); });
     requestAnimationFrame(renderEcoCanvas);
   }
   renderEcoCanvas();
@@ -422,7 +487,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     if (passwordInput.type === "password") { passwordInput.type = "text"; toggleBtn.textContent = "🙈"; }
     else { passwordInput.type = "password"; toggleBtn.textContent = "👁️"; }
   }
-
   function showTrollMsg() {
     const trollBox = document.getElementById("trollMsg");
     trollBox.style.display = (trollBox.style.display === "block") ? "none" : "block";
@@ -430,6 +494,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 </script>
 
 <script type="module">
+  //[cite: 10] تم الاحتفاظ بكافة أكواد ومنطق الفايربيس (Firebase) كما هي
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
@@ -461,17 +526,16 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // ✅ [تعديل جديد] - إضافة متغيرات لحفظ حالة النظام محلياً لسهولة التحكم[cite: 6]
-  let currentSystemMode = 'manual'; // الوضع الافتراضي
-  let currentFanStatus = false;     // حالة المروحة الحالية
+  let currentSystemMode = 'manual'; 
+  let currentFanStatus = false;     
 
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
     scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 11 }, maxRotation: 0, minRotation: 0 } },
-      y: { min: 0, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+      x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#000', font: { size: 11, weight: 'bold' } } },
+      y: { min: 0, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#000', font: { size: 10, weight: 'bold' } } }
     },
     elements: { line: { tension: 0.4 } }
   };
@@ -485,20 +549,21 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
           label: label,
           data: [],
           borderColor: color,
-          backgroundColor: color.replace('1)', '0.15)'),
-          borderWidth: 2,
+          backgroundColor: color.replace('1)', '0.1)'),
+          borderWidth: 3,
           fill: true,
-          pointRadius: 3
+          pointRadius: 4
         }]
       },
       options: chartOptions
     };
   }
 
-  const tempChart = new Chart(document.getElementById('tempChart'), createChartConfig('rgba(244, 63, 94, 1)', 'Temperature'));
-  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(96, 165, 250, 1)', 'Humidity'));
-  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(56, 189, 248, 1)', 'Gas Level'));
-  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(255, 193, 7, 1)', 'Light LDR'));
+  // استخدام الألوان الجديدة للرسم البياني
+  const tempChart = new Chart(document.getElementById('tempChart'), createChartConfig('rgba(234, 88, 44, 1)', 'Temperature')); // Orange
+  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(140, 190, 224, 1)', 'Humidity')); // Blue
+  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(0, 0, 0, 1)', 'Gas Level')); // Black
+  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(243, 160, 28, 1)', 'Light LDR')); // Yellow
 
   function addChartData(chart, rawValue) {
     const val = parseFloat(rawValue);
@@ -528,11 +593,8 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     if (allowedUsers[user] && allowedUsers[user] === pass) {
       document.getElementById("errorMsg").style.display = "none";
       localStorage.setItem("silergy_user", user);
-      document.getElementById("loginCard").classList.add("animate-exit");
-      setTimeout(() => { 
-        document.getElementById("login-screen").style.display = "none"; 
-        playWelcomeAnimation(user); 
-      }, 500);
+      document.getElementById("login-screen").style.display = "none"; 
+      playWelcomeAnimation(user); 
     } else { 
       document.getElementById("errorMsg").style.display = "block"; 
     }
@@ -548,12 +610,12 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         overlay.style.display = "none"; 
         showDashboard(username); 
       }, 500); 
-    }, 2000);
+    }, 1500);
   }
 
   function showDashboard(username) {
     const dash = document.getElementById("dashboard-screen");
-    document.getElementById("welcomeUserDisplay").textContent = "Welcome, " + username;
+    document.getElementById("welcomeUserDisplay").textContent = username;
     dash.style.display = "block";
     setTimeout(() => { dash.classList.add("animate-enter"); }, 10);
   }
@@ -562,25 +624,15 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     localStorage.removeItem("silergy_user");
     const dash = document.getElementById("dashboard-screen");
     dash.classList.remove("animate-enter");
-    dash.classList.add("animate-exit");
     setTimeout(() => {
       dash.style.display = "none";
-      dash.classList.remove("animate-exit");
-      
-      const loginCard = document.getElementById("loginCard");
-      loginCard.classList.remove("animate-exit");
-      
       const loginScreen = document.getElementById("login-screen");
       loginScreen.style.display = "flex";
-      loginScreen.style.opacity = "0";
-      setTimeout(() => { loginScreen.style.opacity = "1"; }, 10);
-
       document.getElementById("usernameInput").value = "";
       document.getElementById("passwordInput").value = "";
     }, 600);
   };
 
-  // التحقق من الجلسة
   const savedUser = localStorage.getItem("silergy_user");
   if (savedUser && allowedUsers[savedUser]) {
     document.getElementById("login-screen").style.display = "none";
@@ -592,26 +644,17 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     diff: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'diffuserEnabled' },
     led: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'ledsEnabled' }
   };
-
-  const timerFbKeys = {
-    fan: 'fanTimer',
-    diff: 'diffTimer',
-    led: 'ledTimer'
-  };
+  const timerFbKeys = { fan: 'fanTimer', diff: 'diffTimer', led: 'ledTimer' };
 
   window.toggleControl = function(path) {
-    let elementId = '';
-    let deviceKey = '';
-
-    // ✅ [تعديل جديد] - منع التحكم اليدوي في المروحة إذا كان الوضع Auto[cite: 6]
+    let elementId = ''; let deviceKey = '';
     if (path === 'fanEnabled') { 
       if (currentSystemMode === 'auto') {
-        alert("النظام حالياً في وضع Auto. سيتم التحكم بالمروحة تلقائياً. الرجاء التحويل إلى Manual للتحكم اليدوي.");
-        document.getElementById('fanSwitch').checked = currentFanStatus; // إرجاع شكل الزر لشكله الأصلي
+        alert("System is currently in Auto mode. Please switch to Manual to control the fan.");
+        document.getElementById('fanSwitch').checked = currentFanStatus; 
         return;
       }
-      elementId = 'fanSwitch'; 
-      deviceKey = 'fan'; 
+      elementId = 'fanSwitch'; deviceKey = 'fan'; 
     }
     else if (path === 'diffuserEnabled') { elementId = 'diffuserSwitch'; deviceKey = 'diff'; }
     else if (path === 'ledsEnabled') { elementId = 'ledsSwitch'; deviceKey = 'led'; }
@@ -622,48 +665,34 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     if (el) {
       const isChecked = el.checked;
       set(ref(db, 'controls/' + path), isChecked);
-
-      if (!isChecked && deviceKey) {
-        resetDeviceTimer(deviceKey);
-      }
+      if (!isChecked && deviceKey) resetDeviceTimer(deviceKey);
     }
   };
 
-  // ✅ [تعديل جديد] - تم تغيير وظيفة setSystemMode لإرسال الأمر فقط دون تداخل (Loop)[cite: 6]
-  window.setSystemMode = function(mode) {
-    set(ref(db, 'controls/systemMode'), mode);
-  };
+  window.setSystemMode = function(mode) { set(ref(db, 'controls/systemMode'), mode); };
 
   window.startDeviceTimer = function(deviceKey) {
     let hrs = parseInt(document.getElementById(deviceKey + 'Hours').value) || 0;
     let mins = parseInt(document.getElementById(deviceKey + 'Mins').value) || 0;
     let secs = parseInt(document.getElementById(deviceKey + 'Secs').value) || 0;
-
     let totalSeconds = hrs * 3600 + mins * 60 + secs;
     if (totalSeconds <= 0) return;
 
     resetDeviceTimer(deviceKey);
-
     activeTimers[deviceKey].remainingSecs = totalSeconds;
     activeTimers[deviceKey].isPaused = false;
-
     set(ref(db, 'controls/' + activeTimers[deviceKey].fbKey), true);
-
-    if (timerFbKeys[deviceKey]) {
-      set(ref(db, 'timers/' + timerFbKeys[deviceKey]), totalSeconds);
-    }
+    if (timerFbKeys[deviceKey]) set(ref(db, 'timers/' + timerFbKeys[deviceKey]), totalSeconds);
 
     document.getElementById(deviceKey + 'InputsBox').style.display = 'none';
     document.getElementById(deviceKey + 'ActiveBox').style.display = 'flex';
     document.getElementById(deviceKey + 'PauseBtn').textContent = '⏸️';
-
     updateTimerDisplay(deviceKey);
 
     activeTimers[deviceKey].timerId = setInterval(() => {
       if (!activeTimers[deviceKey].isPaused) {
         activeTimers[deviceKey].remainingSecs--;
         updateTimerDisplay(deviceKey);
-
         if (activeTimers[deviceKey].remainingSecs <= 0) {
           set(ref(db, 'controls/' + activeTimers[deviceKey].fbKey), false);
           resetDeviceTimer(deviceKey);
@@ -679,17 +708,9 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   };
 
   window.resetDeviceTimer = function(deviceKey) {
-    if (activeTimers[deviceKey].timerId) {
-      clearInterval(activeTimers[deviceKey].timerId);
-      activeTimers[deviceKey].timerId = null;
-    }
-    activeTimers[deviceKey].remainingSecs = 0;
-    activeTimers[deviceKey].isPaused = false;
-
-    if (timerFbKeys[deviceKey]) {
-      set(ref(db, 'timers/' + timerFbKeys[deviceKey]), -1);
-    }
-
+    if (activeTimers[deviceKey].timerId) { clearInterval(activeTimers[deviceKey].timerId); activeTimers[deviceKey].timerId = null; }
+    activeTimers[deviceKey].remainingSecs = 0; activeTimers[deviceKey].isPaused = false;
+    if (timerFbKeys[deviceKey]) set(ref(db, 'timers/' + timerFbKeys[deviceKey]), -1);
     document.getElementById(deviceKey + 'InputsBox').style.display = 'block';
     document.getElementById(deviceKey + 'ActiveBox').style.display = 'none';
   };
@@ -702,77 +723,57 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     document.getElementById(deviceKey + 'Countdown').textContent = `${h}:${m}:${s}`;
   }
 
-  // الاستماع لقراءات الحساسات
   onValue(ref(db, 'sensorData'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
       if (data.temp !== undefined) {
-        document.getElementById('temp').textContent = data.temp + ' °C';
+        document.getElementById('temp').textContent = data.temp; // بدون علامة مئوية لتبدو كرقم ضخم
         document.getElementById('tempGauge').style.width = Math.min((parseFloat(data.temp) / 50) * 100, 100) + '%';
-        document.getElementById('tempGauge').style.backgroundColor = '#f43f5e';
         addChartData(tempChart, data.temp);
-
-        // ✅ [تعديل جديد] - منطق الـ Auto يراقب الحرارة هنا ويتخذ قرار التشغيل/الإيقاف[cite: 6]
+        
         if (currentSystemMode === 'auto') {
           const currentTemp = parseFloat(data.temp);
-          if (currentTemp > 31 && !currentFanStatus) {
-            set(ref(db, 'controls/fanEnabled'), true);
-          } else if (currentTemp <= 31 && currentFanStatus) {
-            set(ref(db, 'controls/fanEnabled'), false);
-          }
+          if (currentTemp > 31 && !currentFanStatus) set(ref(db, 'controls/fanEnabled'), true);
+          else if (currentTemp <= 31 && currentFanStatus) set(ref(db, 'controls/fanEnabled'), false);
         }
       }
       if (data.humidity !== undefined) {
-        document.getElementById('hum').textContent = data.humidity + ' %';
+        document.getElementById('hum').textContent = data.humidity;
         document.getElementById('humGauge').style.width = Math.min(parseFloat(data.humidity), 100) + '%';
-        document.getElementById('humGauge').style.backgroundColor = '#60a5fa';
         addChartData(humChart, data.humidity);
       }
       if (data.gas !== undefined) {
         document.getElementById('gas').textContent = data.gas;
         document.getElementById('gasGauge').style.width = Math.min((parseFloat(data.gas) / 1024) * 100, 100) + '%';
-        document.getElementById('gasGauge').style.backgroundColor = '#38bdf8';
         addChartData(gasChart, data.gas);
       }
       if (data.ldr !== undefined) {
         document.getElementById('ldr').textContent = data.ldr;
         document.getElementById('ldrGauge').style.width = Math.min((parseFloat(data.ldr) / 1024) * 100, 100) + '%';
-        document.getElementById('ldrGauge').style.backgroundColor = '#ffc107';
         addChartData(ldrChart, data.ldr);
       }
     }
   });
 
-  // الاستماع لحالة المفاتيح من Firebase
   onValue(ref(db, 'controls'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
-      
-      // ✅ [تعديل جديد] تحديث متغير المروحة الداخلي[cite: 6]
-      if (data.fanEnabled !== undefined) {
-        currentFanStatus = data.fanEnabled;
-      }
-
+      if (data.fanEnabled !== undefined) currentFanStatus = data.fanEnabled;
       const devices = [
         { switchId: 'fanSwitch', key: 'fan', state: data.fanEnabled },
         { switchId: 'diffuserSwitch', key: 'diff', state: data.diffuserEnabled },
         { switchId: 'ledsSwitch', key: 'led', state: data.ledsEnabled }
       ];
-
       devices.forEach(dev => {
         const el = document.getElementById(dev.switchId);
         if (el) {
           el.checked = dev.state || false;
-          if (!dev.state && activeTimers[dev.key].remainingSecs > 0) {
-            resetDeviceTimer(dev.key);
-          }
+          if (!dev.state && activeTimers[dev.key].remainingSecs > 0) resetDeviceTimer(dev.key);
         }
       });
-
       if (document.getElementById('bmeSwitch')) document.getElementById('bmeSwitch').checked = data.bmeEnabled || false;
       if (document.getElementById('gasSwitch')) document.getElementById('gasSwitch').checked = data.gasEnabled || false;
 
-      // ✅ [تعديل جديد] تحديث متغيرات وأزرار الوضع بشكل سليم دون إحداث Loop[cite: 6]
       if (data.systemMode) {
         currentSystemMode = data.systemMode;
         if (currentSystemMode === 'manual') {
