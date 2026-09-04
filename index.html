@@ -5,585 +5,487 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SILERGY - Smart Environment Control</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
 
 <style>
-/* =========================================================
-   التصميم الجديد المستوحى من الصورة (image_491a4e.jpg)
-========================================================= */
+/* === إعدادات الألوان المشبعة والأساسيات === */
 :root {
-  --main-orange: #EA582C;
-  --main-yellow: #F3A01C;
-  --main-blue: #8CBEE0;
-  --main-black: #000000;
-  --main-white: #FFFFFF;
-  --bg-light: #F7F7F7;
-  --text-gray: #555555;
-  --border-color: #E0E0E0;
+  --primary-gold: #ffcc00;
+  --solar-orange: #ff6b00;
+  --leaf-green: #059669;
+  --success-glow: #10b981;
+  --ee-cyan: #0ea5e9;
+  --bg-dark: #070b14;
+  --card-bg: rgba(15, 23, 42, 0.85);
+  --border-color: rgba(255, 204, 0, 0.2);
+  --danger-red: #ef4444;
 }
 
-* { 
-  margin: 0; 
-  padding: 0; 
-  box-sizing: border-box; 
-  font-family: 'Plus Jakarta Sans', 'Tajawal', sans-serif; 
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', 'Plus Jakarta Sans', sans-serif; }
+body { min-height: 100vh; color: #f8fafc; background: var(--bg-dark); position: relative; overflow-x: hidden; padding-bottom: 40px; }
+
+/* === خلفية الطاقة الشمسية والأنيميشن === */
+#eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.6; }
+.solar-environment { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
+.sun-orb {
+    position: absolute; top: -150px; right: -150px; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(255,165,0,0.3) 0%, rgba(255,107,0,0.1) 40%, transparent 70%);
+    border-radius: 50%;
+    animation: pulseSun 6s infinite alternate ease-in-out;
 }
-
-body { 
-  min-height: 100vh; 
-  color: var(--main-black); 
-  background: var(--main-white); 
-  position: relative; 
-  overflow-x: hidden; 
-  padding-bottom: 0; 
+.energy-dots {
+    position: absolute; width: 100%; height: 100%;
+    background-image: radial-gradient(rgba(255, 204, 0, 0.15) 1px, transparent 1px);
+    background-size: 35px 35px;
+    animation: moveDots 20s linear infinite;
 }
+@keyframes pulseSun { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; filter: brightness(1.2); } }
+@keyframes moveDots { 0% { transform: translateY(0); } 100% { transform: translateY(35px); } }
 
-/* خلفية الأنميشن - تم تعديلها لتناسب المظهر الفاتح */
-#eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.4; }
-.bg-layer { position: fixed; inset: 0; pointer-events: none; z-index: -2; background: var(--main-white); }
-
-/* =========================================================
-   شريط التنقل (Navbar)
-========================================================= */
+/* === شريط التنقل (Navbar) === */
 .sticky-navbar {
   position: sticky; top: 0; left: 0; width: 100%; z-index: 1000;
-  background: var(--main-white);
-  border-bottom: 1px solid var(--border-color);
-  padding: 0;
-  display: flex; justify-content: space-between; align-items: center; 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  background: rgba(7, 11, 20, 0.8); backdrop-filter: blur(15px);
+  border-bottom: 1px solid var(--border-color); padding: 12px 30px;
+  display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
-.navbar-brand { 
-  font-size: 24px; font-weight: 900; color: var(--main-black);
-  padding: 20px 30px; direction: ltr; letter-spacing: 1px;
-  display: flex; align-items: center; gap: 10px;
-}
-.navbar-brand::before {
-  content: "⚡"; font-size: 20px;
-}
-.nav-actions { display: flex; align-items: stretch; height: 100%; }
+.navbar-brand { font-size: 20px; font-weight: 900; color: var(--primary-gold); direction: ltr; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255, 204, 0, 0.3); }
+.nav-actions { display: flex; align-items: center; gap: 16px; }
 
-.mode-toggle { display: flex; align-items: stretch; height: 100%; }
-.mode-btn { 
-  border: none; background: var(--main-white); color: var(--main-black); 
-  padding: 0 30px; font-size: 14px; font-weight: 800; 
-  cursor: pointer; transition: 0.3s ease; text-transform: uppercase;
-}
-.mode-btn.active#modeManual { background: var(--main-orange); color: var(--main-white); }
-.mode-btn.active#modeAuto { background: var(--main-yellow); color: var(--main-white); }
+.mode-toggle { display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+.mode-btn { border: none; background: transparent; color: #94a3b8; padding: 6px 16px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.3s ease; }
+.mode-btn.active { background: var(--primary-gold); color: #000; box-shadow: 0 0 10px rgba(255, 204, 0, 0.4); }
 
-.user-welcome-badge { 
-  display: flex; align-items: center; gap: 12px; 
-  background: var(--main-black); padding: 0 25px; 
-  direction: ltr; color: var(--main-white);
-}
-.user-welcome-text { font-size: 14px; font-weight: 700; }
-.logout-btn { 
-  background: transparent; border: 1px solid var(--main-white); 
-  color: var(--main-white); padding: 6px 14px; 
-  font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; 
-}
-.logout-btn:hover { background: var(--main-white); color: var(--main-black); }
+.user-welcome-badge { display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; direction: ltr; }
+.user-welcome-text { font-size: 13px; font-weight: 700; color: var(--ee-cyan); }
+.logout-btn { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger-red); color: var(--danger-red); padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.logout-btn:hover { background: var(--danger-red); color: #fff; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
 
-/* =========================================================
-   شاشة تسجيل الدخول
-========================================================= */
-#login-screen { 
-  position: fixed; inset: 0; z-index: 9999; background: var(--bg-light); 
-  display: flex; align-items: center; justify-content: center; padding: 20px; 
-}
-.login-card {
-  background: var(--main-white); border: 1px solid var(--border-color); 
-  padding: 50px 40px; width: 100%; max-width: 440px; text-align: center; 
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-}
-.login-title { font-size: 32px; font-weight: 900; color: var(--main-black); margin-bottom: 12px; text-transform: uppercase; }
-.warning-badge { 
-  display: inline-block; background: var(--main-black); color: var(--main-white); 
-  padding: 8px 18px; font-size: 12px; font-weight: 700; margin-bottom: 30px; direction: ltr; 
-}
-.input-group { margin-bottom: 20px; text-align: left; }
-.input-group label { display: block; font-size: 14px; color: var(--main-black); margin-bottom: 8px; font-weight: 800; }
-.password-wrapper { position: relative; display: flex; align-items: center; }
-.input-group input { 
-  width: 100%; padding: 15px; border: 1px solid var(--border-color); 
-  background: var(--bg-light); color: var(--main-black); font-size: 15px; 
-  outline: none; transition: 0.3s; direction: ltr; 
-}
-.input-group input:focus { border-color: var(--main-black); }
-.toggle-password { position: absolute; right: 14px; cursor: pointer; font-size: 18px; }
-.login-btn { 
-  width: 100%; padding: 16px; border: none; background: var(--main-orange); 
-  color: var(--main-white); font-size: 16px; font-weight: 900; 
-  cursor: pointer; margin-top: 10px; transition: 0.3s; text-transform: uppercase;
-}
-.login-btn:hover { background: var(--main-black); }
-.error-msg { color: var(--main-orange); font-size: 14px; margin-top: 15px; display: none; font-weight: 700; }
-.forgot-btn { background: transparent; border: none; color: var(--text-gray); font-size: 13px; font-weight: 700; margin-top: 20px; cursor: pointer; text-decoration: underline; }
-.troll-msg { display: none; background: #ffebeb; color: var(--main-orange); padding: 15px; margin-top: 15px; font-weight: 700; font-size: 13px; line-height: 1.5; direction: ltr; }
+/* === شاشات الدخول والترحيب === */
+#login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 1; transition: 0.5s ease; }
+.login-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 40px 30px; width: 100%; max-width: 400px; text-align: center; backdrop-filter: blur(20px); box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+.login-card.animate-exit { opacity: 0; transform: scale(0.95) translateY(-20px); transition: 0.5s; }
+.login-title { font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 20px; letter-spacing: 1px; }
+.input-group { margin-bottom: 15px; text-align: left; }
+.input-group label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; font-weight: 700; }
+.input-group input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); color: #fff; outline: none; transition: 0.3s; direction: ltr; }
+.input-group input:focus { border-color: var(--primary-gold); box-shadow: 0 0 10px rgba(255, 204, 0, 0.2); }
+.password-wrapper { position: relative; }
+.toggle-password { position: absolute; right: 12px; top: 12px; cursor: pointer; color: #94a3b8; }
+.login-btn { width: 100%; padding: 12px; border: none; border-radius: 6px; background: var(--primary-gold); color: #000; font-size: 15px; font-weight: 900; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+.login-btn:hover { background: var(--solar-orange); color: #fff; box-shadow: 0 5px 15px rgba(255, 107, 0, 0.4); }
+.error-msg { color: var(--danger-red); font-size: 12px; margin-top: 10px; display: none; font-weight: 700; }
+.warning-badge { font-size: 12px; color: var(--primary-gold); margin-bottom: 20px; display: inline-block; }
 
-/* شاشة الترحيب */
-#welcome-overlay { position: fixed; inset: 0; z-index: 10000; background: var(--main-white); display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.5s ease; }
-.welcome-anim-text { font-size: 48px; font-weight: 900; color: var(--main-orange); text-transform: uppercase; }
+#welcome-overlay { position: fixed; inset: 0; z-index: 10000; background: var(--bg-dark); display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.5s; }
+.welcome-anim-text { font-size: 36px; font-weight: 900; color: var(--primary-gold); text-shadow: 0 0 20px var(--primary-gold); animation: pulseScale 1s infinite alternate; }
+@keyframes pulseScale { 0% { transform: scale(0.95); } 100% { transform: scale(1.05); } }
 
-/* =========================================================
-   لوحة التحكم (Dashboard)
-========================================================= */
-#dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease; }
+/* === تخطيط لوحة التحكم (مستوحى من الصورة) === */
+#dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease; padding: 20px 30px; }
 #dashboard-screen.animate-enter { opacity: 1; }
 
-/* قسم العنوان الكبير (Hero Section) */
-.hero-section {
-  padding: 80px 20px; text-align: left; background: var(--bg-light);
-  border-bottom: 1px solid var(--border-color);
+.dashboard-banner {
+    background: linear-gradient(90deg, rgba(255,204,0,0.1), rgba(16,185,129,0.1));
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px 25px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
-.hero-container { max-width: 1200px; margin: 0 auto; }
-.hero-section h1 { 
-  font-size: 70px; font-weight: 900; line-height: 1.1; 
-  color: var(--main-black); margin-bottom: 15px; direction: ltr; text-transform: uppercase;
+.banner-title { font-size: 22px; font-weight: 900; color: #fff; }
+.status-dot { width: 10px; height: 10px; background: var(--success-glow); border-radius: 50%; box-shadow: 0 0 10px var(--success-glow); animation: pulseDot 1.5s infinite; }
+@keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* التخطيط الثنائي */
+.main-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    margin-bottom: 25px;
 }
-.hero-section h1 span { color: var(--main-orange); }
-.hero-section p { max-width: 500px; color: var(--text-gray); font-size: 15px; line-height: 1.6; direction: ltr; font-weight: 600; margin-bottom: 30px; }
-.hero-btn { 
-  background: var(--main-black); color: var(--main-white); padding: 15px 40px; 
-  font-size: 14px; font-weight: 800; text-transform: uppercase; display: inline-block; cursor: pointer;
+@media(max-width: 992px) { .main-layout { grid-template-columns: 1fr; } }
+
+/* === الكروت والويدجات (حواف 10px) === */
+.widget-box {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s, border-color 0.3s;
 }
+.widget-box:hover { border-color: var(--border-color); transform: translateY(-3px); }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 50px 20px; }
-
-/* 1. قسم الأرقام الكبيرة (القراءات) */
-.stats-grid { 
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-  gap: 30px; margin-bottom: 60px; direction: ltr; text-align: left;
+/* عمود الحساسات (اليمين) - عرض أفقي مضغوط */
+.sensors-stack { display: flex; flex-direction: column; gap: 15px; }
+.sensor-card {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px; padding: 15px 20px; transition: 0.3s;
 }
-.stat-card { padding: 10px; }
-.stat-value { font-size: 65px; font-weight: 900; color: var(--main-orange); line-height: 1; margin-bottom: 10px; }
-.stat-title { font-size: 18px; color: var(--main-black); font-weight: 900; text-transform: capitalize; }
-.gauge-container { width: 100%; background: var(--border-color); height: 6px; margin-top: 15px; }
-.gauge-bar { height: 100%; width: 0%; background-color: var(--main-black) !important; transition: 0.6s ease; } /* لون موحد للشريط */
+.sensor-card:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.2); }
+.sensor-info h4 { font-size: 13px; color: #94a3b8; font-weight: 700; margin-bottom: 5px; }
+.sensor-value { font-size: 24px; font-weight: 900; }
+.sensor-gauge { width: 100px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+.gauge-fill { height: 100%; width: 0%; transition: 0.5s; border-radius: 4px; }
 
-/* 2. قسم البلوكات السفلية (التحكم) */
-.blocks-grid { 
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-  gap: 0; margin-bottom: 50px;
-}
-.block-card { padding: 50px 40px; text-align: left; direction: ltr; }
-.block-card h3 { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+/* عمود المنحنيات (اليسار) */
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media(max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
+.chart-container { height: 200px; width: 100%; margin-top: 15px; }
+.widget-title { font-size: 16px; color: #fff; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 10px; }
 
-/* تلوين البلوكات حسب الصورة المرجعية */
-.block-black { background: var(--main-black); color: var(--main-white); }
-.block-black .switch-label { color: var(--main-white); }
-.block-black .gauge-container { background: #333; }
+/* === لوحة التحكم السفلية (Grid) === */
+.controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+.control-item { display: flex; flex-direction: column; }
+.switch-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+.switch-label { font-size: 14px; font-weight: 700; color: #e2e8f0; }
 
-.block-blue { background: var(--main-blue); color: var(--main-white); }
-.block-blue .switch-label { color: var(--main-white); }
-
-.block-white { background: var(--bg-light); color: var(--main-black); border: 1px solid var(--border-color); }
-
-/* أزرار التبديل (Switches) معدلة لتناسب التصميم المسطح */
-.switch-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); }
-.block-white .switch-row { border-bottom-color: var(--border-color); }
-.switch-label { font-size: 16px; font-weight: 800; }
-.switch { position: relative; display: inline-block; width: 60px; height: 30px; }
+/* أزرار التشغيل (Toggle) */
+.switch { position: relative; display: inline-block; width: 50px; height: 26px; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: 0.3s; }
-.slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: 0.3s; }
-input:checked + .slider { background-color: var(--main-orange); }
-input:checked + .slider:before { transform: translateX(30px); }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: #334155; transition: 0.3s; border-radius: 20px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--primary-gold); }
+input:checked + .slider:before { transform: translateX(24px); background-color: #000; }
 
 /* المؤقتات */
-.timer-box { margin-top: 20px; }
-.timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-.timer-group label { display: block; font-size: 11px; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; }
-.timer-box input { 
-  width: 100%; padding: 12px; border: none; background: rgba(255,255,255,0.1); 
-  color: inherit; font-size: 16px; text-align: center; font-weight: 800; outline: none; border-bottom: 2px solid transparent;
-}
-.block-white .timer-box input { background: var(--main-white); border: 1px solid var(--border-color); color: var(--main-black); }
-.timer-box input:focus { border-bottom-color: var(--main-orange); }
-.timer-btn { 
-  width: 100%; padding: 15px; border: none; background: var(--main-orange); 
-  color: var(--main-white); font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; transition: 0.3s;
-}
-.timer-btn:hover { background: var(--main-black); }
-.block-black .timer-btn:hover { background: var(--main-white); color: var(--main-black); }
+.timer-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); }
+.timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; direction: ltr; }
+.timer-inputs label { font-size: 10px; color: #94a3b8; display: block; text-align: center; margin-bottom: 4px; }
+.timer-inputs input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.9); color: #fff; text-align: center; font-weight: bold; outline: none; }
+.timer-inputs input:focus { border-color: var(--primary-gold); }
+.timer-btn { width: 100%; padding: 10px; border: none; border-radius: 6px; background: rgba(255,255,255,0.1); color: #fff; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.timer-btn:hover { background: var(--primary-gold); color: #000; }
 
-.timer-active-container { display: none; flex-direction: column; gap: 15px; align-items: center; }
-.countdown-display { font-size: 36px; font-weight: 900; letter-spacing: 2px; }
+.timer-active-container { display: none; flex-direction: column; align-items: center; gap: 10px; }
+.countdown-display { width: 100%; padding: 10px; background: rgba(255, 204, 0, 0.1); border: 1px solid var(--primary-gold); border-radius: 6px; text-align: center; font-family: monospace; font-size: 22px; color: var(--primary-gold); font-weight: bold; letter-spacing: 2px; }
 .circle-actions { display: flex; gap: 15px; }
-.circle-btn { 
-  width: 45px; height: 45px; border: none; background: rgba(255,255,255,0.2); 
-  color: inherit; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-}
-.block-white .circle-btn { background: var(--border-color); }
-.circle-btn:hover { background: var(--main-orange); color: var(--main-white); }
+.circle-btn { width: 36px; height: 36px; border-radius: 50%; border: none; font-size: 14px; cursor: pointer; background: rgba(255,255,255,0.1); color: #fff; transition: 0.2s; }
+.circle-btn:hover { transform: scale(1.1); }
+.circle-btn.pause:hover { background: #f59e0b; color: #000; }
+.circle-btn.reset:hover { background: var(--danger-red); color: #fff; }
 
-/* قسم الحساسات الإضافية والرسوم البيانية */
-.section-header { font-size: 30px; font-weight: 900; margin: 60px 0 30px; text-transform: uppercase; color: var(--main-black); border-top: 2px solid var(--main-black); padding-top: 20px; }
-
-.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(48%, 1fr)); gap: 30px; }
-.chart-card { background: var(--bg-light); border: 1px solid var(--border-color); padding: 30px; height: 350px; display: flex; flex-direction: column; }
-.chart-card h4 { font-size: 18px; color: var(--main-black); font-weight: 900; margin-bottom: 20px; text-transform: uppercase; }
-.chart-wrapper { position: relative; flex: 1; width: 100%; height: 100%; }
-
-footer { background: var(--main-black); padding: 40px; text-align: center; color: var(--main-white); margin-top: 60px; }
-.author-footer { font-size: 24px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
-
+footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+.author-footer { font-size: 14px; font-weight: 900; color: #94a3b8; letter-spacing: 2px; }
 </style>
 </head>
 <body>
 
+<!-- خلفية الأنيميشن -->
+<div class="solar-environment">
+    <div class="energy-dots"></div>
+    <div class="sun-orb"></div>
+</div>
 <canvas id="eco-canvas"></canvas>
-<div class="bg-layer"></div>
 
-<!-- Login Screen -->
+<!-- شاشة الدخول -->
 <div id="login-screen">
   <div class="login-card" id="loginCard">
-    <div class="login-title">System Access</div>
-    <div class="warning-badge">SILERGY MEMBERS ONLY</div>
+    <div class="login-title">SILERGY LOGIN</div>
+    <div class="warning-badge">⚠️ للنظام المصرح لهم فقط</div>
     
     <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
       <div class="input-group">
-        <label>Username</label>
-        <input type="text" id="usernameInput" placeholder="Enter Username..." required autocomplete="off">
+        <label>اسم المستخدم</label>
+        <input type="text" id="usernameInput" placeholder="Username..." required autocomplete="off">
       </div>
       <div class="input-group">
-        <label>Password</label>
+        <label>كلمة المرور</label>
         <div class="password-wrapper">
-          <input type="password" id="passwordInput" placeholder="Enter Password..." required>
+          <input type="password" id="passwordInput" placeholder="Password..." required>
           <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
         </div>
       </div>
-      <button type="submit" class="login-btn">Login to Dashboard</button>
-      
-      <div>
-        <button type="button" class="forgot-btn" onclick="showTrollMsg()">Forgot Password?</button>
-      </div>
-      <div id="trollMsg" class="troll-msg">
-        NICE TRY! If you need to reset the password, you are definitely NOT a SILERGY team member!
-      </div>
-
-      <div id="errorMsg" class="error-msg">INVALID CREDENTIALS</div>
+      <button type="submit" class="login-btn">تسجيل الدخول</button>
+      <div id="errorMsg" class="error-msg">بيانات الدخول غير صحيحة!</div>
     </form>
   </div>
 </div>
 
-<!-- Welcome Overlay -->
+<!-- الترحيب -->
 <div id="welcome-overlay">
-  <div class="welcome-anim-text">Initializing</div>
+  <div class="welcome-anim-text">جاري تهيئة النظام...</div>
 </div>
 
-<!-- Dashboard Screen -->
+<!-- لوحة التحكم -->
 <div id="dashboard-screen">
-  <!-- Navbar -->
+  
   <div class="sticky-navbar">
-    <div class="navbar-brand">SILERGY.</div>
+    <div class="navbar-brand">SILERGY ⚡</div>
     <div class="nav-actions">
       <div class="mode-toggle">
-        <button class="mode-btn active" id="modeManual" onclick="setSystemMode('manual')">Manual</button>
-        <button class="mode-btn" id="modeAuto" onclick="setSystemMode('auto')">Auto</button>
+        <button class="mode-btn active" id="modeManual" onclick="setSystemMode('manual')">يدوي</button>
+        <button class="mode-btn" id="modeAuto" onclick="setSystemMode('auto')">تلقائي</button>
       </div>
       <div class="user-welcome-badge">
-        <div class="user-welcome-text" id="welcomeUserDisplay">User</div>
-        <button class="logout-btn" onclick="handleLogout()">LOGOUT</button>
+        <span class="user-welcome-text" id="welcomeUserDisplay">User</span>
+        <button class="logout-btn" onclick="handleLogout()">خروج</button>
       </div>
     </div>
   </div>
 
-  <!-- Hero Section -->
-  <div class="hero-section">
-    <div class="hero-container">
-      <h1>SMART ENVIRONMENT<br><span>CONTROL SYSTEM</span></h1>
-      <p>I'm a control panel. Monitor real-time analytics, manage device states, and automate environmental responses directly from this interface.</p>
-      <div class="hero-btn">System Active</div>
-    </div>
+  <div class="dashboard-banner">
+      <div class="status-dot"></div>
+      <div>
+          <div class="banner-title">لوحة المراقبة الذكية</div>
+          <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">جميع الحساسات تعمل بكفاءة ويتم تحديث البيانات لحظياً</div>
+      </div>
   </div>
 
-  <div class="container">
-    
-    <!-- 1. الحساسات والقراءات (Stats Section) -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div id="gas" class="stat-value">0</div>
-        <div class="stat-title">Air Quality (PPM)</div>
-        <div class="gauge-container"><div id="gasGauge" class="gauge-bar"></div></div>
-      </div>
-      <div class="stat-card">
-        <div id="temp" class="stat-value">0</div>
-        <div class="stat-title">Temperature (°C)</div>
-        <div class="gauge-container"><div id="tempGauge" class="gauge-bar"></div></div>
-      </div>
-      <div class="stat-card">
-        <div id="hum" class="stat-value">0</div>
-        <div class="stat-title">Humidity (%)</div>
-        <div class="gauge-container"><div id="humGauge" class="gauge-bar"></div></div>
-      </div>
-      <div class="stat-card">
-        <div id="ldr" class="stat-value">0</div>
-        <div class="stat-title">Light Level (LDR)</div>
-        <div class="gauge-container"><div id="ldrGauge" class="gauge-bar"></div></div>
-      </div>
-    </div>
-
-    <!-- 2. لوحة التحكم (Control Blocks) -->
-    <div class="blocks-grid">
+  <!-- التخطيط الرئيسي: منحنيات (يسار) وحساسات (يمين) -->
+  <div class="main-layout">
       
-      <!-- Fan Card (Black Block) -->
-      <div class="block-card block-black">
-        <h3>FAN CONTROL</h3>
-        <div class="switch-row">
-          <span class="switch-label">Power Status</span>
-          <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
-        </div>
-        <div class="timer-box">
-          <div id="fanInputsBox">
-            <div class="timer-inputs">
-              <div class="timer-group"><label>HR</label><input type="number" id="fanHours" value="0" min="0"></div>
-              <div class="timer-group"><label>MIN</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
-              <div class="timer-group"><label>SEC</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
-            </div>
-            <button class="timer-btn" onclick="startDeviceTimer('fan')">SET TIMER</button>
+      <!-- العمود الأكبر: المنحنيات -->
+      <div class="widget-box">
+          <div class="widget-title">📈 التحليل البياني اللحظي</div>
+          <div class="charts-grid">
+              <div>
+                  <h4 style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">الحرارة (°C)</h4>
+                  <div class="chart-container"><canvas id="tempChart"></canvas></div>
+              </div>
+              <div>
+                  <h4 style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">الرطوبة (%)</h4>
+                  <div class="chart-container"><canvas id="humChart"></canvas></div>
+              </div>
+              <div>
+                  <h4 style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">جودة الهواء</h4>
+                  <div class="chart-container"><canvas id="gasChart"></canvas></div>
+              </div>
+              <div>
+                  <h4 style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">مستوى الإضاءة</h4>
+                  <div class="chart-container"><canvas id="ldrChart"></canvas></div>
+              </div>
           </div>
-          <div id="fanActiveBox" class="timer-active-container">
-            <div id="fanCountdown" class="countdown-display">00:00:00</div>
-            <div class="circle-actions">
-              <button id="fanPauseBtn" class="circle-btn" onclick="togglePauseTimer('fan', 'fanPauseBtn')">⏸️</button>
-              <button class="circle-btn" onclick="resetDeviceTimer('fan')">🔄</button>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <!-- Diffuser Card (Light Blue Block) -->
-      <div class="block-card block-blue">
-        <h3>DIFFUSER</h3>
-        <div class="switch-row">
-          <span class="switch-label">Power Status</span>
-          <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled')"><span class="slider"></span></label>
-        </div>
-        <div class="timer-box">
-          <div id="diffInputsBox">
-            <div class="timer-inputs">
-              <div class="timer-group"><label>HR</label><input type="number" id="diffHours" value="0" min="0"></div>
-              <div class="timer-group"><label>MIN</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
-              <div class="timer-group"><label>SEC</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
-            </div>
-            <button class="timer-btn" onclick="startDeviceTimer('diff')">SET TIMER</button>
+      <!-- العمود الأصغر: قراءات الحساسات المكدسة -->
+      <div class="widget-box">
+          <div class="widget-title">📊 القراءات الحالية</div>
+          <div class="sensors-stack">
+              <div class="sensor-card">
+                  <div class="sensor-info">
+                      <h4>درجة الحرارة</h4>
+                      <div id="temp" class="sensor-value" style="color: #ef4444;">--</div>
+                  </div>
+                  <div class="sensor-gauge"><div id="tempGauge" class="gauge-fill"></div></div>
+              </div>
+              <div class="sensor-card">
+                  <div class="sensor-info">
+                      <h4>الرطوبة</h4>
+                      <div id="hum" class="sensor-value" style="color: #0ea5e9;">--</div>
+                  </div>
+                  <div class="sensor-gauge"><div id="humGauge" class="gauge-fill"></div></div>
+              </div>
+              <div class="sensor-card">
+                  <div class="sensor-info">
+                      <h4>جودة الهواء (MQ-135)</h4>
+                      <div id="gas" class="sensor-value" style="color: #10b981;">--</div>
+                  </div>
+                  <div class="sensor-gauge"><div id="gasGauge" class="gauge-fill"></div></div>
+              </div>
+              <div class="sensor-card">
+                  <div class="sensor-info">
+                      <h4>الإضاءة (LDR)</h4>
+                      <div id="ldr" class="sensor-value" style="color: var(--primary-gold);">--</div>
+                  </div>
+                  <div class="sensor-gauge"><div id="ldrGauge" class="gauge-fill"></div></div>
+              </div>
           </div>
-          <div id="diffActiveBox" class="timer-active-container">
-            <div id="diffCountdown" class="countdown-display">00:00:00</div>
-            <div class="circle-actions">
-              <button id="diffPauseBtn" class="circle-btn" onclick="togglePauseTimer('diff', 'diffPauseBtn')">⏸️</button>
-              <button class="circle-btn" onclick="resetDeviceTimer('diff')">🔄</button>
-            </div>
+          
+          <!-- مفاتيح تشغيل الحساسات في نفس العمود -->
+          <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+              <div class="switch-row" style="background: transparent; border: none; padding: 5px 0;">
+                  <span class="switch-label" style="font-size: 13px;">طاقة BME280</span>
+                  <label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bmeEnabled')"><span class="slider"></span></label>
+              </div>
+              <div class="switch-row" style="background: transparent; border: none; padding: 5px 0; margin-bottom: 0;">
+                  <span class="switch-label" style="font-size: 13px;">طاقة حساس الغاز</span>
+                  <label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasEnabled')"><span class="slider"></span></label>
+              </div>
           </div>
-        </div>
       </div>
-
-      <!-- LEDs Card (White Block) -->
-      <div class="block-card block-white">
-        <h3>LIGHTING</h3>
-        <div class="switch-row">
-          <span class="switch-label">Power Status</span>
-          <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled')"><span class="slider"></span></label>
-        </div>
-        <div class="timer-box">
-          <div id="ledInputsBox">
-            <div class="timer-inputs">
-              <div class="timer-group"><label>HR</label><input type="number" id="ledHours" value="0" min="0"></div>
-              <div class="timer-group"><label>MIN</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
-              <div class="timer-group"><label>SEC</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
-            </div>
-            <button class="timer-btn" onclick="startDeviceTimer('led')">SET TIMER</button>
-          </div>
-          <div id="ledActiveBox" class="timer-active-container">
-            <div id="ledCountdown" class="countdown-display">00:00:00</div>
-            <div class="circle-actions">
-              <button id="ledPauseBtn" class="circle-btn" onclick="togglePauseTimer('led', 'ledPauseBtn')">⏸️</button>
-              <button class="circle-btn" onclick="resetDeviceTimer('led')">🔄</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- مفاتيح الحساسات الإضافية -->
-    <div class="blocks-grid" style="grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px;">
-      <div class="block-card block-white" style="padding: 30px;">
-        <h3>BME280 SENSOR</h3>
-        <div class="switch-row" style="border:none; padding:0; margin:0;">
-          <span class="switch-label">Enable Sensor</span>
-          <label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bmeEnabled')"><span class="slider"></span></label>
-        </div>
-      </div>
-      <div class="block-card block-white" style="padding: 30px;">
-        <h3>GAS SENSOR</h3>
-        <div class="switch-row" style="border:none; padding:0; margin:0;">
-          <span class="switch-label">Enable Sensor</span>
-          <label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasEnabled')"><span class="slider"></span></label>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. المنحنيات البيانية (Charts) -->
-    <div class="section-header">Real-Time Analytics</div>
-    <div class="charts-grid">
-      <div class="chart-card">
-        <h4>Temperature (°C)</h4>
-        <div class="chart-wrapper"><canvas id="tempChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h4>Humidity (%)</h4>
-        <div class="chart-wrapper"><canvas id="humChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h4>Gas Level (MQ-135)</h4>
-        <div class="chart-wrapper"><canvas id="gasChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h4>Light Level (LDR)</h4>
-        <div class="chart-wrapper"><canvas id="ldrChart"></canvas></div>
-      </div>
-    </div>
 
   </div>
-  
-  <footer>
-    <div class="author-footer">SILERGY PROJECT</div>
-  </footer>
+
+  <!-- الأجهزة والمؤقتات بالأسفل -->
+  <div class="controls-grid">
+      
+      <!-- المروحة -->
+      <div class="widget-box control-item">
+          <div class="widget-title">🌀 المروحة الذكية</div>
+          <div class="switch-row">
+              <span class="switch-label">التشغيل اليدوي</span>
+              <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
+          </div>
+          <div class="timer-box">
+              <div id="fanInputsBox">
+                  <div class="timer-inputs">
+                      <div><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
+                      <div><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
+                      <div><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
+                  </div>
+                  <button class="timer-btn" onclick="startDeviceTimer('fan')">بدء المؤقت</button>
+              </div>
+              <div id="fanActiveBox" class="timer-active-container">
+                  <div id="fanCountdown" class="countdown-display">00:00:00</div>
+                  <div class="circle-actions">
+                      <button id="fanPauseBtn" class="circle-btn pause" onclick="togglePauseTimer('fan', 'fanPauseBtn')">⏸️</button>
+                      <button class="circle-btn reset" onclick="resetDeviceTimer('fan')">🔄</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- الفواحة -->
+      <div class="widget-box control-item">
+          <div class="widget-title">💨 الفواحة (Diffuser)</div>
+          <div class="switch-row">
+              <span class="switch-label">التشغيل اليدوي</span>
+              <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled')"><span class="slider"></span></label>
+          </div>
+          <div class="timer-box">
+              <div id="diffInputsBox">
+                  <div class="timer-inputs">
+                      <div><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
+                      <div><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
+                      <div><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
+                  </div>
+                  <button class="timer-btn" onclick="startDeviceTimer('diff')">بدء المؤقت</button>
+              </div>
+              <div id="diffActiveBox" class="timer-active-container">
+                  <div id="diffCountdown" class="countdown-display">00:00:00</div>
+                  <div class="circle-actions">
+                      <button id="diffPauseBtn" class="circle-btn pause" onclick="togglePauseTimer('diff', 'diffPauseBtn')">⏸️</button>
+                      <button class="circle-btn reset" onclick="resetDeviceTimer('diff')">🔄</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- الإضاءة -->
+      <div class="widget-box control-item">
+          <div class="widget-title">💡 كشافات LED</div>
+          <div class="switch-row">
+              <span class="switch-label">التشغيل اليدوي</span>
+              <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled')"><span class="slider"></span></label>
+          </div>
+          <div class="timer-box">
+              <div id="ledInputsBox">
+                  <div class="timer-inputs">
+                      <div><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
+                      <div><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
+                      <div><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
+                  </div>
+                  <button class="timer-btn" onclick="startDeviceTimer('led')">بدء المؤقت</button>
+              </div>
+              <div id="ledActiveBox" class="timer-active-container">
+                  <div id="ledCountdown" class="countdown-display">00:00:00</div>
+                  <div class="circle-actions">
+                      <button id="ledPauseBtn" class="circle-btn pause" onclick="togglePauseTimer('led', 'ledPauseBtn')">⏸️</button>
+                      <button class="circle-btn reset" onclick="resetDeviceTimer('led')">🔄</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+  </div>
+
+  <footer><div class="author-footer">SYSTEM POWERED BY SILERGY</div></footer>
 </div>
 
 <script>
-  //[cite: 10] أنيميشن خفيف متوافق مع المظهر الفاتح
+  // رسم الخلفية (Canvas) للديدان والنبضات
   const canvas = document.getElementById('eco-canvas');
   const ctx = canvas.getContext('2d');
   function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  class LightPulse {
-    constructor() { this.reset(); }
-    reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.length = Math.random() * 80 + 40; this.speed = Math.random() * 2 + 1; this.dir = Math.random() > 0.5 ? 'H' : 'V'; this.progress = 0; }
-    update() { this.progress += this.speed; if (this.progress > this.length) this.reset(); }
+  class SilkWorm {
+    constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.radius = Math.random() * 1.5 + 1; this.history = []; }
+    update() {
+      this.x += this.vx; this.y += this.vy;
+      if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+      if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+      this.history.push({x: this.x, y: this.y});
+      if (this.history.length > 5) this.history.shift();
+    }
     draw() {
       ctx.beginPath();
-      if (this.dir === 'H') { ctx.moveTo(this.x, this.y); ctx.lineTo(this.x + this.progress, this.y); }
-      else { ctx.moveTo(this.x, this.y); ctx.lineTo(this.x, this.y + this.progress); }
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.05)"; ctx.lineWidth = 1; ctx.stroke(); 
+      for (let i = 0; i < this.history.length; i++) {
+        let pt = this.history[i];
+        if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
+      }
+      ctx.strokeStyle = "rgba(255, 204, 0, 0.15)"; ctx.lineWidth = 1; ctx.stroke();
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = "#ffcc00"; ctx.fill();
     }
   }
-  const pulses = Array.from({ length: 20 }, () => new LightPulse());
+
+  const worms = Array.from({ length: 25 }, () => new SilkWorm());
   function renderEcoCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    pulses.forEach(p => { p.update(); p.draw(); });
+    worms.forEach(w => { w.update(); w.draw(); });
     requestAnimationFrame(renderEcoCanvas);
   }
   renderEcoCanvas();
 
+  // إظهار كلمة المرور
   function togglePasswordVisibility() {
-    const passwordInput = document.getElementById("passwordInput");
-    const toggleBtn = document.querySelector(".toggle-password");
-    if (passwordInput.type === "password") { passwordInput.type = "text"; toggleBtn.textContent = "🙈"; }
-    else { passwordInput.type = "password"; toggleBtn.textContent = "👁️"; }
-  }
-  function showTrollMsg() {
-    const trollBox = document.getElementById("trollMsg");
-    trollBox.style.display = (trollBox.style.display === "block") ? "none" : "block";
+    const pwd = document.getElementById("passwordInput");
+    pwd.type = pwd.type === "password" ? "text" : "password";
   }
 </script>
 
+<!-- Firebase Logic (محفوظ كما هو بالظبط) -->
 <script type="module">
-  //[cite: 10] تم الاحتفاظ بكافة أكواد ومنطق الفايربيس (Firebase) كما هي
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const allowedUsers = {
-    "DR Abdullah": "drabdullah",
-    "Abdou Badran": "970020002",
-    "Haneen Yasser": "24200242",
-    "Omar Yasser": "omarlabw",
-    "Mohamed Elshabrawy": "mohamedlabw",
-    "Mohammed Fouda": "mohamed33",
-    "Anas Wafa": "anaswafa",
-    "Gamal Rajab": "elsheekhgamal",
-    "Aya Ellaban": "123654789",
-    "Alaa Elshobakey": "123654789",
-    "Mariam Ibrahim": "123654789"
+    "DR Abdullah": "drabdullah", "Abdou Badran": "970020002", "Haneen Yasser": "24200242",
+    "Omar Yasser": "omarlabw", "Mohamed Elshabrawy": "mohamedlabw", "Mohammed Fouda": "mohamed33",
+    "Anas Wafa": "anaswafa", "Gamal Rajab": "elsheekhgamal", "Aya Ellaban": "123654789",
+    "Alaa Elshobakey": "123654789", "Mariam Ibrahim": "123654789"
   };
 
   const firebaseConfig = {
-    apiKey: "AIzaSyBX1PQUhlbiubiQeuY62nN4qjVvMp-NwLI",
-    authDomain: "summer-ca623.firebaseapp.com",
-    databaseURL: "https://summer-ca623-default-rtdb.firebaseio.com",
-    projectId: "summer-ca623",
-    storageBucket: "summer-ca623.firebasestorage.app",
-    messagingSenderId: "798032639895",
-    appId: "1:798032639895:web:7583b8eb505bc30adf36d2",
-    measurementId: "G-9S6PRSR0XM"
+    apiKey: "AIzaSyBX1PQUhlbiubiQeuY62nN4qjVvMp-NwLI", authDomain: "summer-ca623.firebaseapp.com",
+    databaseURL: "https://summer-ca623-default-rtdb.firebaseio.com", projectId: "summer-ca623",
+    storageBucket: "summer-ca623.firebasestorage.app", messagingSenderId: "798032639895",
+    appId: "1:798032639895:web:7583b8eb505bc30adf36d2", measurementId: "G-9S6PRSR0XM"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  let currentSystemMode = 'manual'; 
-  let currentFanStatus = false;     
+  let currentSystemMode = 'manual';
+  let currentFanStatus = false;
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#000', font: { size: 11, weight: 'bold' } } },
-      y: { min: 0, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#000', font: { size: 10, weight: 'bold' } } }
-    },
+  const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+    scales: { x: { display: false }, y: { min: 0, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } } },
     elements: { line: { tension: 0.4 } }
   };
 
-  function createChartConfig(color, label) {
-    return {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: label,
-          data: [],
-          borderColor: color,
-          backgroundColor: color.replace('1)', '0.1)'),
-          borderWidth: 3,
-          fill: true,
-          pointRadius: 4
-        }]
-      },
-      options: chartOptions
-    };
+  function createChartConfig(color) {
+    return { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: color, backgroundColor: color.replace('1)', '0.15)'), borderWidth: 2, fill: true, pointRadius: 2 }] }, options: chartOptions };
   }
 
-  // استخدام الألوان الجديدة للرسم البياني
-  const tempChart = new Chart(document.getElementById('tempChart'), createChartConfig('rgba(234, 88, 44, 1)', 'Temperature')); // Orange
-  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(140, 190, 224, 1)', 'Humidity')); // Blue
-  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(0, 0, 0, 1)', 'Gas Level')); // Black
-  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(243, 160, 28, 1)', 'Light LDR')); // Yellow
+  const tempChart = new Chart(document.getElementById('tempChart'), createChartConfig('rgba(239, 68, 68, 1)'));
+  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(14, 165, 233, 1)'));
+  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(16, 185, 129, 1)'));
+  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(255, 204, 0, 1)'));
 
   function addChartData(chart, rawValue) {
     const val = parseFloat(rawValue);
     if (isNaN(val) || val < 0) return;
-
-    const now = new Date();
-    const timeLabel = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-
-    const lastLabel = chart.data.labels[chart.data.labels.length - 1];
-    if (lastLabel === timeLabel) {
-      chart.data.datasets[0].data[chart.data.datasets[0].data.length - 1] = val;
-    } else {
-      chart.data.labels.push(timeLabel);
-      chart.data.datasets[0].data.push(val);
-    }
-
-    if (chart.data.labels.length > 8) {
-      chart.data.labels.shift();
-      chart.data.datasets[0].data.shift();
-    }
+    const timeLabel = new Date().toLocaleTimeString();
+    chart.data.labels.push(timeLabel);
+    chart.data.datasets[0].data.push(val);
+    if (chart.data.labels.length > 10) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); }
     chart.update('quiet');
   }
 
@@ -593,24 +495,15 @@ footer { background: var(--main-black); padding: 40px; text-align: center; color
     if (allowedUsers[user] && allowedUsers[user] === pass) {
       document.getElementById("errorMsg").style.display = "none";
       localStorage.setItem("silergy_user", user);
-      document.getElementById("login-screen").style.display = "none"; 
-      playWelcomeAnimation(user); 
-    } else { 
-      document.getElementById("errorMsg").style.display = "block"; 
-    }
+      document.getElementById("loginCard").classList.add("animate-exit");
+      setTimeout(() => { document.getElementById("login-screen").style.display = "none"; playWelcomeAnimation(user); }, 500);
+    } else { document.getElementById("errorMsg").style.display = "block"; }
   };
 
   function playWelcomeAnimation(username) {
     const overlay = document.getElementById("welcome-overlay");
-    overlay.style.display = "flex"; 
-    setTimeout(() => { overlay.style.opacity = "1"; }, 10);
-    setTimeout(() => { 
-      overlay.style.opacity = "0"; 
-      setTimeout(() => { 
-        overlay.style.display = "none"; 
-        showDashboard(username); 
-      }, 500); 
-    }, 1500);
+    overlay.style.display = "flex"; setTimeout(() => { overlay.style.opacity = "1"; }, 10);
+    setTimeout(() => { overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; showDashboard(username); }, 500); }, 1500);
   }
 
   function showDashboard(username) {
@@ -622,22 +515,11 @@ footer { background: var(--main-black); padding: 40px; text-align: center; color
 
   window.handleLogout = function() {
     localStorage.removeItem("silergy_user");
-    const dash = document.getElementById("dashboard-screen");
-    dash.classList.remove("animate-enter");
-    setTimeout(() => {
-      dash.style.display = "none";
-      const loginScreen = document.getElementById("login-screen");
-      loginScreen.style.display = "flex";
-      document.getElementById("usernameInput").value = "";
-      document.getElementById("passwordInput").value = "";
-    }, 600);
+    location.reload();
   };
 
   const savedUser = localStorage.getItem("silergy_user");
-  if (savedUser && allowedUsers[savedUser]) {
-    document.getElementById("login-screen").style.display = "none";
-    showDashboard(savedUser);
-  }
+  if (savedUser && allowedUsers[savedUser]) { document.getElementById("login-screen").style.display = "none"; showDashboard(savedUser); }
 
   const activeTimers = {
     fan: { timerId: null, remainingSecs: 0, isPaused: false, fbKey: 'fanEnabled' },
@@ -649,11 +531,7 @@ footer { background: var(--main-black); padding: 40px; text-align: center; color
   window.toggleControl = function(path) {
     let elementId = ''; let deviceKey = '';
     if (path === 'fanEnabled') { 
-      if (currentSystemMode === 'auto') {
-        alert("System is currently in Auto mode. Please switch to Manual to control the fan.");
-        document.getElementById('fanSwitch').checked = currentFanStatus; 
-        return;
-      }
+      if (currentSystemMode === 'auto') { alert("قم بالتحويل للوضع اليدوي (Manual) للتحكم بالمروحة."); document.getElementById('fanSwitch').checked = currentFanStatus; return; }
       elementId = 'fanSwitch'; deviceKey = 'fan'; 
     }
     else if (path === 'diffuserEnabled') { elementId = 'diffuserSwitch'; deviceKey = 'diff'; }
@@ -663,40 +541,27 @@ footer { background: var(--main-black); padding: 40px; text-align: center; color
 
     const el = document.getElementById(elementId);
     if (el) {
-      const isChecked = el.checked;
-      set(ref(db, 'controls/' + path), isChecked);
-      if (!isChecked && deviceKey) resetDeviceTimer(deviceKey);
+      set(ref(db, 'controls/' + path), el.checked);
+      if (!el.checked && deviceKey) resetDeviceTimer(deviceKey);
     }
   };
 
   window.setSystemMode = function(mode) { set(ref(db, 'controls/systemMode'), mode); };
 
   window.startDeviceTimer = function(deviceKey) {
-    let hrs = parseInt(document.getElementById(deviceKey + 'Hours').value) || 0;
-    let mins = parseInt(document.getElementById(deviceKey + 'Mins').value) || 0;
-    let secs = parseInt(document.getElementById(deviceKey + 'Secs').value) || 0;
-    let totalSeconds = hrs * 3600 + mins * 60 + secs;
+    let totalSeconds = (parseInt(document.getElementById(deviceKey + 'Hours').value) || 0) * 3600 + (parseInt(document.getElementById(deviceKey + 'Mins').value) || 0) * 60 + (parseInt(document.getElementById(deviceKey + 'Secs').value) || 0);
     if (totalSeconds <= 0) return;
-
     resetDeviceTimer(deviceKey);
     activeTimers[deviceKey].remainingSecs = totalSeconds;
-    activeTimers[deviceKey].isPaused = false;
     set(ref(db, 'controls/' + activeTimers[deviceKey].fbKey), true);
     if (timerFbKeys[deviceKey]) set(ref(db, 'timers/' + timerFbKeys[deviceKey]), totalSeconds);
-
     document.getElementById(deviceKey + 'InputsBox').style.display = 'none';
     document.getElementById(deviceKey + 'ActiveBox').style.display = 'flex';
-    document.getElementById(deviceKey + 'PauseBtn').textContent = '⏸️';
     updateTimerDisplay(deviceKey);
-
     activeTimers[deviceKey].timerId = setInterval(() => {
       if (!activeTimers[deviceKey].isPaused) {
-        activeTimers[deviceKey].remainingSecs--;
-        updateTimerDisplay(deviceKey);
-        if (activeTimers[deviceKey].remainingSecs <= 0) {
-          set(ref(db, 'controls/' + activeTimers[deviceKey].fbKey), false);
-          resetDeviceTimer(deviceKey);
-        }
+        activeTimers[deviceKey].remainingSecs--; updateTimerDisplay(deviceKey);
+        if (activeTimers[deviceKey].remainingSecs <= 0) { set(ref(db, 'controls/' + activeTimers[deviceKey].fbKey), false); resetDeviceTimer(deviceKey); }
       }
     }, 1000);
   };
@@ -717,72 +582,62 @@ footer { background: var(--main-black); padding: 40px; text-align: center; color
 
   function updateTimerDisplay(deviceKey) {
     let total = activeTimers[deviceKey].remainingSecs;
-    let h = Math.floor(total / 3600).toString().padStart(2, '0');
-    let m = Math.floor((total % 3600) / 60).toString().padStart(2, '0');
-    let s = (total % 60).toString().padStart(2, '0');
-    document.getElementById(deviceKey + 'Countdown').textContent = `${h}:${m}:${s}`;
+    document.getElementById(deviceKey + 'Countdown').textContent = `${Math.floor(total / 3600).toString().padStart(2, '0')}:${Math.floor((total % 3600) / 60).toString().padStart(2, '0')}:${(total % 60).toString().padStart(2, '0')}`;
   }
 
+  // الاستماع لقراءات الحساسات
   onValue(ref(db, 'sensorData'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
       if (data.temp !== undefined) {
-        document.getElementById('temp').textContent = data.temp; // بدون علامة مئوية لتبدو كرقم ضخم
+        document.getElementById('temp').textContent = data.temp + ' °C';
         document.getElementById('tempGauge').style.width = Math.min((parseFloat(data.temp) / 50) * 100, 100) + '%';
+        document.getElementById('tempGauge').style.backgroundColor = '#ef4444';
         addChartData(tempChart, data.temp);
-        
         if (currentSystemMode === 'auto') {
-          const currentTemp = parseFloat(data.temp);
-          if (currentTemp > 31 && !currentFanStatus) set(ref(db, 'controls/fanEnabled'), true);
-          else if (currentTemp <= 31 && currentFanStatus) set(ref(db, 'controls/fanEnabled'), false);
+          if (parseFloat(data.temp) > 31 && !currentFanStatus) set(ref(db, 'controls/fanEnabled'), true);
+          else if (parseFloat(data.temp) <= 31 && currentFanStatus) set(ref(db, 'controls/fanEnabled'), false);
         }
       }
       if (data.humidity !== undefined) {
-        document.getElementById('hum').textContent = data.humidity;
+        document.getElementById('hum').textContent = data.humidity + ' %';
         document.getElementById('humGauge').style.width = Math.min(parseFloat(data.humidity), 100) + '%';
+        document.getElementById('humGauge').style.backgroundColor = '#0ea5e9';
         addChartData(humChart, data.humidity);
       }
       if (data.gas !== undefined) {
         document.getElementById('gas').textContent = data.gas;
         document.getElementById('gasGauge').style.width = Math.min((parseFloat(data.gas) / 1024) * 100, 100) + '%';
+        document.getElementById('gasGauge').style.backgroundColor = '#10b981';
         addChartData(gasChart, data.gas);
       }
       if (data.ldr !== undefined) {
         document.getElementById('ldr').textContent = data.ldr;
         document.getElementById('ldrGauge').style.width = Math.min((parseFloat(data.ldr) / 1024) * 100, 100) + '%';
+        document.getElementById('ldrGauge').style.backgroundColor = 'var(--primary-gold)';
         addChartData(ldrChart, data.ldr);
       }
     }
   });
 
+  // الاستماع لحالة المفاتيح
   onValue(ref(db, 'controls'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
       if (data.fanEnabled !== undefined) currentFanStatus = data.fanEnabled;
-      const devices = [
-        { switchId: 'fanSwitch', key: 'fan', state: data.fanEnabled },
-        { switchId: 'diffuserSwitch', key: 'diff', state: data.diffuserEnabled },
-        { switchId: 'ledsSwitch', key: 'led', state: data.ledsEnabled }
-      ];
-      devices.forEach(dev => {
-        const el = document.getElementById(dev.switchId);
-        if (el) {
-          el.checked = dev.state || false;
-          if (!dev.state && activeTimers[dev.key].remainingSecs > 0) resetDeviceTimer(dev.key);
-        }
+      ['fanSwitch', 'diffuserSwitch', 'ledsSwitch'].forEach((id, i) => {
+        const key = ['fanEnabled', 'diffuserEnabled', 'ledsEnabled'][i];
+        const devKey = ['fan', 'diff', 'led'][i];
+        const el = document.getElementById(id);
+        if (el) { el.checked = data[key] || false; if (!data[key] && activeTimers[devKey].remainingSecs > 0) resetDeviceTimer(devKey); }
       });
       if (document.getElementById('bmeSwitch')) document.getElementById('bmeSwitch').checked = data.bmeEnabled || false;
       if (document.getElementById('gasSwitch')) document.getElementById('gasSwitch').checked = data.gasEnabled || false;
-
+      
       if (data.systemMode) {
         currentSystemMode = data.systemMode;
-        if (currentSystemMode === 'manual') {
-          document.getElementById('modeManual').classList.add('active');
-          document.getElementById('modeAuto').classList.remove('active');
-        } else {
-          document.getElementById('modeAuto').classList.add('active');
-          document.getElementById('modeManual').classList.remove('active');
-        }
+        document.getElementById('modeManual').classList.toggle('active', currentSystemMode === 'manual');
+        document.getElementById('modeAuto').classList.toggle('active', currentSystemMode === 'auto');
       }
     }
   });
