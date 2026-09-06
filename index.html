@@ -11,116 +11,151 @@
 /* === إعدادات الألوان المستوحاة من لوحة الألوان المرفقة === */
 :root {
   --primary-brand: #4c7177;
+  --primary-hover: #38565b;
   --accent-light: #f5f5db;
   --bg-dark: #3e413a;
-  --card-bg: #f5f5db;
-  --border-color: rgba(76, 113, 119, 0.2);
+  --card-bg: rgba(245, 245, 219, 0.95);
+  --border-color: rgba(76, 113, 119, 0.25);
   --text-dark: #222421;
   --text-light: #ffffff;
   --accent-mint: #adcdc0;
   --accent-olive: #6b6c5a;
   --danger-red: #d82c0d;
   --ee-cyan: #4c7177;
+  --glow-shadow: rgba(76, 113, 119, 0.35);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', 'Plus Jakarta Sans', sans-serif; }
 body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); position: relative; overflow-x: hidden; padding-bottom: 40px; }
 
-/* === خلفية الأنيميشن === */
-#eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.6; }
+/* === خلفية الأنيميشن المتقدمة === */
+#eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.65; }
 .solar-environment { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
 .sun-orb {
-    position: absolute; top: -150px; right: -150px; width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(245,245,219,0.15) 0%, rgba(76,113,119,0.12) 40%, transparent 70%);
-    border-radius: 50%; animation: pulseSun 6s infinite alternate ease-in-out;
+    position: absolute; top: -150px; right: -150px; width: 550px; height: 550px;
+    background: radial-gradient(circle, rgba(245,245,219,0.2) 0%, rgba(76,113,119,0.15) 45%, transparent 70%);
+    border-radius: 50%; animation: pulseSun 8s infinite alternate ease-in-out;
+    filter: blur(20px);
 }
 .energy-dots {
     position: absolute; width: 100%; height: 100%;
-    background-image: radial-gradient(rgba(245, 245, 219, 0.1) 1px, transparent 1px);
-    background-size: 35px 35px; animation: moveDots 20s linear infinite;
+    background-image: radial-gradient(rgba(245, 245, 219, 0.12) 1px, transparent 1px);
+    background-size: 35px 35px; animation: moveDots 25s linear infinite;
 }
-@keyframes pulseSun { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
+@keyframes pulseSun { 0% { transform: scale(1) translate(0, 0); opacity: 0.7; } 100% { transform: scale(1.15) translate(-20px, 20px); opacity: 1; } }
 @keyframes moveDots { 0% { transform: translateY(0); } 100% { transform: translateY(35px); } }
 
 /* === شريط التنقل (Navbar) === */
 .sticky-navbar {
   position: sticky; top: 0; left: 0; width: 100%; z-index: 1000;
-  background: rgba(62, 65, 58, 0.95); backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgba(255,255,255,0.08); padding: 15px 30px;
+  background: rgba(62, 65, 58, 0.85); backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.12); padding: 15px 30px;
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
 }
-.navbar-brand { font-size: 22px; font-weight: 900; color: var(--accent-light); direction: ltr; letter-spacing: 1px; }
+.navbar-brand { 
+  font-size: 24px; font-weight: 900; color: var(--accent-light); direction: ltr; letter-spacing: 1.5px;
+  text-shadow: 0 0 12px rgba(245, 245, 219, 0.3);
+  transition: transform 0.3s ease;
+}
+.navbar-brand:hover { transform: scale(1.03); }
 
 /* === أزرار التنقل بين الصفحات === */
-.main-nav-links { display: flex; align-items: center; gap: 10px; }
+.main-nav-links { display: flex; align-items: center; gap: 12px; }
 .nav-tab-btn {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: var(--accent-light);
-  padding: 8px 18px;
-  border-radius: 10px;
+  padding: 9px 20px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(5px);
 }
-.nav-tab-btn:hover { background: rgba(255, 255, 255, 0.2); }
+.nav-tab-btn:hover { 
+  background: rgba(255, 255, 255, 0.2); 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+}
 .nav-tab-btn.active {
   background: var(--primary-brand);
   color: #ffffff;
-  border-color: var(--primary-brand);
-  box-shadow: 0 4px 12px rgba(76, 113, 119, 0.4);
+  border-color: rgba(255,255,255,0.3);
+  box-shadow: 0 6px 20px var(--glow-shadow);
 }
 
 .nav-actions { display: flex; align-items: center; gap: 16px; }
 
-.mode-toggle { display: flex; align-items: center; background: rgba(0,0,0,0.25); padding: 5px; border-radius: 12px; }
+.mode-toggle { display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); }
 .mode-btn { border: none; background: transparent; color: rgba(255,255,255,0.7); padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.3s ease; }
-.mode-btn.active { background: var(--accent-light); color: var(--bg-dark); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+.mode-btn.active { background: var(--accent-light); color: var(--bg-dark); box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
 
-.user-welcome-badge { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 12px; direction: ltr; }
+.user-welcome-badge { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); padding: 8px 16px; border-radius: 12px; direction: ltr; }
 .user-welcome-text { font-size: 14px; font-weight: 700; color: var(--accent-light); }
 .logout-btn { background: rgba(216, 44, 13, 0.15); border: 1px solid var(--danger-red); color: #ffb3a7; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-.logout-btn:hover { background: var(--danger-red); color: #fff; }
+.logout-btn:hover { background: var(--danger-red); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(216,44,13,0.3); }
 
 /* === شاشات الدخول والترحيب === */
 #login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 1; transition: 0.5s ease; }
-.login-card { background: var(--card-bg); border-radius: 24px; padding: 40px 35px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
-.login-card.animate-exit { opacity: 0; transform: scale(0.95) translateY(-20px); transition: 0.5s; }
-.login-title { font-size: 28px; font-weight: 900; color: var(--text-dark); margin-bottom: 20px; letter-spacing: 1px; }
-.input-group { margin-bottom: 18px; text-align: left; }
+.login-card { 
+  background: var(--card-bg); 
+  border-radius: 28px; 
+  padding: 45px 40px; 
+  width: 100%; 
+  max-width: 430px; 
+  text-align: center; 
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 30px rgba(76,113,119,0.2); 
+  border: 1px solid rgba(255,255,255,0.5);
+  animation: fadeInCard 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes fadeInCard { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.login-card.animate-exit { opacity: 0; transform: scale(0.9) translateY(-30px); transition: 0.5s cubic-bezier(0.7, 0, 0.84, 0); }
+.login-title { font-size: 30px; font-weight: 900; color: var(--text-dark); margin-bottom: 18px; letter-spacing: 1px; }
+.input-group { margin-bottom: 20px; text-align: left; }
 .input-group label { display: block; font-size: 13px; color: #555750; margin-bottom: 8px; font-weight: 700; }
-.input-group input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.12); background: #fff; color: var(--text-dark); outline: none; transition: 0.3s; direction: ltr; font-size: 14px; }
-.input-group input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 3px rgba(76,113,119,0.2); }
+.input-group input { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1.5px solid rgba(0,0,0,0.12); background: #fff; color: var(--text-dark); outline: none; transition: 0.3s; direction: ltr; font-size: 14px; }
+.input-group input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 4px rgba(76,113,119,0.2); }
 .password-wrapper { position: relative; }
-.toggle-password { position: absolute; right: 14px; top: 14px; cursor: pointer; color: #555750; }
-.login-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--primary-brand); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 15px; transition: 0.3s; }
-.login-btn:hover { background: #38565b; transform: translateY(-2px); }
-.error-msg { color: var(--danger-red); font-size: 13px; margin-top: 12px; display: none; font-weight: 700; }
-.warning-badge { font-size: 13px; color: var(--primary-brand); background: rgba(76,113,119,0.12); padding: 6px 12px; border-radius: 20px; margin-bottom: 25px; display: inline-block; font-weight: 700;}
+.toggle-password { position: absolute; right: 14px; top: 14px; cursor: pointer; color: #555750; transition: transform 0.2s; }
+.toggle-password:hover { transform: scale(1.15); }
+.login-btn { 
+  width: 100%; padding: 15px; border: none; border-radius: 14px; 
+  background: var(--primary-brand); color: #fff; font-size: 16px; font-weight: 800; 
+  cursor: pointer; margin-top: 15px; transition: all 0.3s ease; 
+  box-shadow: 0 8px 20px rgba(76,113,119,0.3);
+}
+.login-btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 12px 25px rgba(76,113,119,0.4); }
+.error-msg { color: var(--danger-red); font-size: 13px; margin-top: 14px; display: none; font-weight: 700; animation: shake 0.4s ease; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.warning-badge { font-size: 13px; color: var(--primary-brand); background: rgba(76,113,119,0.12); padding: 8px 16px; border-radius: 20px; margin-bottom: 25px; display: inline-block; font-weight: 700; }
 
-#welcome-overlay { position: fixed; inset: 0; z-index: 10000; background: var(--bg-dark); display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.5s; }
-.welcome-anim-text { font-size: 36px; font-weight: 900; color: var(--accent-light); animation: pulseScale 1s infinite alternate; }
-@keyframes pulseScale { 0% { transform: scale(0.95); } 100% { transform: scale(1.05); } }
+#welcome-overlay { position: fixed; inset: 0; z-index: 10000; background: var(--bg-dark); display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.5s ease; }
+.welcome-anim-text { font-size: 38px; font-weight: 900; color: var(--accent-light); animation: pulseScale 1s infinite alternate ease-in-out; text-shadow: 0 0 25px var(--glow-shadow); }
+@keyframes pulseScale { 0% { transform: scale(0.92); opacity: 0.8; } 100% { transform: scale(1.08); opacity: 1; } }
 
 /* === تخطيط لوحة التحكم === */
 #dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease; padding: 30px 40px; }
 #dashboard-screen.animate-enter { opacity: 1; }
 
-.page-view { transition: opacity 0.4s ease; }
+.page-view { transition: opacity 0.4s ease, transform 0.4s ease; }
+.page-view.active-view { animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 .dashboard-banner {
-    background: var(--primary-brand);
-    border-radius: 20px;
-    padding: 20px 30px;
+    background: linear-gradient(135deg, var(--primary-brand), #345054);
+    border-radius: 22px;
+    padding: 22px 32px;
     margin-bottom: 30px;
-    display: flex; align-items: center; gap: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    display: flex; align-items: center; gap: 18px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.1);
 }
-.banner-title { font-size: 24px; font-weight: 900; color: #fff; }
-.status-dot { width: 12px; height: 12px; background: var(--accent-mint); border-radius: 50%; box-shadow: 0 0 15px var(--accent-mint); animation: pulseDot 1.5s infinite; }
-@keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+.banner-title { font-size: 25px; font-weight: 900; color: #fff; }
+.status-dot { width: 14px; height: 14px; background: var(--accent-mint); border-radius: 50%; box-shadow: 0 0 18px var(--accent-mint); animation: pulseDot 1.5s infinite ease-in-out; }
+@keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
 
 /* التخطيط الثنائي */
 .main-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 30px; }
@@ -129,64 +164,65 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
 /* === الكروت والويدجات === */
 .widget-box {
     background: var(--card-bg);
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(255,255,255,0.6);
     border-radius: 24px;
     padding: 25px;
     color: var(--text-dark);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-    transition: transform 0.3s;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
 }
-.widget-box:hover { transform: translateY(-4px); }
+.widget-box:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.22); }
 
 /* عمود الحساسات (اليمين) */
-.sensors-stack { display: flex; flex-direction: column; gap: 15px; }
+.sensors-stack { display: flex; flex-direction: column; gap: 16px; }
 .sensor-card {
     display: flex; align-items: center; justify-content: space-between;
-    background: #ffffff; border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 16px; padding: 18px 20px; transition: 0.3s;
+    background: #ffffff; border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 18px; padding: 18px 22px; transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 }
-.sensor-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.sensor-card:hover { transform: translateX(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
 .sensor-info h4 { font-size: 14px; color: #555750; font-weight: 700; margin-bottom: 5px; }
 .sensor-value { font-size: 26px; font-weight: 900; }
 .sensor-gauge { width: 110px; height: 8px; background: rgba(0,0,0,0.06); border-radius: 10px; overflow: hidden; }
-.gauge-fill { height: 100%; width: 0%; transition: 0.5s; border-radius: 10px; }
+.gauge-fill { height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 10px; }
 
 /* عمود المنحنيات (اليسار) */
 .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
 @media(max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
 .chart-container { height: 200px; width: 100%; margin-top: 15px; }
-.widget-title { font-size: 18px; color: var(--text-dark); font-weight: 900; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 12px; margin-bottom: 15px; }
+.widget-title { font-size: 18px; color: var(--text-dark); font-weight: 900; border-bottom: 2px cubic-bezier(0.4,0,0.2,1) solid rgba(0,0,0,0.06); padding-bottom: 12px; margin-bottom: 18px; }
 
 /* === لوحة التحكم السفلية (Grid) === */
 .controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
 .control-item { display: flex; flex-direction: column; }
-.switch-row { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 15px 18px; border-radius: 16px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05); }
+.switch-row { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 16px 20px; border-radius: 18px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.04); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
 .switch-label { font-size: 15px; font-weight: 800; color: var(--text-dark); }
 
 /* أزرار التشغيل (Toggle) */
 .switch { position: relative; display: inline-block; width: 54px; height: 30px; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; inset: 0; background-color: #d1d5db; transition: 0.3s; border-radius: 30px; }
-.slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: 0.3s; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: #d1d5db; transition: 0.35s; border-radius: 30px; }
+.slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
 input:checked + .slider { background-color: var(--primary-brand); }
 input:checked + .slider:before { transform: translateX(24px); }
 
 /* المؤقتات */
-.timer-box { background: rgba(0,0,0,0.025); padding: 18px; border-radius: 16px; border: 1px dashed rgba(0,0,0,0.15); }
+.timer-box { background: rgba(0,0,0,0.025); padding: 20px; border-radius: 18px; border: 1.5px dashed rgba(0,0,0,0.12); }
 .timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; direction: ltr; }
 .timer-inputs label { font-size: 11px; color: #555750; display: block; text-align: center; margin-bottom: 6px; font-weight: 700;}
-.timer-inputs input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.12); background: #ffffff; color: var(--text-dark); text-align: center; font-weight: 900; outline: none; font-size: 15px;}
-.timer-inputs input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 2px rgba(76,113,119,0.2); }
-.timer-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--primary-brand); color: #fff; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 14px;}
-.timer-btn:hover { background: #38565b; transform: translateY(-2px);}
+.timer-inputs input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.12); background: #ffffff; color: var(--text-dark); text-align: center; font-weight: 900; outline: none; font-size: 15px; transition: 0.3s; }
+.timer-inputs input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 3px rgba(76,113,119,0.2); }
+.timer-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--primary-brand); color: #fff; font-weight: 800; cursor: pointer; transition: all 0.3s ease; font-size: 14px; box-shadow: 0 4px 12px rgba(76,113,119,0.25); }
+.timer-btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(76,113,119,0.35); }
 
-.timer-active-container { display: none; flex-direction: column; align-items: center; gap: 12px; }
-.countdown-display { width: 100%; padding: 12px; background: rgba(76, 113, 119, 0.12); border: 2px solid var(--primary-brand); border-radius: 12px; text-align: center; font-family: monospace; font-size: 24px; color: var(--primary-brand); font-weight: 900; letter-spacing: 2px; }
+.timer-active-container { display: none; flex-direction: column; align-items: center; gap: 14px; }
+.countdown-display { width: 100%; padding: 14px; background: rgba(76, 113, 119, 0.12); border: 2px solid var(--primary-brand); border-radius: 14px; text-align: center; font-family: monospace; font-size: 26px; color: var(--primary-brand); font-weight: 900; letter-spacing: 2px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); }
 .circle-actions { display: flex; gap: 15px; }
-.circle-btn { width: 42px; height: 42px; border-radius: 50%; border: none; font-size: 16px; cursor: pointer; background: #ffffff; color: var(--text-dark); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.2s; }
-.circle-btn:hover { transform: scale(1.1); }
-.circle-btn.pause:hover { background: var(--accent-light); color: var(--primary-brand); }
-.circle-btn.reset:hover { background: var(--danger-red); color: #fff; }
+.circle-btn { width: 44px; height: 44px; border-radius: 50%; border: none; font-size: 16px; cursor: pointer; background: #ffffff; color: var(--text-dark); box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.25s ease; }
+.circle-btn:hover { transform: scale(1.12); }
+.circle-btn.pause:hover { background: var(--accent-light); color: var(--primary-brand); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+.circle-btn.reset:hover { background: var(--danger-red); color: #fff; box-shadow: 0 6px 15px rgba(216,44,13,0.3); }
 
 /* === عناصر صفحة About Us التصميم الاحترافي والجديد === */
 .section-subtitle {
@@ -242,7 +278,7 @@ input:checked + .slider:before { transform: translateX(24px); }
     text-align: center;
     border: 1px solid rgba(0,0,0,0.08);
     box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-    transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -251,13 +287,13 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 .member-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(76, 113, 119, 0.18);
-    border-color: rgba(76, 113, 119, 0.3);
+    box-shadow: 0 18px 38px rgba(76, 113, 119, 0.22);
+    border-color: rgba(76, 113, 119, 0.4);
 }
 
 .card-banner-bg {
     width: 100%;
-    height: 75px;
+    height: 80px;
     background: linear-gradient(135deg, var(--primary-brand), #2c4347);
     margin-bottom: -50px;
 }
@@ -269,13 +305,13 @@ input:checked + .slider:before { transform: translateX(24px); }
     object-fit: cover;
     margin-bottom: 12px;
     border: 4px solid #ffffff;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
     position: relative;
     z-index: 2;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s ease;
 }
 .member-card:hover .member-avatar {
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
 .member-name {
@@ -295,19 +331,19 @@ input:checked + .slider:before { transform: translateX(24px); }
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     background: #0a66c2;
     color: #ffffff;
     border-radius: 50%;
     text-decoration: none;
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 10px rgba(10, 102, 194, 0.25);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(10, 102, 194, 0.3);
 }
 .linkedin-btn:hover {
-    transform: scale(1.15) rotate(5deg);
+    transform: scale(1.18) rotate(6deg);
     background: #004182;
-    box-shadow: 0 6px 15px rgba(10, 102, 194, 0.4);
+    box-shadow: 0 8px 20px rgba(10, 102, 194, 0.45);
 }
 
 footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); }
@@ -376,7 +412,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   </div>
 
   <!-- الصفحة الأولى: Dashboard -->
-  <div id="dashboardView" class="page-view">
+  <div id="dashboardView" class="page-view active-view">
     <div class="dashboard-banner">
         <div class="status-dot"></div>
         <div>
@@ -633,7 +669,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 <img src="haneen.jpeg" alt="Haneen Yasser" class="member-avatar">
                 <div class="member-name">Haneen Yasser</div>
                 <div class="member-role">Team Member</div>
-                <a href="https://www.linkedin.com/in/haneen-yasser-9a81003a8?utm_source=share_via&utm_content=profile&utm_medium=member_ios">
+                <a href="https://www.linkedin.com/in/haneen-yasser-9a81003a8?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
               
@@ -645,7 +681,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 <img src="aya.jpeg" alt="Aya Ellaban" class="member-avatar">
                 <div class="member-name">Aya Ellaban</div>
                 <div class="member-role">Team Member</div>
-               <a href="https://www.linkedin.com/in/aya-ellabban-839026378?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app">
+               <a href="https://www.linkedin.com/in/aya-ellabban-839026378?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
               
@@ -657,7 +693,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 <img src="alaa.jpeg" alt="Alaa Elshobakey" class="member-avatar">
                 <div class="member-name">Alaa Elshobakey</div>
                 <div class="member-role">Team Member</div>
-               <a href="https://www.linkedin.com/in/a-laa-elshobakey-21a997286?utm_source=share_via&utm_content=profile&utm_medium=member_android">
+               <a href="https://www.linkedin.com/in/a-laa-elshobakey-21a997286?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
               
@@ -669,7 +705,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 <img src="mariam.jpeg" alt="Mariam Ibrahim" class="member-avatar">
                 <div class="member-name">Mariam Ibrahim</div>
                 <div class="member-role">Team Member</div>
-               <a href="https://www.linkedin.com/in/mariam-ibrahem-a29071376?utm_source=share_via&utm_content=profile&utm_medium=member_android">
+               <a href="https://www.linkedin.com/in/mariam-ibrahem-a29071376?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             
@@ -686,11 +722,17 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   // التنقل بين صفحات الموقع الثلاثة
   window.switchMainPage = function(pageId, btnElement) {
     const views = document.querySelectorAll('.page-view');
-    views.forEach(v => v.style.display = 'none');
+    views.forEach(v => {
+      v.style.display = 'none';
+      v.classList.remove('active-view');
+    });
     
     const target = document.getElementById(pageId);
     if (target) {
       target.style.display = 'block';
+      // Re-trigger animation
+      void target.offsetWidth;
+      target.classList.add('active-view');
     }
 
     const buttons = document.querySelectorAll('.nav-tab-btn');
