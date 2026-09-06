@@ -45,10 +45,32 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
   position: sticky; top: 0; left: 0; width: 100%; z-index: 1000;
   background: rgba(0, 76, 63, 0.95); backdrop-filter: blur(15px);
   border-bottom: 1px solid rgba(255,255,255,0.05); padding: 15px 30px;
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 .navbar-brand { font-size: 22px; font-weight: 900; color: var(--accent-light); direction: ltr; letter-spacing: 1px; }
+
+/* === أزرار التنقل بين الصفحات === */
+.main-nav-links { display: flex; align-items: center; gap: 10px; }
+.nav-tab-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--accent-light);
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.nav-tab-btn:hover { background: rgba(255, 255, 255, 0.2); }
+.nav-tab-btn.active {
+  background: var(--primary-brand);
+  color: #ffffff;
+  border-color: var(--primary-brand);
+  box-shadow: 0 4px 12px rgba(0, 128, 96, 0.3);
+}
+
 .nav-actions { display: flex; align-items: center; gap: 16px; }
 
 .mode-toggle { display: flex; align-items: center; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 12px; }
@@ -83,6 +105,8 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
 /* === تخطيط لوحة التحكم === */
 #dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease; padding: 30px 40px; }
 #dashboard-screen.animate-enter { opacity: 1; }
+
+.page-view { transition: opacity 0.4s ease; }
 
 .dashboard-banner {
     background: var(--primary-brand);
@@ -204,7 +228,16 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 <div id="dashboard-screen">
   
   <div class="sticky-navbar">
-    <div class="navbar-brand">SILERGY ⚡</div>
+    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+      <div class="navbar-brand">SILERGY ⚡</div>
+      
+      <!-- أزرار الصفحات الثلاثة -->
+      <div class="main-nav-links">
+        <button class="nav-tab-btn active" onclick="switchMainPage('dashboardView', this)">Dashboard</button>
+        <button class="nav-tab-btn" onclick="switchMainPage('ourProjectView', this)">Our project</button>
+        <button class="nav-tab-btn" onclick="switchMainPage('aboutUsView', this)">About us</button>
+      </div>
+    </div>
   
     <div class="nav-actions">
       <div class="mode-toggle">
@@ -218,168 +251,208 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     </div>
   </div>
 
-  <div class="dashboard-banner">
-      <div class="status-dot"></div>
-      <div>
-          <div class="banner-title">لوحة المراقبة الذكية</div>
-          <div style="font-size: 14px; color: rgba(255,255,255,0.8); margin-top: 6px; font-weight: 600;">جميع الحساسات تعمل بكفاءة ويتم تحديث البيانات لحظياً</div>
-      </div>
+  <!-- الصفحة الأولى: Dashboard -->
+  <div id="dashboardView" class="page-view">
+    <div class="dashboard-banner">
+        <div class="status-dot"></div>
+        <div>
+            <div class="banner-title">لوحة المراقبة الذكية</div>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.8); margin-top: 6px; font-weight: 600;">جميع الحساسات تعمل بكفاءة ويتم تحديث البيانات لحظياً</div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        
+        <div class="widget-box">
+            <div class="widget-title">📈 التحليل البياني اللحظي</div>
+            <div class="charts-grid">
+                <div>
+                    <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">الحرارة (°C)</h4>
+                    <div class="chart-container"><canvas id="tempChart"></canvas></div>
+                </div>
+                <div>
+                    <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">الرطوبة (%)</h4>
+                    <div class="chart-container"><canvas id="humChart"></canvas></div>
+                </div>
+                <div>
+                    <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">جودة الهواء</h4>
+                    <div class="chart-container"><canvas id="gasChart"></canvas></div>
+                </div>
+                <div>
+                    <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">مستوى الإضاءة</h4>
+                    <div class="chart-container"><canvas id="ldrChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="widget-box">
+            <div class="widget-title">📊 القراءات الحالية</div>
+            <div class="sensors-stack">
+                <div class="sensor-card">
+                    <div class="sensor-info">
+                        <h4>درجة الحرارة</h4>
+                        <div id="temp" class="sensor-value" style="color: #d82c0d;">--</div>
+                    </div>
+                    <div class="sensor-gauge"><div id="tempGauge" class="gauge-fill"></div></div>
+                </div>
+                <div class="sensor-card">
+                    <div class="sensor-info">
+                        <h4>الرطوبة</h4>
+                        <div id="hum" class="sensor-value" style="color: #008060;">--</div>
+                    </div>
+                    <div class="sensor-gauge"><div id="humGauge" class="gauge-fill"></div></div>
+                </div>
+                <div class="sensor-card">
+                    <div class="sensor-info">
+                        <h4>جودة الهواء (MQ-135)</h4>
+                        <div id="gas" class="sensor-value" style="color: #004c3f;">--</div>
+                    </div>
+                    <div class="sensor-gauge"><div id="gasGauge" class="gauge-fill"></div></div>
+                </div>
+                <div class="sensor-card">
+                    <div class="sensor-info">
+                        <h4>الإضاءة (LDR)</h4>
+                        <div id="ldr" class="sensor-value" style="color: #d8a00d;">--</div>
+                    </div>
+                    <div class="sensor-gauge"><div id="ldrGauge" class="gauge-fill"></div></div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 25px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 20px;">
+                <div class="switch-row" style="background: transparent; border: none; padding: 5px 0;">
+                    <span class="switch-label" style="font-size: 14px;">طاقة BME280</span>
+                    <label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bmeEnabled')"><span class="slider"></span></label>
+                </div>
+                <div class="switch-row" style="background: transparent; border: none; padding: 5px 0; margin-bottom: 0;">
+                    <span class="switch-label" style="font-size: 14px;">طاقة حساس الغاز</span>
+                    <label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasEnabled')"><span class="slider"></span></label>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls-grid">
+        
+        <div class="widget-box control-item">
+            <div class="widget-title">🌀 المروحة الذكية</div>
+            <div class="switch-row">
+                <span class="switch-label">التشغيل اليدوي</span>
+                <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
+            </div>
+            <div class="timer-box">
+                <div id="fanInputsBox">
+                    <div class="timer-inputs">
+                        <div><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
+                        <div><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
+                        <div><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
+                    </div>
+                    <button class="timer-btn" onclick="startDeviceTimer('fan')">بدء المؤقت</button>
+                </div>
+                <div id="fanActiveBox" class="timer-active-container">
+                    <div id="fanCountdown" class="countdown-display">00:00:00</div>
+                    <div class="circle-actions">
+                        <button id="fanPauseBtn" class="circle-btn pause" onclick="togglePauseTimer('fan', 'fanPauseBtn')">⏸️</button>
+                        <button class="circle-btn reset" onclick="resetDeviceTimer('fan')">🔄</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="widget-box control-item">
+            <div class="widget-title">💨 الفواحة (Diffuser)</div>
+            <div class="switch-row">
+                <span class="switch-label">التشغيل اليدوي</span>
+                <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled')"><span class="slider"></span></label>
+            </div>
+            <div class="timer-box">
+                <div id="diffInputsBox">
+                    <div class="timer-inputs">
+                        <div><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
+                        <div><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
+                        <div><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
+                    </div>
+                    <button class="timer-btn" onclick="startDeviceTimer('diff')">بدء المؤقت</button>
+                </div>
+                <div id="diffActiveBox" class="timer-active-container">
+                    <div id="diffCountdown" class="countdown-display">00:00:00</div>
+                    <div class="circle-actions">
+                        <button id="diffPauseBtn" class="circle-btn pause" onclick="togglePauseTimer('diff', 'diffPauseBtn')">⏸️</button>
+                        <button class="circle-btn reset" onclick="resetDeviceTimer('diff')">🔄</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="widget-box control-item">
+            <div class="widget-title">💡 كشافات LED</div>
+            <div class="switch-row">
+                <span class="switch-label">التشغيل اليدوي</span>
+                <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled')"><span class="slider"></span></label>
+            </div>
+            <div class="timer-box">
+                <div id="ledInputsBox">
+                    <div class="timer-inputs">
+                        <div><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
+                        <div><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
+                        <div><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
+                    </div>
+                    <button class="timer-btn" onclick="startDeviceTimer('led')">بدء المؤقت</button>
+                </div>
+                <div id="ledActiveBox" class="timer-active-container">
+                    <div id="ledCountdown" class="countdown-display">00:00:00</div>
+                    <div class="circle-actions">
+                        <button id="ledPauseBtn" class="circle-btn pause" onclick="togglePauseTimer('led', 'ledPauseBtn')">⏸️</button>
+                        <button class="circle-btn reset" onclick="resetDeviceTimer('led')">🔄</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
   </div>
 
-  <div class="main-layout">
-      
-      <div class="widget-box">
-          <div class="widget-title">📈 التحليل البياني اللحظي</div>
-          <div class="charts-grid">
-              <div>
-                  <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">الحرارة (°C)</h4>
-                  <div class="chart-container"><canvas id="tempChart"></canvas></div>
-              </div>
-              <div>
-                  <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">الرطوبة (%)</h4>
-                  <div class="chart-container"><canvas id="humChart"></canvas></div>
-              </div>
-              <div>
-                  <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">جودة الهواء</h4>
-                  <div class="chart-container"><canvas id="gasChart"></canvas></div>
-              </div>
-              <div>
-                  <h4 style="font-size: 13px; color: #5c5f62; margin-bottom: 8px; font-weight: 700;">مستوى الإضاءة</h4>
-                  <div class="chart-container"><canvas id="ldrChart"></canvas></div>
-              </div>
-          </div>
-      </div>
-
-      <div class="widget-box">
-          <div class="widget-title">📊 القراءات الحالية</div>
-          <div class="sensors-stack">
-              <div class="sensor-card">
-                  <div class="sensor-info">
-                      <h4>درجة الحرارة</h4>
-                      <div id="temp" class="sensor-value" style="color: #d82c0d;">--</div>
-                  </div>
-                  <div class="sensor-gauge"><div id="tempGauge" class="gauge-fill"></div></div>
-              </div>
-              <div class="sensor-card">
-                  <div class="sensor-info">
-                      <h4>الرطوبة</h4>
-                      <div id="hum" class="sensor-value" style="color: #008060;">--</div>
-                  </div>
-                  <div class="sensor-gauge"><div id="humGauge" class="gauge-fill"></div></div>
-              </div>
-              <div class="sensor-card">
-                  <div class="sensor-info">
-                      <h4>جودة الهواء (MQ-135)</h4>
-                      <div id="gas" class="sensor-value" style="color: #004c3f;">--</div>
-                  </div>
-                  <div class="sensor-gauge"><div id="gasGauge" class="gauge-fill"></div></div>
-              </div>
-              <div class="sensor-card">
-                  <div class="sensor-info">
-                      <h4>الإضاءة (LDR)</h4>
-                      <div id="ldr" class="sensor-value" style="color: #d8a00d;">--</div>
-                  </div>
-                  <div class="sensor-gauge"><div id="ldrGauge" class="gauge-fill"></div></div>
-              </div>
-          </div>
-          
-          <div style="margin-top: 25px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 20px;">
-              <div class="switch-row" style="background: transparent; border: none; padding: 5px 0;">
-                  <span class="switch-label" style="font-size: 14px;">طاقة BME280</span>
-                  <label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bmeEnabled')"><span class="slider"></span></label>
-              </div>
-              <div class="switch-row" style="background: transparent; border: none; padding: 5px 0; margin-bottom: 0;">
-                  <span class="switch-label" style="font-size: 14px;">طاقة حساس الغاز</span>
-                  <label class="switch"><input type="checkbox" id="gasSwitch" onchange="toggleControl('gasEnabled')"><span class="slider"></span></label>
-              </div>
-          </div>
-      </div>
-
+  <!-- الصفحة الثانية: Our Project -->
+  <div id="ourProjectView" class="page-view" style="display: none;">
+    <div class="widget-box" style="margin-top: 10px; text-align: center; padding: 60px 20px;">
+        <h2 style="font-size: 32px; color: var(--primary-brand); font-weight: 900; margin-bottom: 15px;">Our Project</h2>
+        <p style="font-size: 16px; color: #5c5f62; max-width: 600px; margin: 0 auto 25px; line-height: 1.8;">
+            صفحة مشروعنا القادمة. يمكنك إخباري بالمحتوى الذي تريد إضافته هنا لاحقاً وسأقوم بتجهيزه بالكامل.
+        </p>
+    </div>
   </div>
 
-  <div class="controls-grid">
-      
-      <div class="widget-box control-item">
-          <div class="widget-title">🌀 المروحة الذكية</div>
-          <div class="switch-row">
-              <span class="switch-label">التشغيل اليدوي</span>
-              <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
-          </div>
-          <div class="timer-box">
-              <div id="fanInputsBox">
-                  <div class="timer-inputs">
-                      <div><label>ساعات</label><input type="number" id="fanHours" value="0" min="0"></div>
-                      <div><label>دقائق</label><input type="number" id="fanMins" value="0" min="0" max="59"></div>
-                      <div><label>ثواني</label><input type="number" id="fanSecs" value="0" min="0" max="59"></div>
-                  </div>
-                  <button class="timer-btn" onclick="startDeviceTimer('fan')">بدء المؤقت</button>
-              </div>
-              <div id="fanActiveBox" class="timer-active-container">
-                  <div id="fanCountdown" class="countdown-display">00:00:00</div>
-                  <div class="circle-actions">
-                      <button id="fanPauseBtn" class="circle-btn pause" onclick="togglePauseTimer('fan', 'fanPauseBtn')">⏸️</button>
-                      <button class="circle-btn reset" onclick="resetDeviceTimer('fan')">🔄</button>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <div class="widget-box control-item">
-          <div class="widget-title">💨 الفواحة (Diffuser)</div>
-          <div class="switch-row">
-              <span class="switch-label">التشغيل اليدوي</span>
-              <label class="switch"><input type="checkbox" id="diffuserSwitch" onchange="toggleControl('diffuserEnabled')"><span class="slider"></span></label>
-          </div>
-          <div class="timer-box">
-              <div id="diffInputsBox">
-                  <div class="timer-inputs">
-                      <div><label>ساعات</label><input type="number" id="diffHours" value="0" min="0"></div>
-                      <div><label>دقائق</label><input type="number" id="diffMins" value="0" min="0" max="59"></div>
-                      <div><label>ثواني</label><input type="number" id="diffSecs" value="0" min="0" max="59"></div>
-                  </div>
-                  <button class="timer-btn" onclick="startDeviceTimer('diff')">بدء المؤقت</button>
-              </div>
-              <div id="diffActiveBox" class="timer-active-container">
-                  <div id="diffCountdown" class="countdown-display">00:00:00</div>
-                  <div class="circle-actions">
-                      <button id="diffPauseBtn" class="circle-btn pause" onclick="togglePauseTimer('diff', 'diffPauseBtn')">⏸️</button>
-                      <button class="circle-btn reset" onclick="resetDeviceTimer('diff')">🔄</button>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <div class="widget-box control-item">
-          <div class="widget-title">💡 كشافات LED</div>
-          <div class="switch-row">
-              <span class="switch-label">التشغيل اليدوي</span>
-              <label class="switch"><input type="checkbox" id="ledsSwitch" onchange="toggleControl('ledsEnabled')"><span class="slider"></span></label>
-          </div>
-          <div class="timer-box">
-              <div id="ledInputsBox">
-                  <div class="timer-inputs">
-                      <div><label>ساعات</label><input type="number" id="ledHours" value="0" min="0"></div>
-                      <div><label>دقائق</label><input type="number" id="ledMins" value="0" min="0" max="59"></div>
-                      <div><label>ثواني</label><input type="number" id="ledSecs" value="0" min="0" max="59"></div>
-                  </div>
-                  <button class="timer-btn" onclick="startDeviceTimer('led')">بدء المؤقت</button>
-              </div>
-              <div id="ledActiveBox" class="timer-active-container">
-                  <div id="ledCountdown" class="countdown-display">00:00:00</div>
-                  <div class="circle-actions">
-                      <button id="ledPauseBtn" class="circle-btn pause" onclick="togglePauseTimer('led', 'ledPauseBtn')">⏸️</button>
-                      <button class="circle-btn reset" onclick="resetDeviceTimer('led')">🔄</button>
-                  </div>
-              </div>
-          </div>
-      </div>
-
+  <!-- الصفحة الثالثة: About Us -->
+  <div id="aboutUsView" class="page-view" style="display: none;">
+    <div class="widget-box" style="margin-top: 10px; text-align: center; padding: 60px 20px;">
+        <h2 style="font-size: 32px; color: var(--primary-brand); font-weight: 900; margin-bottom: 15px;">About Us</h2>
+        <p style="font-size: 16px; color: #5c5f62; max-width: 600px; margin: 0 auto 25px; line-height: 1.8;">
+            صفحة من نحن وفريق العمل. أطلعني بما ترغب في وضعه هنا من تفاصيل أو صور وسأقوم ببنائها لك فوراً.
+        </p>
+    </div>
   </div>
 
   <footer><div class="author-footer">SYSTEM POWERED BY SILERGY</div></footer>
 </div>
 
 <script>
+  // التنقل بين صفحات الموقع الثلاثة
+  window.switchMainPage = function(pageId, btnElement) {
+    const views = document.querySelectorAll('.page-view');
+    views.forEach(v => v.style.display = 'none');
+    
+    const target = document.getElementById(pageId);
+    if (target) {
+      target.style.display = 'block';
+    }
+
+    const buttons = document.querySelectorAll('.nav-tab-btn');
+    buttons.forEach(b => b.classList.remove('active'));
+    if (btnElement) {
+      btnElement.classList.add('active');
+    }
+  };
+
   // رسم الخلفية (Canvas) للديدان والنبضات
   const canvas = document.getElementById('eco-canvas');
   const ctx = canvas.getContext('2d');
