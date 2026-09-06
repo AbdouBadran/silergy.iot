@@ -188,78 +188,126 @@ input:checked + .slider:before { transform: translateX(24px); }
 .circle-btn.pause:hover { background: var(--accent-light); color: var(--primary-brand); }
 .circle-btn.reset:hover { background: var(--danger-red); color: #fff; }
 
-/* === عناصر صفحة About Us === */
+/* === عناصر صفحة About Us التصميم الاحترافي والجديد === */
 .section-subtitle {
-    font-size: 20px;
-    font-weight: 800;
+    font-size: 22px;
+    font-weight: 900;
     color: var(--primary-brand);
-    margin: 30px 0 15px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid rgba(76, 113, 119, 0.2);
+    margin: 35px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px dashed rgba(76, 113, 119, 0.25);
     text-align: right;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.section-subtitle::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 22px;
+    background: var(--primary-brand);
+    border-radius: 4px;
 }
 
-.team-grid {
+/* تقسيم الشبكة احترافياً: 3 كروت في الصف للشباب، و 2 كرت في الصف للبنات */
+.boys-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 25px;
     margin-top: 20px;
 }
+.girls-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin-top: 20px;
+}
+
+@media(max-width: 992px) {
+    .boys-grid, .girls-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media(max-width: 600px) {
+    .boys-grid, .girls-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .member-card {
     background: #ffffff;
-    border-radius: 20px;
-    padding: 25px 20px;
+    border-radius: 24px;
+    padding: 0 0 25px 0;
     text-align: center;
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+    transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    overflow: hidden;
+    position: relative;
 }
 .member-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(76, 113, 119, 0.18);
+    border-color: rgba(76, 113, 119, 0.3);
 }
 
-/* تكبير الصور هنا */
+.card-banner-bg {
+    width: 100%;
+    height: 75px;
+    background: linear-gradient(135deg, var(--primary-brand), #2c4347);
+    margin-bottom: -50px;
+}
+
 .member-avatar {
-    width: 130px;
-    height: 130px;
+    width: 110px;
+    height: 110px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 15px;
-    border: 4px solid var(--primary-brand);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    margin-bottom: 12px;
+    border: 4px solid #ffffff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 2;
+    transition: transform 0.3s ease;
 }
+.member-card:hover .member-avatar {
+    transform: scale(1.05);
+}
+
 .member-name {
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 800;
     color: var(--text-dark);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+    padding: 0 15px;
 }
 .member-role {
-    font-size: 14px;
-    color: #6b6c5a;
+    font-size: 13px;
+    color: var(--accent-olive);
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 .linkedin-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     background: #0a66c2;
     color: #ffffff;
     border-radius: 50%;
     text-decoration: none;
-    transition: transform 0.2s, background-color 0.2s;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(10, 102, 194, 0.25);
 }
 .linkedin-btn:hover {
-    transform: scale(1.15);
+    transform: scale(1.15) rotate(5deg);
     background: #004182;
+    box-shadow: 0 6px 15px rgba(10, 102, 194, 0.4);
 }
 
 footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); }
@@ -506,130 +554,120 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
           Silergy members
         </p>
         
-        <!-- قسم الشباب (Boys) أولاً -->
+        <!-- قسم الشباب (Boys) 6 أعضاء مرصوفين 3 فوق و 3 تحت -->
         <div class="section-subtitle">Boys</div>
-        <div class="team-grid">
+        <div class="boys-grid">
             <!-- Mohamed Elshabrawy -->
             <div class="member-card">
+                <div class="card-banner-bg"></div>
                 <img src="shabrawy.jpeg" alt="Mohamed Elshabrawy" class="member-avatar">
-                <div>
-                    <div class="member-name">Mohamed Elshabrawy</div>
-                    <div class="member-role">Team Member</div>
-                </div>
+                <div class="member-name">Mohamed Elshabrawy</div>
+                <div class="member-role">Team Member</div>
                 <a href="https://www.linkedin.com/in/mohamedelshabrawy11?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             </div>
 
             <!-- Abdou Badran -->
             <div class="member-card">
+                <div class="card-banner-bg"></div>
                 <img src="Abdou.jpeg" alt="Abdou Badran" class="member-avatar">
-                <div>
-                    <div class="member-name">Abdou Badran</div>
-                    <div class="member-role">Team Member</div>
-                </div>
+                <div class="member-name">Abdou Badran</div>
+                <div class="member-role">Team Member</div>
                 <a href="https://www.linkedin.com/in/abdou-badran-819235368?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             </div>
 
             <!-- Omar Yasser -->
             <div class="member-card">
+                <div class="card-banner-bg"></div>
                 <img src="omar.jpeg" alt="Omar yaseer" class="member-avatar">
-                <div>
-                    <div class="member-name">Omar Yasser</div>
-                    <div class="member-role">Team Member</div>
-                </div>
+                <div class="member-name">Omar Yasser</div>
+                <div class="member-role">Team Member</div>
                 <a href="https://www.linkedin.com/in/omaryasser37?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             </div>
 
             <!-- Gamal Rajab -->
             <div class="member-card">
+                <div class="card-banner-bg"></div>
                 <img src="gamal.jpeg" alt="Gamal Rajab" class="member-avatar">
-                <div>
-                    <div class="member-name">Gamal Rajab</div>
-                    <div class="member-role">Team Member</div>
-                </div>
+                <div class="member-name">Gamal Rajab</div>
+                <div class="member-role">Team Member</div>
                 <a href="https://www.linkedin.com/in/gamal-rajab-360683394?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             </div>
 
             <!-- Anas Wafa -->
             <div class="member-card">
+                <div class="card-banner-bg"></div>
                 <img src="Anas.jpeg" alt="Anas Wafa" class="member-avatar">
-                <div>
-                    <div class="member-name">Anas Wafa</div>
-                    <div class="member-role">Team Member</div>
-                </div>
+                <div class="member-name">Anas Wafa</div>
+                <div class="member-role">Team Member</div>
                 <a href="https://www.linkedin.com/in/anas-hamed-306493343?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             </div>
 
             <!-- Mohamed Fouda -->
             <div class="member-card">
+                <div class="card-banner-bg"></div>
                 <img src="fouda.jpeg" alt="Mohamed Fouda" class="member-avatar">
-                <div>
-                    <div class="member-name">Mohamed Fouda</div>
-                    <div class="member-role">Team Member</div>
-                </div>
+                <div class="member-name">Mohamed Fouda</div>
+                <div class="member-role">Team Member</div>
                 <a href="https://www.linkedin.com/in/mohamed--fouda?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             </div>
         </div>
 
-        <!-- قسم البنات (Girls) ثانياً -->
+        <!-- قسم البنات (Girls) 4 عضوات مرصوفات 2 فوق و 2 تحت -->
         <div class="section-subtitle">Girls</div>
-        <div class="team-grid">
+        <div class="girls-grid">
             <!-- Haneen Yasser -->
             <div class="member-card">
+                <div class="card-banner-bg"></div>
                 <img src="haneen.jpeg" alt="Haneen Yasser" class="member-avatar">
-                <div>
-                    <div class="member-name">Haneen Yasser</div>
-                    <div class="member-role">Team Member</div>
-                </div>
+                <div class="member-name">Haneen Yasser</div>
+                <div class="member-role">Team Member</div>
                 <a href="#" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             </div>
 
             <!-- Aya Ellaban -->
             <div class="member-card">
+                <div class="card-banner-bg"></div>
                 <img src="aya.jpeg" alt="Aya Ellaban" class="member-avatar">
-                <div>
-                    <div class="member-name">Aya Ellaban</div>
-                    <div class="member-role">Team Member</div>
-                </div>
+                <div class="member-name">Aya Ellaban</div>
+                <div class="member-role">Team Member</div>
                 <a href="#" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             </div>
 
             <!-- Alaa Elshobakey -->
             <div class="member-card">
+                <div class="card-banner-bg"></div>
                 <img src="alaa.jpeg" alt="Alaa Elshobakey" class="member-avatar">
-                <div>
-                    <div class="member-name">Alaa Elshobakey</div>
-                    <div class="member-role">Team Member</div>
-                </div>
+                <div class="member-name">Alaa Elshobakey</div>
+                <div class="member-role">Team Member</div>
                 <a href="#" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             </div>
 
             <!-- Mariam Ibrahim -->
             <div class="member-card">
+                <div class="card-banner-bg"></div>
                 <img src="mariam.jpeg" alt="Mariam Ibrahim" class="member-avatar">
-                <div>
-                    <div class="member-name">Mariam Ibrahim</div>
-                    <div class="member-role">Team Member</div>
-                </div>
+                <div class="member-name">Mariam Ibrahim</div>
+                <div class="member-role">Team Member</div>
                 <a href="#" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
             </div>
         </div>
