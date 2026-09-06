@@ -132,19 +132,8 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 .warning-badge { font-size: 13px; color: var(--primary-brand); background: rgba(76,113,119,0.12); padding: 8px 16px; border-radius: 20px; margin-bottom: 25px; display: inline-block; font-weight: 700; }
 
-/* تنسيق شاشة الترحيب لتتوسط العناصر عمودياً وأفقياً */
-#welcome-overlay { 
-  position: fixed; inset: 0; z-index: 10000; background: var(--bg-dark); 
-  display: none; flex-direction: column; align-items: center; justify-content: center; 
-  gap: 20px; opacity: 0; transition: 0.5s ease; 
-}
-.welcome-video {
-  max-width: 80%;
-  max-height: 60vh;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-.welcome-anim-text { font-size: 38px; font-weight: 900; color: var(--accent-light); animation: pulseScale 1s infinite alternate ease-in-out; text-shadow: 0 0 25px var(--glow-shadow); text-align: center; }
+#welcome-overlay { position: fixed; inset: 0; z-index: 10000; background: var(--bg-dark); display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.5s ease; }
+.welcome-anim-text { font-size: 38px; font-weight: 900; color: var(--accent-light); animation: pulseScale 1s infinite alternate ease-in-out; text-shadow: 0 0 25px var(--glow-shadow); }
 @keyframes pulseScale { 0% { transform: scale(0.92); opacity: 0.8; } 100% { transform: scale(1.08); opacity: 1; } }
 
 /* === تخطيط لوحة التحكم === */
@@ -234,6 +223,93 @@ input:checked + .slider:before { transform: translateX(24px); }
 .circle-btn:hover { transform: scale(1.12); }
 .circle-btn.pause:hover { background: var(--accent-light); color: var(--primary-brand); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
 .circle-btn.reset:hover { background: var(--danger-red); color: #fff; box-shadow: 0 6px 15px rgba(216,44,13,0.3); }
+
+/* === تنسيقات صفحة Our Project الجديدة === */
+.project-container {
+    direction: ltr;
+    text-align: left;
+    max-width: 900px;
+    margin: 0 auto;
+}
+.project-section-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary-brand);
+    margin-top: 30px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.project-subtitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-olive);
+    margin-bottom: 10px;
+}
+.project-text {
+    font-size: 15px;
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+.project-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 20px;
+}
+.project-list li {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+/* تنسيقات كروت الصور والعناوين الكبيرة */
+.big-section-header {
+    font-size: 38px;
+    font-weight: 900;
+    color: var(--primary-brand);
+    text-align: center;
+    margin: 45px 0 25px 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.project-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+}
+@media(max-width: 768px) {
+    .project-gallery-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.project-img-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 12px;
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+.project-img-card:hover {
+    transform: translateY(-5px);
+}
+.project-img-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+.img-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary-brand);
+}
 
 /* === عناصر صفحة About Us التصميم الاحترافي والجديد === */
 .section-subtitle {
@@ -588,11 +664,88 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 
   <!-- الصفحة الثانية: Our Project -->
   <div id="ourProjectView" class="page-view" style="display: none;">
-    <div class="widget-box" style="margin-top: 10px; text-align: center; padding: 60px 20px;">
-        <h2 style="font-size: 32px; color: var(--primary-brand); font-weight: 900; margin-bottom: 15px;">Our Project</h2>
-        <p style="font-size: 16px; color: #555750; max-width: 600px; margin: 0 auto 25px; line-height: 1.8;">
-            صفحة مشروعنا القادمة. يمكنك إخباري بالمحتوى الذي تريد إضافته هنا لاحقاً وسأقوم بتجهيزه بالكامل.
-        </p>
+    <div class="widget-box" style="margin-top: 10px; padding: 40px 30px;">
+        
+        <div class="project-container">
+            <!-- 🚀 Our Mission -->
+            <div class="project-section-title">🚀 Our Mission</div>
+            <div class="project-subtitle">Driven by Real Impact, Not Just Grades</div>
+            <p class="project-text">
+                When we set out to build our project, we didn't want to create something routine just to pass. Instead, we focused on solving a real-world problem through smart technology.
+            </p>
+
+            <!-- 🐛 The Challenge & Solution -->
+            <div class="project-section-title">🐛 The Challenge & Solution</div>
+            <div class="project-subtitle">Smart Environment for Silk Production</div>
+            <p class="project-text">
+                Our country produces silk, which relies entirely on silkworms. These silkworms require very specific conditions to thrive. Our solution is an automated system that maintains the ideal environment for optimal silk production.
+            </p>
+
+            <!-- 📡 Sensors & Climate Control -->
+            <div class="project-section-title">📡 Sensors & Climate Control</div>
+            <div class="project-subtitle">Precision Monitoring</div>
+            <p class="project-text">
+                We equipped the system with smart sensors to continuously track key environmental factors:
+            </p>
+            <ul class="project-list">
+                <li>🌡️ <strong>Temperature</strong></li>
+                <li>💧 <strong>Humidity</strong></li>
+                <li>🍃 <strong>Air Purity</strong></li>
+            </ul>
+
+            <!-- ☀️ Power & Sustainability -->
+            <div class="project-section-title">☀️ Power & Sustainability</div>
+            <div class="project-subtitle">Eco-Friendly & Continuous Energy</div>
+            <p class="project-text">
+                To ensure 24/7 uninterrupted operation, the system is powered by renewable energy:
+            </p>
+            <ul class="project-list">
+                <li>☀️ <strong>Solar Energy with MPPT:</strong> Uses Maximum Power Point Tracking technology to harvest solar energy with peak efficiency.</li>
+                <li>🔋 <strong>Battery Backup:</strong> Guarantees continuous system operation during the night or overcast weather.</li>
+            </ul>
+
+            <!-- قسم MPPT الكبيرة والصور 1، 2، 3 -->
+            <div class="big-section-header">MPPT</div>
+            <div class="project-gallery-grid">
+                <div class="project-img-card">
+                    <!-- الصورة الأولى لـ MPPT (يمكنك غيير الاسم mppt-1.jpg بالاسم الحقيقي) -->
+                    <img src="mppt-1.jpg" alt="MPPT Image 1">
+                    <div class="img-label">MPPT - Image 1</div>
+                </div>
+                <div class="project-img-card">
+                    <!-- الصورة الثانية لـ MPPT -->
+                    <img src="mppt-2.jpg" alt="MPPT Image 2">
+                    <div class="img-label">MPPT - Image 2</div>
+                </div>
+                <div class="project-img-card">
+                    <!-- الصورة الثالثة لـ MPPT -->
+                    <img src="mppt-3.jpg" alt="MPPT Image 3">
+                    <div class="img-label">MPPT - Image 3</div>
+                </div>
+            </div>
+
+            <!-- قسم SENSORS الكبيرة والصور 1، 2، 3 -->
+            <div class="big-section-header">SENSORS</div>
+            <div class="project-gallery-grid">
+                <div class="project-img-card">
+                    <!-- الصورة الأولى لـ SENSORS (يمكنك تغيير الاسم sensor-1.jpg بالاسم الحقيقي) -->
+                    <img src="sensor-1.jpg" alt="Sensor Image 1">
+                    <div class="img-label">Sensors - Image 1</div>
+                </div>
+                <div class="project-img-card">
+                    <!-- الصورة الثانية لـ SENSORS -->
+                    <img src="sensor-2.jpg" alt="Sensor Image 2">
+                    <div class="img-label">Sensors - Image 2</div>
+                </div>
+                <div class="project-img-card">
+                    <!-- الصورة الثالثة لـ SENSORS -->
+                    <img src="sensor-3.jpg" alt="Sensor Image 3">
+                    <div class="img-label">Sensors - Image 3</div>
+                </div>
+            </div>
+
+        </div>
+
     </div>
   </div>
 
