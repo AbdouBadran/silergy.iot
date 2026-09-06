@@ -853,7 +853,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     const overlay = document.getElementById("welcome-overlay");
     overlay.style.display = "flex";
     setTimeout(() => { overlay.style.opacity = "1"; }, 10);
-    setTimeout(() => { overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; showDashboard(username); }, 500); }, 1500);
+    setTimeout(() => { overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; showDashboard(username); }, 500); }, 4000);
   }
 
   function showDashboard(username) {
