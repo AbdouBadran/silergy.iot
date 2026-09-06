@@ -361,15 +361,15 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 <div id="login-screen">
   <div class="login-card" id="loginCard">
     <div class="login-title">SILERGY LOGIN</div>
-    <div class="warning-badge">⚠️ للنظام المصرح لهم فقط</div>
+    <div class="warning-badge">Only Silergy members have acces ⚠️</div>
     
     <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
       <div class="input-group">
-        <label>اسم المستخدم</label>
+        <label>User Name</label>
         <input type="text" id="usernameInput" placeholder="Username..." required autocomplete="off">
       </div>
       <div class="input-group">
-        <label>كلمة المرور</label>
+        <label>Password</label>
         <div class="password-wrapper">
           <input type="password" id="passwordInput" placeholder="Password..." required>
           <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
