@@ -132,7 +132,25 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 .warning-badge { font-size: 13px; color: var(--primary-brand); background: rgba(76,113,119,0.12); padding: 8px 16px; border-radius: 20px; margin-bottom: 25px; display: inline-block; font-weight: 700; }
 
-#welcome-overlay { position: fixed; inset: 0; z-index: 10000; background: var(--bg-dark); display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.5s ease; }
+#welcome-overlay { 
+  position: fixed; 
+  inset: 0; 
+  z-index: 10000; 
+  background: var(--bg-dark); 
+  display: none; 
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center; 
+  gap: 20px;
+  opacity: 0; 
+  transition: 0.5s ease; 
+}
+.welcome-video {
+  max-width: 80%;
+  max-height: 65vh;
+  border-radius: 16px;
+  object-fit: contain;
+}
 .welcome-anim-text { font-size: 38px; font-weight: 900; color: var(--accent-light); animation: pulseScale 1s infinite alternate ease-in-out; text-shadow: 0 0 25px var(--glow-shadow); }
 @keyframes pulseScale { 0% { transform: scale(0.92); opacity: 0.8; } 100% { transform: scale(1.08); opacity: 1; } }
 
