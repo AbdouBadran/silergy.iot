@@ -10,19 +10,19 @@
 <style>
 /* === إعدادات الألوان المستوحاة من لوحة الألوان المرفقة === */
 :root {
-  --primary-brand: #4c7177;
-  --primary-hover: #38565b;
-  --accent-light: #f5f5db;
-  --bg-dark: #3e413a;
-  --card-bg: rgba(245, 245, 219, 0.95);
-  --border-color: rgba(76, 113, 119, 0.25);
-  --text-dark: #222421;
+  --primary-brand: #3b91c4;
+  --primary-hover: #2e75a0;
+  --accent-light: #80f2fe;
+  --bg-dark: #1c1929;
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --border-color: rgba(59, 145, 196, 0.25);
+  --text-dark: #1c1929;
   --text-light: #ffffff;
-  --accent-mint: #adcdc0;
-  --accent-olive: #6b6c5a;
+  --accent-mint: #80f2fe;
+  --accent-olive: #6c7280;
   --danger-red: #d82c0d;
-  --ee-cyan: #4c7177;
-  --glow-shadow: rgba(76, 113, 119, 0.35);
+  --ee-cyan: #80f2fe;
+  --glow-shadow: rgba(59, 145, 196, 0.35);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', 'Plus Jakarta Sans', sans-serif; }
@@ -33,13 +33,13 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
 .solar-environment { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
 .sun-orb {
     position: absolute; top: -150px; right: -150px; width: 550px; height: 550px;
-    background: radial-gradient(circle, rgba(245,245,219,0.2) 0%, rgba(76,113,119,0.15) 45%, transparent 70%);
+    background: radial-gradient(circle, rgba(128, 242, 254, 0.2) 0%, rgba(59, 145, 196, 0.15) 45%, transparent 70%);
     border-radius: 50%; animation: pulseSun 8s infinite alternate ease-in-out;
     filter: blur(20px);
 }
 .energy-dots {
     position: absolute; width: 100%; height: 100%;
-    background-image: radial-gradient(rgba(245, 245, 219, 0.12) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(128, 242, 254, 0.12) 1px, transparent 1px);
     background-size: 35px 35px; animation: moveDots 25s linear infinite;
 }
 @keyframes pulseSun { 0% { transform: scale(1) translate(0, 0); opacity: 0.7; } 100% { transform: scale(1.15) translate(-20px, 20px); opacity: 1; } }
@@ -48,7 +48,7 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
 /* === شريط التنقل (Navbar) === */
 .sticky-navbar {
   position: sticky; top: 0; left: 0; width: 100%; z-index: 1000;
-  background: rgba(62, 65, 58, 0.85); backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(28, 25, 41, 0.85); backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid rgba(255,255,255,0.12); padding: 15px 30px;
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
@@ -56,7 +56,7 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
 }
 .navbar-brand { 
   font-size: 24px; font-weight: 900; color: var(--accent-light); direction: ltr; letter-spacing: 1.5px;
-  text-shadow: 0 0 12px rgba(245, 245, 219, 0.3);
+  text-shadow: 0 0 12px rgba(128, 242, 254, 0.3);
   transition: transform 0.3s ease;
 }
 .navbar-brand:hover { transform: scale(1.03); }
@@ -107,7 +107,7 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
   width: 100%; 
   max-width: 430px; 
   text-align: center; 
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 30px rgba(76,113,119,0.2); 
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 30px rgba(59, 145, 196, 0.2); 
   border: 1px solid rgba(255,255,255,0.5);
   animation: fadeInCard 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -115,22 +115,22 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
 .login-card.animate-exit { opacity: 0; transform: scale(0.9) translateY(-30px); transition: 0.5s cubic-bezier(0.7, 0, 0.84, 0); }
 .login-title { font-size: 30px; font-weight: 900; color: var(--text-dark); margin-bottom: 18px; letter-spacing: 1px; }
 .input-group { margin-bottom: 20px; text-align: left; }
-.input-group label { display: block; font-size: 13px; color: #555750; margin-bottom: 8px; font-weight: 700; }
+.input-group label { display: block; font-size: 13px; color: #6c7280; margin-bottom: 8px; font-weight: 700; }
 .input-group input { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1.5px solid rgba(0,0,0,0.12); background: #fff; color: var(--text-dark); outline: none; transition: 0.3s; direction: ltr; font-size: 14px; }
-.input-group input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 4px rgba(76,113,119,0.2); }
+.input-group input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 4px rgba(59, 145, 196, 0.2); }
 .password-wrapper { position: relative; }
-.toggle-password { position: absolute; right: 14px; top: 14px; cursor: pointer; color: #555750; transition: transform 0.2s; }
+.toggle-password { position: absolute; right: 14px; top: 14px; cursor: pointer; color: #6c7280; transition: transform 0.2s; }
 .toggle-password:hover { transform: scale(1.15); }
 .login-btn { 
   width: 100%; padding: 15px; border: none; border-radius: 14px; 
   background: var(--primary-brand); color: #fff; font-size: 16px; font-weight: 800; 
   cursor: pointer; margin-top: 15px; transition: all 0.3s ease; 
-  box-shadow: 0 8px 20px rgba(76,113,119,0.3);
+  box-shadow: 0 8px 20px rgba(59, 145, 196, 0.3);
 }
-.login-btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 12px 25px rgba(76,113,119,0.4); }
+.login-btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 12px 25px rgba(59, 145, 196, 0.4); }
 .error-msg { color: var(--danger-red); font-size: 13px; margin-top: 14px; display: none; font-weight: 700; animation: shake 0.4s ease; }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-.warning-badge { font-size: 13px; color: var(--primary-brand); background: rgba(76,113,119,0.12); padding: 8px 16px; border-radius: 20px; margin-bottom: 25px; display: inline-block; font-weight: 700; }
+.warning-badge { font-size: 13px; color: var(--primary-brand); background: rgba(59, 145, 196, 0.12); padding: 8px 16px; border-radius: 20px; margin-bottom: 25px; display: inline-block; font-weight: 700; }
 
 #welcome-overlay { 
   position: fixed; 
@@ -163,7 +163,7 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
 @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 .dashboard-banner {
-    background: linear-gradient(135deg, var(--primary-brand), #345054);
+    background: linear-gradient(135deg, var(--primary-brand), #28688f);
     border-radius: 22px;
     padding: 22px 32px;
     margin-bottom: 30px;
@@ -200,7 +200,7 @@ body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); 
     box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 }
 .sensor-card:hover { transform: translateX(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-.sensor-info h4 { font-size: 14px; color: #555750; font-weight: 700; margin-bottom: 5px; }
+.sensor-info h4 { font-size: 14px; color: #6c7280; font-weight: 700; margin-bottom: 5px; }
 .sensor-value { font-size: 26px; font-weight: 900; }
 .sensor-gauge { width: 110px; height: 8px; background: rgba(0,0,0,0.06); border-radius: 10px; overflow: hidden; }
 .gauge-fill { height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 10px; }
@@ -228,14 +228,14 @@ input:checked + .slider:before { transform: translateX(24px); }
 /* المؤقتات */
 .timer-box { background: rgba(0,0,0,0.025); padding: 20px; border-radius: 18px; border: 1.5px dashed rgba(0,0,0,0.12); }
 .timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; direction: ltr; }
-.timer-inputs label { font-size: 11px; color: #555750; display: block; text-align: center; margin-bottom: 6px; font-weight: 700;}
+.timer-inputs label { font-size: 11px; color: #6c7280; display: block; text-align: center; margin-bottom: 6px; font-weight: 700;}
 .timer-inputs input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.12); background: #ffffff; color: var(--text-dark); text-align: center; font-weight: 900; outline: none; font-size: 15px; transition: 0.3s; }
-.timer-inputs input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 3px rgba(76,113,119,0.2); }
-.timer-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--primary-brand); color: #fff; font-weight: 800; cursor: pointer; transition: all 0.3s ease; font-size: 14px; box-shadow: 0 4px 12px rgba(76,113,119,0.25); }
-.timer-btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(76,113,119,0.35); }
+.timer-inputs input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 3px rgba(59, 145, 196, 0.2); }
+.timer-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--primary-brand); color: #fff; font-weight: 800; cursor: pointer; transition: all 0.3s ease; font-size: 14px; box-shadow: 0 4px 12px rgba(59, 145, 196, 0.25); }
+.timer-btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 145, 196, 0.35); }
 
 .timer-active-container { display: none; flex-direction: column; align-items: center; gap: 14px; }
-.countdown-display { width: 100%; padding: 14px; background: rgba(76, 113, 119, 0.12); border: 2px solid var(--primary-brand); border-radius: 14px; text-align: center; font-family: monospace; font-size: 26px; color: var(--primary-brand); font-weight: 900; letter-spacing: 2px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); }
+.countdown-display { width: 100%; padding: 14px; background: rgba(59, 145, 196, 0.12); border: 2px solid var(--primary-brand); border-radius: 14px; text-align: center; font-family: monospace; font-size: 26px; color: var(--primary-brand); font-weight: 900; letter-spacing: 2px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); }
 .circle-actions { display: flex; gap: 15px; }
 .circle-btn { width: 44px; height: 44px; border-radius: 50%; border: none; font-size: 16px; cursor: pointer; background: #ffffff; color: var(--text-dark); box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.25s ease; }
 .circle-btn:hover { transform: scale(1.12); }
@@ -336,7 +336,7 @@ input:checked + .slider:before { transform: translateX(24px); }
     color: var(--primary-brand);
     margin: 35px 0 20px;
     padding-bottom: 10px;
-    border-bottom: 2px dashed rgba(76, 113, 119, 0.25);
+    border-bottom: 2px dashed rgba(59, 145, 196, 0.25);
     text-align: right;
     display: flex;
     align-items: center;
@@ -392,14 +392,14 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 .member-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 18px 38px rgba(76, 113, 119, 0.22);
-    border-color: rgba(76, 113, 119, 0.4);
+    box-shadow: 0 18px 38px rgba(59, 145, 196, 0.22);
+    border-color: rgba(59, 145, 196, 0.4);
 }
 
 .card-banner-bg {
     width: 100%;
     height: 80px;
-    background: linear-gradient(135deg, var(--primary-brand), #2c4347);
+    background: linear-gradient(135deg, var(--primary-brand), #1c1929);
     margin-bottom: -50px;
 }
 
@@ -535,19 +535,19 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
             <div class="widget-title">📈 التحليل البياني اللحظي</div>
             <div class="charts-grid">
                 <div>
-                    <h4 style="font-size: 13px; color: #555750; margin-bottom: 8px; font-weight: 700;">الحرارة (°C)</h4>
+                    <h4 style="font-size: 13px; color: #6c7280; margin-bottom: 8px; font-weight: 700;">الحرارة (°C)</h4>
                     <div class="chart-container"><canvas id="tempChart"></canvas></div>
                 </div>
                 <div>
-                    <h4 style="font-size: 13px; color: #555750; margin-bottom: 8px; font-weight: 700;">الرطوبة (%)</h4>
+                    <h4 style="font-size: 13px; color: #6c7280; margin-bottom: 8px; font-weight: 700;">الرطوبة (%)</h4>
                     <div class="chart-container"><canvas id="humChart"></canvas></div>
                 </div>
                 <div>
-                    <h4 style="font-size: 13px; color: #555750; margin-bottom: 8px; font-weight: 700;">جودة الهواء</h4>
+                    <h4 style="font-size: 13px; color: #6c7280; margin-bottom: 8px; font-weight: 700;">جودة الهواء</h4>
                     <div class="chart-container"><canvas id="gasChart"></canvas></div>
                 </div>
                 <div>
-                    <h4 style="font-size: 13px; color: #555750; margin-bottom: 8px; font-weight: 700;">مستوى الإضاءة</h4>
+                    <h4 style="font-size: 13px; color: #6c7280; margin-bottom: 8px; font-weight: 700;">مستوى الإضاءة</h4>
                     <div class="chart-container"><canvas id="ldrChart"></canvas></div>
                 </div>
             </div>
@@ -566,21 +566,21 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 <div class="sensor-card">
                     <div class="sensor-info">
                         <h4>الرطوبة</h4>
-                        <div id="hum" class="sensor-value" style="color: #4c7177;">--</div>
+                        <div id="hum" class="sensor-value" style="color: #3b91c4;">--</div>
                     </div>
                     <div class="sensor-gauge"><div id="humGauge" class="gauge-fill"></div></div>
                 </div>
                 <div class="sensor-card">
                     <div class="sensor-info">
                         <h4>جودة الهواء (MQ-135)</h4>
-                        <div id="gas" class="sensor-value" style="color: #6b6c5a;">--</div>
+                        <div id="gas" class="sensor-value" style="color: #6c7280;">--</div>
                     </div>
                     <div class="sensor-gauge"><div id="gasGauge" class="gauge-fill"></div></div>
                 </div>
                 <div class="sensor-card">
                     <div class="sensor-info">
                         <h4>الإضاءة (LDR)</h4>
-                        <div id="ldr" class="sensor-value" style="color: #adcdc0;">--</div>
+                        <div id="ldr" class="sensor-value" style="color: #80f2fe;">--</div>
                     </div>
                     <div class="sensor-gauge"><div id="ldrGauge" class="gauge-fill"></div></div>
                 </div>
@@ -765,7 +765,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   <div id="aboutUsView" class="page-view" style="display: none;">
     <div class="widget-box" style="margin-top: 10px; text-align: center; padding: 40px 20px;">
         <h2 style="font-size: 32px; color: var(--primary-brand); font-weight: 900; margin-bottom: 10px;">About Us</h2>
-        <p style="font-size: 15px; color: #555750; max-width: 600px; margin: 0 auto 25px; line-height: 1.6;">
+        <p style="font-size: 15px; color: #6c7280; max-width: 600px; margin: 0 auto 25px; line-height: 1.6;">
           Silergy members
         </p>
         
@@ -947,9 +947,9 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         let pt = this.history[i];
         if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
       }
-      ctx.strokeStyle = "rgba(173, 205, 192, 0.25)";
+      ctx.strokeStyle = "rgba(128, 242, 254, 0.25)";
       ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = "#adcdc0"; ctx.fill();
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = "#80f2fe"; ctx.fill();
     }
   }
 
@@ -992,7 +992,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   
   const chartOptions = { 
     responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-    scales: { x: { display: false }, y: { min: 0, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#555750', font: { size: 10 } } } },
+    scales: { x: { display: false }, y: { min: 0, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#6c7280', font: { size: 10 } } } },
     elements: { line: { tension: 0.4 } }
   };
   function createChartConfig(color) {
@@ -1000,9 +1000,9 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   }
 
   const tempChart = new Chart(document.getElementById('tempChart'), createChartConfig('rgba(216, 44, 13, 1)'));
-  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(76, 113, 119, 1)'));
-  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(107, 108, 90, 1)'));
-  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(173, 205, 192, 1)'));
+  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(59, 145, 196, 1)'));
+  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(108, 114, 128, 1)'));
+  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(128, 242, 254, 1)'));
   
   function addChartData(chart, rawValue) {
     const val = parseFloat(rawValue);
@@ -1136,19 +1136,19 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       if (data.humidity !== undefined) {
         document.getElementById('hum').textContent = data.humidity + ' %';
         document.getElementById('humGauge').style.width = Math.min(parseFloat(data.humidity), 100) + '%';
-        document.getElementById('humGauge').style.backgroundColor = '#4c7177';
+        document.getElementById('humGauge').style.backgroundColor = '#3b91c4';
         addChartData(humChart, data.humidity);
       }
       if (data.gas !== undefined) {
         document.getElementById('gas').textContent = data.gas;
         document.getElementById('gasGauge').style.width = Math.min((parseFloat(data.gas) / 1024) * 100, 100) + '%';
-        document.getElementById('gasGauge').style.backgroundColor = '#6b6c5a';
+        document.getElementById('gasGauge').style.backgroundColor = '#6c7280';
         addChartData(gasChart, data.gas);
       }
       if (data.ldr !== undefined) {
         document.getElementById('ldr').textContent = data.ldr;
         document.getElementById('ldrGauge').style.width = Math.min((parseFloat(data.ldr) / 1024) * 100, 100) + '%';
-        document.getElementById('ldrGauge').style.backgroundColor = '#adcdc0';
+        document.getElementById('ldrGauge').style.backgroundColor = '#80f2fe';
         addChartData(ldrChart, data.ldr);
       }
     }
