@@ -279,6 +279,285 @@ input:checked + .slider:before { transform: translateX(24px); }
 
 footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3px solid var(--lego-gray); }
 .author-footer { font-size: 16px; font-weight: 900; color: var(--lego-yellow); letter-spacing: 2px; }
+
+/* === Brick upgrade: keep every widget as a sharp LEGO block === */
+.widget-box,
+.sensor-card,
+.chart-container,
+.timer-box,
+.switch-row:not([style]),
+.project-img-card,
+.member-card {
+  border-radius: 3px;
+  box-shadow: 7px 7px 0 var(--lego-border), inset 0 5px 0 rgba(255,255,255,0.12), inset 0 -5px 0 rgba(0,0,0,0.28);
+}
+
+.widget-box,
+.project-img-card,
+.member-card {
+  overflow: visible;
+  background-image:
+    linear-gradient(90deg, rgba(255,255,255,0.06) 0 2px, transparent 2px 48px),
+    linear-gradient(rgba(255,255,255,0.055) 0 2px, transparent 2px 34px);
+  background-size: 48px 34px;
+}
+
+.widget-box::before {
+  top: -13px;
+  left: 18px;
+  right: 18px;
+  height: 13px;
+  background-image: radial-gradient(ellipse at center, #4a4e5d 0 35%, #15161c 37% 53%, transparent 55%);
+  background-size: 30px 15px;
+  background-repeat: repeat-x;
+  filter: drop-shadow(0 2px 0 var(--lego-border));
+}
+
+.sensor-card,
+.timer-box,
+.switch-row:not([style]),
+.chart-container {
+  border-radius: 2px;
+  position: relative;
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.075), transparent 32%);
+}
+
+.chart-container,
+.timer-box {
+  border-width: 3px;
+}
+
+.project-img-card,
+.member-card {
+  border-radius: 2px;
+}
+
+.project-img-card img {
+  border-radius: 1px;
+}
+
+.login-card,
+.dashboard-banner,
+.navbar-brand,
+.nav-tab-btn,
+.mode-toggle,
+.user-welcome-badge,
+.login-btn,
+.logout-btn,
+.timer-btn,
+.countdown-display,
+.circle-btn,
+.linkedin-btn {
+  border-radius: 3px;
+}
+
+/* LEGO silkworm mascot inspired by the poster, built entirely from CSS blocks. */
+.lego-silkworm {
+  --worm-cream: #f3d382;
+  --worm-light: #ffe3a0;
+  --worm-dark: #a87532;
+  position: relative;
+  width: 230px;
+  height: 104px;
+  flex: 0 0 230px;
+  margin-inline-start: auto;
+  direction: ltr;
+  pointer-events: none;
+  filter: drop-shadow(6px 7px 0 rgba(0,0,0,0.34));
+}
+
+.lego-silkworm::before {
+  content: '';
+  position: absolute;
+  right: 9px;
+  bottom: 4px;
+  width: 200px;
+  height: 15px;
+  background: rgba(7,10,15,0.48);
+  transform: skewX(-24deg);
+}
+
+.worm-segment,
+.worm-head {
+  position: absolute;
+  bottom: 21px;
+  width: 49px;
+  height: 49px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.55), transparent 30%),
+    var(--worm-cream);
+  border: 4px solid var(--lego-border);
+  border-radius: 4px;
+  box-shadow: inset 0 6px 0 var(--worm-light), inset 0 -7px 0 var(--worm-dark), 4px 4px 0 rgba(0,0,0,0.23);
+}
+
+.worm-segment::before,
+.worm-head::before {
+  content: '';
+  position: absolute;
+  top: -11px;
+  left: 10px;
+  width: 16px;
+  height: 10px;
+  background: var(--worm-light);
+  border: 3px solid var(--lego-border);
+  border-radius: 50%;
+  box-shadow: 15px 0 0 -3px var(--worm-light), 15px 0 0 0 var(--lego-border);
+}
+
+.worm-tail { left: 5px; transform: rotate(-15deg) scale(0.76); bottom: 23px; }
+.worm-body-one { left: 40px; transform: rotate(-8deg) scale(0.9); }
+.worm-body-two { left: 79px; bottom: 27px; }
+.worm-body-three { left: 119px; transform: rotate(8deg) scale(0.96); bottom: 24px; }
+.worm-body-four { left: 158px; transform: rotate(15deg) scale(0.9); bottom: 27px; }
+
+.worm-head {
+  right: 1px;
+  bottom: 29px;
+  width: 62px;
+  height: 62px;
+  background: linear-gradient(135deg, #fff3bd, transparent 30%), var(--worm-cream);
+}
+
+.worm-eye {
+  position: absolute;
+  z-index: 2;
+  top: 20px;
+  width: 16px;
+  height: 19px;
+  background: #171821;
+  border: 2px solid var(--lego-border);
+  border-radius: 50%;
+  box-shadow: inset 4px 3px 0 #fff;
+}
+.worm-eye.left { left: 12px; }
+.worm-eye.right { right: 10px; }
+.worm-smile {
+  position: absolute;
+  z-index: 2;
+  bottom: 10px;
+  left: 21px;
+  width: 20px;
+  height: 10px;
+  border: 3px solid var(--lego-border);
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+}
+
+/* Silk-worm shape update: a low, rounded caterpillar matching the reference. */
+.lego-silkworm {
+  width: 246px;
+  height: 118px;
+  flex-basis: 246px;
+  filter: drop-shadow(7px 8px 0 rgba(0,0,0,0.34));
+}
+
+.lego-silkworm::before {
+  right: 10px;
+  bottom: 9px;
+  width: 218px;
+  height: 13px;
+  border-radius: 50%;
+  transform: none;
+}
+
+/* Optional manual image slot: add your image file name or URL to its src attribute. */
+.manual-worm-image {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.lego-silkworm.has-manual-worm .manual-worm-image { display: block; }
+.lego-silkworm.has-manual-worm::before,
+.lego-silkworm.has-manual-worm .worm-segment,
+.lego-silkworm.has-manual-worm .worm-head { display: none; }
+
+.worm-segment,
+.worm-head {
+  width: 43px;
+  height: 39px;
+  bottom: 28px;
+  border: 3px solid var(--lego-border);
+  border-radius: 44% 46% 39% 41%;
+  background:
+    radial-gradient(circle at 22% 13%, #fff5c8 0 4px, #bc8d45 5px 7px, transparent 8px),
+    radial-gradient(circle at 57% 13%, #f9e6a6 0 4px, #bc8d45 5px 7px, transparent 8px),
+    linear-gradient(135deg, #fff0b5 0 17%, #e3bf70 44%, #a87532 100%);
+  box-shadow: inset 0 4px 0 rgba(255,255,255,0.5), inset 0 -5px 0 rgba(121,77,24,0.46), 3px 4px 0 rgba(0,0,0,0.23);
+}
+
+.worm-segment::before,
+.worm-head::before {
+  top: -8px;
+  left: 9px;
+  width: 11px;
+  height: 8px;
+  border: 2px solid var(--lego-border);
+  background: #f8dda0;
+  border-radius: 50%;
+  box-shadow: 13px 0 0 -2px #f8dda0, 13px 0 0 0 var(--lego-border);
+}
+
+.worm-segment::after,
+.worm-head::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  bottom: -12px;
+  width: 8px;
+  height: 12px;
+  border: 2px solid var(--lego-border);
+  border-radius: 0 0 5px 5px;
+  background: #d5a950;
+  box-shadow: 16px 1px 0 -2px #d5a950, 16px 1px 0 0 var(--lego-border);
+}
+
+.worm-tail { left: 7px; bottom: 29px; width: 32px; height: 30px; transform: rotate(-14deg); }
+.worm-body-one { left: 35px; bottom: 25px; width: 40px; height: 35px; transform: rotate(-7deg); }
+.worm-body-two { left: 69px; bottom: 28px; width: 42px; height: 38px; transform: rotate(-2deg); }
+.worm-body-three { left: 105px; bottom: 31px; width: 43px; height: 40px; transform: rotate(6deg); }
+.worm-body-four { left: 142px; bottom: 34px; width: 44px; height: 42px; transform: rotate(12deg); }
+
+.worm-head {
+  right: 0;
+  bottom: 37px;
+  width: 64px;
+  height: 66px;
+  border-radius: 37% 42% 38% 45%;
+  background:
+    radial-gradient(circle at 22% 12%, #fffbd5 0 5px, #c3934b 6px 8px, transparent 9px),
+    radial-gradient(circle at 55% 12%, #fff3ba 0 5px, #c3934b 6px 8px, transparent 9px),
+    linear-gradient(135deg, #fff6c9 0 22%, #edce7e 51%, #ae7933 100%);
+}
+
+.worm-eye {
+  top: 19px;
+  width: 19px;
+  height: 22px;
+  border-radius: 48%;
+  box-shadow: inset 5px 4px 0 #fff, 1px 1px 0 rgba(255,255,255,0.45);
+}
+.worm-eye.left { left: 10px; }
+.worm-eye.right { right: 8px; }
+.worm-smile {
+  bottom: 9px;
+  left: 21px;
+  width: 23px;
+  height: 14px;
+  border: 3px solid var(--lego-border);
+  border-radius: 4px 4px 13px 13px;
+  background: #d94123;
+  box-shadow: inset 0 4px 0 #fff3d0;
+}
+
+@media (max-width: 720px) {
+  .dashboard-banner { align-items: flex-start; flex-wrap: wrap; }
+  .lego-silkworm { width: 132px; height: 78px; flex-basis: 132px; transform: scale(0.58); transform-origin: left top; }
+}
 </style>
 </head>
 <body>
@@ -348,6 +627,20 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
         <div>
             <div class="banner-title">لوحة التحكم ب سيلرجي (LEGO Environment)</div>
             <div style="font-size: 14px; color: #FFF; margin-top: 4px; font-weight: 700;">جميع الحساسات تعمل بكفاءة ويتم تحديث البيانات لحظياً</div>
+        </div>
+        <div class="lego-silkworm" aria-label="دودة حرير LEGO">
+            <!-- ضع اسم الملف أو رابط صورة الدودة داخل src، مثل: src="worm.png" -->
+            <img class="manual-worm-image" alt="دودة LEGO" onload="this.parentElement.classList.add('has-manual-worm')" onerror="this.parentElement.classList.remove('has-manual-worm')">
+            <span class="worm-segment worm-tail"></span>
+            <span class="worm-segment worm-body-one"></span>
+            <span class="worm-segment worm-body-two"></span>
+            <span class="worm-segment worm-body-three"></span>
+            <span class="worm-segment worm-body-four"></span>
+            <span class="worm-head">
+                <span class="worm-eye left"></span>
+                <span class="worm-eye right"></span>
+                <span class="worm-smile"></span>
+            </span>
         </div>
     </div>
 
