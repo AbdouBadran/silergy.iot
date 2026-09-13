@@ -30,7 +30,6 @@ body {
   min-height: 100vh;
   color: var(--text-light);
   background-color: var(--lego-black);
-  /* خلفية نمط براميل/نقاط مكعبات الليجو (LEGO Studs Pattern) */
   background-image: 
     radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 20%, transparent 21%),
     radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.5) 22%, transparent 23%);
@@ -41,7 +40,6 @@ body {
   padding-bottom: 40px;
 }
 
-/* === خلفية الأنيميشن المتقدمة === */
 #eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.5; }
 
 /* === شريط التنقل (LEGO Navbar) === */
@@ -65,7 +63,6 @@ body {
   box-shadow: 3px 3px 0px var(--lego-border);
 }
 
-/* === أزرار التنقل مكعبات الليجو === */
 .main-nav-links { display: flex; align-items: center; gap: 10px; }
 .nav-tab-btn {
   background: var(--lego-black);
@@ -103,16 +100,74 @@ body {
 
 /* === شاشات الدخول والترحيب === */
 #login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--lego-black); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.login-card-wrapper { position: relative; width: 100%; max-width: 440px; }
+
 .login-card { 
   background: var(--lego-yellow); 
   border-radius: 20px; 
   padding: 40px 35px; 
   width: 100%; 
-  max-width: 440px; 
   text-align: center; 
   border: 5px solid var(--lego-border);
   box-shadow: 10px 10px 0px var(--lego-border);
 }
+
+/* === سهم الزاوية المخفية البارز === */
+.secret-arrow-trigger {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  background: var(--lego-red);
+  color: #FFF;
+  border: 3px solid var(--lego-border);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 0px var(--lego-border);
+  animation: bounceArrow 1.5s infinite;
+  z-index: 10;
+}
+.secret-arrow-trigger:hover { transform: scale(1.15); background: var(--lego-blue); }
+
+@keyframes bounceArrow {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.1); }
+}
+
+/* === نافذة بيانات الجيست (Guest Access Box) === */
+.guest-popover {
+  display: none;
+  position: absolute;
+  top: 40px;
+  right: -20px;
+  width: 280px;
+  background: var(--lego-black);
+  border: 4px solid var(--lego-border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 8px 8px 0px var(--lego-yellow);
+  z-index: 20;
+  direction: ltr;
+  text-align: left;
+}
+.guest-popover.active { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.8) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.guest-popover-header { font-size: 13px; font-weight: 900; color: var(--lego-yellow); margin-bottom: 8px; border-bottom: 2px dashed var(--lego-gray); padding-bottom: 4px; }
+.guest-popover-text { font-size: 13px; font-weight: 800; color: #FFF; margin-bottom: 10px; }
+.guest-credentials { background: #000; padding: 8px 12px; border-radius: 6px; border: 2px solid var(--lego-border); font-family: monospace; font-size: 13px; color: var(--lego-cyan); }
+.guest-credentials div { margin-bottom: 3px; }
+.guest-close-btn { position: absolute; top: 6px; right: 10px; background: transparent; border: none; color: #FFF; font-weight: 900; cursor: pointer; font-size: 16px; }
+
 .login-title { font-size: 32px; font-weight: 900; color: var(--lego-black); margin-bottom: 12px; letter-spacing: 1.5px; text-shadow: 2px 2px 0px #FFF; }
 .input-group { margin-bottom: 18px; text-align: left; }
 .input-group label { display: block; font-size: 14px; color: var(--lego-black); margin-bottom: 6px; font-weight: 900; }
@@ -142,6 +197,22 @@ body {
 .page-view { transition: opacity 0.3s ease; }
 .page-view.active-view { display: block !important; }
 
+/* === شريط وضع المشاهد (Spectator Mode Banner) === */
+.spectator-banner {
+  display: none;
+  background: var(--lego-red);
+  color: #FFF;
+  text-align: center;
+  padding: 10px;
+  font-weight: 900;
+  font-size: 15px;
+  border: 3px solid var(--lego-border);
+  box-shadow: 0 4px 0px var(--lego-border);
+  margin-bottom: 20px;
+  border-radius: 8px;
+  letter-spacing: 1px;
+}
+
 .dashboard-banner {
     background: var(--lego-blue);
     border-radius: 16px;
@@ -154,11 +225,9 @@ body {
 .banner-title { font-size: 26px; font-weight: 900; color: #FFF; text-shadow: 2px 2px 0px var(--lego-border); }
 .status-dot { width: 16px; height: 16px; background: var(--lego-yellow); border-radius: 50%; border: 2px solid var(--lego-border); box-shadow: 0 0 10px var(--lego-yellow); }
 
-/* التخطيط الثنائي */
 .main-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 25px; }
 @media(max-width: 992px) { .main-layout { grid-template-columns: 1fr; } #dashboard-screen { padding: 15px; } }
 
-/* === الكروت والويدجات البريكس (Brick Box) === */
 .widget-box {
     background: var(--lego-dark-card);
     border: 4px solid var(--lego-border);
@@ -169,7 +238,6 @@ body {
     position: relative;
 }
 
-/* مكعبات تفاعلية بارزة في أعلى الكروت */
 .widget-box::before {
     content: '';
     position: absolute;
@@ -183,7 +251,6 @@ body {
   border-bottom: 3px solid var(--lego-gray); padding-bottom: 10px; margin-bottom: 18px; 
 }
 
-/* عمود الحساسات */
 .sensors-stack { display: flex; flex-direction: column; gap: 14px; }
 .sensor-card {
     display: flex; align-items: center; justify-content: space-between;
@@ -196,18 +263,15 @@ body {
 .sensor-gauge { width: 100px; height: 12px; background: var(--lego-gray); border-radius: 6px; border: 2px solid var(--lego-border); overflow: hidden; }
 .gauge-fill { height: 100%; width: 0%; transition: width 0.8s ease; }
 
-/* عمود المنحنيات */
 .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 @media(max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
 .chart-container { height: 190px; width: 100%; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 10px; border: 2px solid var(--lego-gray); }
 
-/* === لوحة التحكم السفلية (Grid) === */
 .controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
 .control-item { display: flex; flex-direction: column; }
 .switch-row { display: flex; justify-content: space-between; align-items: center; background: #111217; padding: 14px 18px; border-radius: 12px; margin-bottom: 12px; border: 3px solid var(--lego-border); }
 .switch-label { font-size: 15px; font-weight: 900; color: #FFF; }
 
-/* أزرار التشغيل (Toggle LEGO Style) */
 .switch { position: relative; display: inline-block; width: 56px; height: 30px; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--lego-gray); transition: 0.2s; border-radius: 8px; border: 2px solid var(--lego-border); }
@@ -215,7 +279,13 @@ body {
 input:checked + .slider { background-color: var(--lego-green); }
 input:checked + .slider:before { transform: translateX(24px); }
 
-/* المؤقتات */
+/* تعطيل الأزرار في وضع المشاهد */
+.read-only-disabled {
+  opacity: 0.45 !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
 .timer-box { background: #111217; padding: 16px; border-radius: 12px; border: 3px solid var(--lego-border); }
 .timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; direction: ltr; }
 .timer-inputs label { font-size: 11px; color: #AAA; display: block; text-align: center; margin-bottom: 4px; font-weight: 900;}
@@ -351,7 +421,6 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
   border-radius: 3px;
 }
 
-/* LEGO silkworm mascot inspired by the poster, built entirely from CSS blocks. */
 .lego-silkworm {
   --worm-cream: #f3d382;
   --worm-light: #ffe3a0;
@@ -444,7 +513,6 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
   border-radius: 0 0 16px 16px;
 }
 
-/* Silk-worm shape update: a low, rounded caterpillar matching the reference. */
 .lego-silkworm {
   width: 246px;
   height: 118px;
@@ -461,7 +529,6 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
   transform: none;
 }
 
-/* Optional manual image slot: add your image file name or URL to its src attribute. */
 .manual-worm-image {
   display: none;
   position: absolute;
@@ -566,32 +633,50 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
 
 <!-- شاشة تسجيل الدخول -->
 <div id="login-screen">
-  <div class="login-card" id="loginCard">
-    <div class="login-title">SILERGY LOGIN</div>
-    <div class="warning-badge">Only Silergy members have access ⚠️</div>
-    
-    <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
-      <div class="input-group">
-        <label>User Name</label>
-        <input type="text" id="usernameInput" placeholder="Username..." required autocomplete="off">
+  <div class="login-card-wrapper">
+    <!-- السهم السري يشير إلى الزاوية المخفية -->
+    <div class="secret-arrow-trigger" onclick="toggleGuestPopover()" title="Secret Guest Access">
+      ↘️
+    </div>
+
+    <!-- نافذة بيانات الجيست المخفية باللغة الإنجليزية -->
+    <div class="guest-popover" id="guestPopover">
+      <button class="guest-close-btn" onclick="toggleGuestPopover()">✕</button>
+      <div class="guest-popover-header">GUEST ACCESS 🔓</div>
+      <div class="guest-popover-text">You are not a SILERGY member? Here you are!</div>
+      <div class="guest-credentials">
+        <div><strong>Username:</strong> guest</div>
+        <div><strong>Password:</strong> guest</div>
       </div>
-      <div class="input-group">
-        <label>Password</label>
-        <div class="password-wrapper">
-          <input type="password" id="passwordInput" placeholder="Password..." required>
-          <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+    </div>
+
+    <div class="login-card" id="loginCard">
+      <div class="login-title">SILERGY LOGIN</div>
+      <div class="warning-badge">Only Silergy members have access ⚠️</div>
+      
+      <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+        <div class="input-group">
+          <label>User Name</label>
+          <input type="text" id="usernameInput" placeholder="Username..." required autocomplete="off">
         </div>
-      </div>
-      <button type="submit" class="login-btn">تسجيل الدخول</button>
-      <div id="errorMsg" class="error-msg">بيانات الدخول غير صحيحة!</div>
-    </form>
+        <div class="input-group">
+          <label>Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="passwordInput" placeholder="Password..." required>
+            <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+          </div>
+        </div>
+        <button type="submit" class="login-btn">تسجيل الدخول</button>
+        <div id="errorMsg" class="error-msg">بيانات الدخول غير صحيحة!</div>
+      </form>
+    </div>
   </div>
 </div>
 
 <!-- شاشة الترحيب بالفيديو -->
 <div id="welcome-overlay">
   <video src="welcome.mp4" class="welcome-video" autoplay muted loop playsinline></video>
-  <div class="welcome-anim-text">يتم دخول كبار الشخصيات...</div>
+  <div class="welcome-anim-text" id="welcomeAnimText">يتم دخول كبار الشخصيات...</div>
 </div>
 
 <!-- لوحة التحكم الرئيسية -->
@@ -609,7 +694,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
     </div>
   
     <div class="nav-actions">
-      <div class="mode-toggle">
+      <div class="mode-toggle" id="modeToggleBox">
         <button class="mode-btn active" id="modeManual" onclick="setSystemMode('manual')">يدوي</button>
         <button class="mode-btn" id="modeAuto" onclick="setSystemMode('auto')">تلقائي</button>
       </div>
@@ -622,6 +707,12 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
 
   <!-- الصفحة الأولى: Dashboard -->
   <div id="dashboardView" class="page-view active-view">
+    
+    <!-- شريط تحذيري لوضع المشاهد (Spectator Mode) -->
+    <div class="spectator-banner" id="spectatorBanner">
+      👀 SPECTATOR MODE (READ ONLY) - YOU CANNOT CONTROL SENSORS OR DEVICES
+    </div>
+
     <div class="dashboard-banner">
         <div class="status-dot"></div>
         <div>
@@ -629,7 +720,6 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
             <div style="font-size: 14px; color: #FFF; margin-top: 4px; font-weight: 700;">جميع الحساسات تعمل بكفاءة ويتم تحديث البيانات لحظياً</div>
         </div>
         <div class="lego-silkworm" aria-label="دودة حرير LEGO">
-            <!-- ضع اسم الملف أو رابط صورة الدودة داخل src، مثل: src="worm.png" -->
             <img class="manual-worm-image" alt="دودة LEGO" onload="this.parentElement.classList.add('has-manual-worm')" onerror="this.parentElement.classList.remove('has-manual-worm')">
             <span class="worm-segment worm-tail"></span>
             <span class="worm-segment worm-body-one"></span>
@@ -715,7 +805,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
 
     </div>
 
-    <div class="controls-grid">
+    <div class="controls-grid" id="controlsGrid">
         
         <div class="widget-box control-item">
             <div class="widget-title">🌀 Fan</div>
@@ -991,6 +1081,11 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
 </div>
 
 <script>
+  window.toggleGuestPopover = function() {
+    const popover = document.getElementById("guestPopover");
+    popover.classList.toggle("active");
+  };
+
   // التنقل بين صفحات الموقع الثلاثة
   window.switchMainPage = function(pageId, btnElement) {
     const views = document.querySelectorAll('.page-view');
@@ -1067,8 +1162,10 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
     "DR Abdullah": "drabdullah", "Abdou Badran": "970020002", "Haneen Yasser": "24200242",
     "Omar Yasser": "omarlabw", "Mohamed Elshabrawy": "mohamedlabw", "Mohammed Fouda": "mohamed33",
     "Anas Wafa": "anaswafa", "Gamal Rajab": "elsheekhgamal", "Aya Ellaban": "123654789",
-    "Alaa Elshobakey": "123654789", "Mariam Ibrahim": "123654789"
+    "Alaa Elshobakey": "123654789", "Mariam Ibrahim": "123654789",
+    "guest": "guest"
   };
+
   const firebaseConfig = {
     apiKey: "AIzaSyBX1PQUhlbiubiQeuY62nN4qjVvMp-NwLI", authDomain: "summer-ca623.firebaseapp.com",
     databaseURL: "https://summer-ca623-default-rtdb.firebaseio.com", projectId: "summer-ca623",
@@ -1080,6 +1177,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
 
   let currentSystemMode = 'manual';
   let currentFanStatus = false;
+  let isGuestUser = false;
   
   const chartOptions = { 
     responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
@@ -1118,16 +1216,49 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
   
   function playWelcomeAnimation(username) {
     const overlay = document.getElementById("welcome-overlay");
+    const animText = document.getElementById("welcomeAnimText");
+    
+    if (username.toLowerCase() === 'guest') {
+      animText.textContent = "Entering Spectator Mode...";
+    } else {
+      animText.textContent = "يتم دخول كبار الشخصيات...";
+    }
+
     overlay.style.display = "flex";
     setTimeout(() => { overlay.style.opacity = "1"; }, 10);
-    setTimeout(() => { overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; showDashboard(username); }, 500); }, 4000);
+    setTimeout(() => { overlay.style.opacity = "0"; setTimeout(() => { overlay.style.display = "none"; showDashboard(username); }, 500); }, 3000);
   }
 
   function showDashboard(username) {
     const dash = document.getElementById("dashboard-screen");
     document.getElementById("welcomeUserDisplay").textContent = username;
+    
+    // التحقق هل المستخدم Guest أم عضو حقيقي
+    if (username.toLowerCase() === 'guest') {
+      isGuestUser = true;
+      enableSpectatorMode();
+    } else {
+      isGuestUser = false;
+    }
+
     dash.style.display = "block";
     setTimeout(() => { dash.classList.add("animate-enter"); }, 10);
+  }
+
+  function enableSpectatorMode() {
+    // إظهار بنر المشاهد
+    document.getElementById("spectatorBanner").style.display = "block";
+    
+    // تعطيل لوحة التحكم والسويتشات بالكامل
+    const controlsGrid = document.getElementById("controlsGrid");
+    controlsGrid.classList.add("read-only-disabled");
+
+    // تعطيل مفاتيح BME و الغاز في كارت القراءات
+    document.getElementById("bmeSwitch").disabled = true;
+    document.getElementById("gasSwitch").disabled = true;
+
+    // إخفاء خيارات التحكم التلقائي/اليدوي لتجنب التعارض
+    document.getElementById("modeToggleBox").style.display = "none";
   }
 
   window.handleLogout = function() {
@@ -1147,6 +1278,8 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
   const timerFbKeys = { fan: 'fanTimer', diff: 'diffTimer', led: 'ledTimer' };
   
   window.toggleControl = function(path) {
+    if (isGuestUser) return; // حظر أي تعديل إذا كان زائر
+
     let elementId = ''; let deviceKey = '';
     if (path === 'fanEnabled') { 
       if (currentSystemMode === 'auto') { alert("قم بالتحويل للوضع اليدوي (Manual) للتحكم بالمروحة.");
@@ -1169,9 +1302,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
     }
   };
 
-  window.setSystemMode = function(mode) { set(ref(db, 'controls/systemMode'), mode); };
+  window.setSystemMode = function(mode) { 
+    if (isGuestUser) return;
+    set(ref(db, 'controls/systemMode'), mode); 
+  };
   
   window.startDeviceTimer = function(deviceKey) {
+    if (isGuestUser) return;
     let totalSeconds = (parseInt(document.getElementById(deviceKey + 'Hours').value) || 0) * 3600 + (parseInt(document.getElementById(deviceKey + 'Mins').value) || 0) * 60 + (parseInt(document.getElementById(deviceKey + 'Secs').value) || 0);
     if (totalSeconds <= 0) return;
     resetDeviceTimer(deviceKey);
@@ -1190,12 +1327,13 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
   };
 
   window.togglePauseTimer = function(deviceKey, btnId) {
-    if (!activeTimers[deviceKey].timerId) return;
+    if (isGuestUser || !activeTimers[deviceKey].timerId) return;
     activeTimers[deviceKey].isPaused = !activeTimers[deviceKey].isPaused;
     document.getElementById(btnId).textContent = activeTimers[deviceKey].isPaused ? '▶️' : '⏸️';
   };
 
   window.resetDeviceTimer = function(deviceKey) {
+    if (isGuestUser) return;
     if (activeTimers[deviceKey].timerId) { clearInterval(activeTimers[deviceKey].timerId); activeTimers[deviceKey].timerId = null; }
     activeTimers[deviceKey].remainingSecs = 0; activeTimers[deviceKey].isPaused = false;
     if (timerFbKeys[deviceKey]) set(ref(db, 'timers/' + timerFbKeys[deviceKey]), -1);
@@ -1217,7 +1355,7 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
         document.getElementById('tempGauge').style.width = Math.min((parseFloat(data.temp) / 50) * 100, 100) + '%';
         document.getElementById('tempGauge').style.backgroundColor = 'var(--lego-red)';
         addChartData(tempChart, data.temp);
-        if (currentSystemMode === 'auto') {
+        if (currentSystemMode === 'auto' && !isGuestUser) {
           if (parseFloat(data.temp) > 31 && !currentFanStatus) set(ref(db, 'controls/fanEnabled'), true);
           else if (parseFloat(data.temp) <= 31 && currentFanStatus) set(ref(db, 'controls/fanEnabled'), false);
         }
@@ -1253,7 +1391,9 @@ footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3p
         const devKey = ['fan', 'diff', 'led'][i];
         const el = document.getElementById(id);
         if (el) { 
-          el.checked = data[key] || false; if (!data[key] && activeTimers[devKey].remainingSecs > 0) resetDeviceTimer(devKey); }
+          el.checked = data[key] || false; 
+          if (!data[key] && activeTimers[devKey].remainingSecs > 0 && !isGuestUser) resetDeviceTimer(devKey); 
+        }
       });
       if (document.getElementById('bmeSwitch')) document.getElementById('bmeSwitch').checked = data.bmeEnabled || false;
       if (document.getElementById('gasSwitch')) document.getElementById('gasSwitch').checked = data.gasEnabled || false;
