@@ -3,470 +3,293 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SILERGY - Smart Environment Control</title>
+<title>SILERGY - Lego Smart Environment Control</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800;900&family=Tajawal:wght@700;900&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
 
 <style>
-/* === إعدادات الألوان المستوحاة من لوحة الألوان المرفقة === */
+/* === نظام ألوان وتصميم الليجو (LEGO Theme Palette) === */
 :root {
-  --primary-brand: #3b91c4;
-  --primary-hover: #2e75a0;
-  --accent-light: #80f2fe;
-  --bg-dark: #1c1929;
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --border-color: rgba(59, 145, 196, 0.25);
-  --text-dark: #1c1929;
-  --text-light: #ffffff;
-  --accent-mint: #80f2fe;
-  --accent-olive: #6c7280;
-  --danger-red: #d82c0d;
-  --ee-cyan: #80f2fe;
-  --glow-shadow: rgba(59, 145, 196, 0.35);
+  --lego-yellow: #FFD500;
+  --lego-yellow-hover: #E6C000;
+  --lego-black: #1B1C22;
+  --lego-dark-card: #242630;
+  --lego-blue: #0055BF;
+  --lego-cyan: #00A3DA;
+  --lego-red: #E3000B;
+  --lego-green: #009639;
+  --lego-gray: #3A3D4A;
+  --text-dark: #111217;
+  --text-light: #FFFFFF;
+  --lego-border: #000000;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', 'Plus Jakarta Sans', sans-serif; }
-body { min-height: 100vh; color: var(--text-light); background: var(--bg-dark); position: relative; overflow-x: hidden; padding-bottom: 40px; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Fredoka', 'Tajawal', sans-serif; }
+
+body {
+  min-height: 100vh;
+  color: var(--text-light);
+  background-color: var(--lego-black);
+  /* خلفية نمط براميل/نقاط مكعبات الليجو (LEGO Studs Pattern) */
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 20%, transparent 21%),
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.5) 22%, transparent 23%);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+  position: relative;
+  overflow-x: hidden;
+  padding-bottom: 40px;
+}
 
 /* === خلفية الأنيميشن المتقدمة === */
-#eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.65; }
-.solar-environment { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
-.sun-orb {
-    position: absolute; top: -150px; right: -150px; width: 550px; height: 550px;
-    background: radial-gradient(circle, rgba(128, 242, 254, 0.2) 0%, rgba(59, 145, 196, 0.15) 45%, transparent 70%);
-    border-radius: 50%; animation: pulseSun 8s infinite alternate ease-in-out;
-    filter: blur(20px);
-}
-.energy-dots {
-    position: absolute; width: 100%; height: 100%;
-    background-image: radial-gradient(rgba(128, 242, 254, 0.12) 1px, transparent 1px);
-    background-size: 35px 35px; animation: moveDots 25s linear infinite;
-}
-@keyframes pulseSun { 0% { transform: scale(1) translate(0, 0); opacity: 0.7; } 100% { transform: scale(1.15) translate(-20px, 20px); opacity: 1; } }
-@keyframes moveDots { 0% { transform: translateY(0); } 100% { transform: translateY(35px); } }
+#eco-canvas { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.5; }
 
-/* === شريط التنقل (Navbar) === */
+/* === شريط التنقل (LEGO Navbar) === */
 .sticky-navbar {
   position: sticky; top: 0; left: 0; width: 100%; z-index: 1000;
-  background: rgba(28, 25, 41, 0.85); backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(255,255,255,0.12); padding: 15px 30px;
+  background: var(--lego-yellow);
+  border-bottom: 5px solid var(--lego-border);
+  padding: 12px 25px;
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
+  box-shadow: 0 8px 0px rgba(0,0,0,0.5);
 }
-.navbar-brand { 
-  font-size: 24px; font-weight: 900; color: var(--accent-light); direction: ltr; letter-spacing: 1.5px;
-  text-shadow: 0 0 12px rgba(128, 242, 254, 0.3);
-  transition: transform 0.3s ease;
-}
-.navbar-brand:hover { transform: scale(1.03); }
 
-/* === أزرار التنقل بين الصفحات === */
-.main-nav-links { display: flex; align-items: center; gap: 12px; }
+.navbar-brand { 
+  font-size: 28px; font-weight: 900; color: var(--lego-black); direction: ltr; letter-spacing: 2px;
+  text-shadow: 2px 2px 0px #FFF;
+  background: var(--lego-black);
+  color: var(--lego-yellow);
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 3px solid var(--lego-border);
+  box-shadow: 3px 3px 0px var(--lego-border);
+}
+
+/* === أزرار التنقل مكعبات الليجو === */
+.main-nav-links { display: flex; align-items: center; gap: 10px; }
 .nav-tab-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: var(--accent-light);
-  padding: 9px 20px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 700;
+  background: var(--lego-black);
+  border: 3px solid var(--lego-border);
+  color: #FFF;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 0px var(--lego-border);
+  transition: all 0.1s ease;
 }
 .nav-tab-btn:hover { 
-  background: rgba(255, 255, 255, 0.2); 
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+  box-shadow: 0 6px 0px var(--lego-border);
+  background: var(--lego-blue);
 }
 .nav-tab-btn.active {
-  background: var(--primary-brand);
-  color: #ffffff;
-  border-color: rgba(255,255,255,0.3);
-  box-shadow: 0 6px 20px var(--glow-shadow);
+  background: var(--lego-red);
+  color: #FFFFFF;
+  box-shadow: inset 0 3px 0px rgba(255,255,255,0.4), 0 4px 0px var(--lego-border);
 }
 
 .nav-actions { display: flex; align-items: center; gap: 16px; }
 
-.mode-toggle { display: flex; align-items: center; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); }
-.mode-btn { border: none; background: transparent; color: rgba(255,255,255,0.7); padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.3s ease; }
-.mode-btn.active { background: var(--accent-light); color: var(--bg-dark); box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+.mode-toggle { display: flex; align-items: center; background: var(--lego-black); padding: 4px; border-radius: 12px; border: 3px solid var(--lego-border); }
+.mode-btn { border: none; background: transparent; color: #FFF; padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.2s ease; }
+.mode-btn.active { background: var(--lego-yellow); color: var(--lego-black); box-shadow: 0 2px 0px var(--lego-border); }
 
-.user-welcome-badge { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); padding: 8px 16px; border-radius: 12px; direction: ltr; }
-.user-welcome-text { font-size: 14px; font-weight: 700; color: var(--accent-light); }
-.logout-btn { background: rgba(216, 44, 13, 0.15); border: 1px solid var(--danger-red); color: #ffb3a7; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-.logout-btn:hover { background: var(--danger-red); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(216,44,13,0.3); }
+.user-welcome-badge { display: flex; align-items: center; gap: 12px; background: var(--lego-black); border: 3px solid var(--lego-border); padding: 6px 14px; border-radius: 10px; direction: ltr; }
+.user-welcome-text { font-size: 15px; font-weight: 900; color: var(--lego-yellow); }
+.logout-btn { background: var(--lego-red); border: 2px solid var(--lego-border); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 0px var(--lego-border); }
+.logout-btn:hover { transform: scale(1.05); }
 
 /* === شاشات الدخول والترحيب === */
-#login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 1; transition: 0.5s ease; }
+#login-screen { position: fixed; inset: 0; z-index: 9999; background: var(--lego-black); display: flex; align-items: center; justify-content: center; padding: 20px; }
 .login-card { 
-  background: var(--card-bg); 
-  border-radius: 28px; 
-  padding: 45px 40px; 
+  background: var(--lego-yellow); 
+  border-radius: 20px; 
+  padding: 40px 35px; 
   width: 100%; 
-  max-width: 430px; 
+  max-width: 440px; 
   text-align: center; 
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 30px rgba(59, 145, 196, 0.2); 
-  border: 1px solid rgba(255,255,255,0.5);
-  animation: fadeInCard 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 5px solid var(--lego-border);
+  box-shadow: 10px 10px 0px var(--lego-border);
 }
-@keyframes fadeInCard { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.login-card.animate-exit { opacity: 0; transform: scale(0.9) translateY(-30px); transition: 0.5s cubic-bezier(0.7, 0, 0.84, 0); }
-.login-title { font-size: 30px; font-weight: 900; color: var(--text-dark); margin-bottom: 18px; letter-spacing: 1px; }
-.input-group { margin-bottom: 20px; text-align: left; }
-.input-group label { display: block; font-size: 13px; color: #6c7280; margin-bottom: 8px; font-weight: 700; }
-.input-group input { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1.5px solid rgba(0,0,0,0.12); background: #fff; color: var(--text-dark); outline: none; transition: 0.3s; direction: ltr; font-size: 14px; }
-.input-group input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 4px rgba(59, 145, 196, 0.2); }
+.login-title { font-size: 32px; font-weight: 900; color: var(--lego-black); margin-bottom: 12px; letter-spacing: 1.5px; text-shadow: 2px 2px 0px #FFF; }
+.input-group { margin-bottom: 18px; text-align: left; }
+.input-group label { display: block; font-size: 14px; color: var(--lego-black); margin-bottom: 6px; font-weight: 900; }
+.input-group input { width: 100%; padding: 14px 16px; border-radius: 10px; border: 3px solid var(--lego-border); background: #fff; color: var(--text-dark); outline: none; font-size: 15px; font-weight: 700; direction: ltr; box-shadow: inset 0 3px 0px rgba(0,0,0,0.1); }
 .password-wrapper { position: relative; }
-.toggle-password { position: absolute; right: 14px; top: 14px; cursor: pointer; color: #6c7280; transition: transform 0.2s; }
-.toggle-password:hover { transform: scale(1.15); }
+.toggle-password { position: absolute; right: 14px; top: 12px; cursor: pointer; color: #333; font-size: 18px; }
 .login-btn { 
-  width: 100%; padding: 15px; border: none; border-radius: 14px; 
-  background: var(--primary-brand); color: #fff; font-size: 16px; font-weight: 800; 
-  cursor: pointer; margin-top: 15px; transition: all 0.3s ease; 
-  box-shadow: 0 8px 20px rgba(59, 145, 196, 0.3);
+  width: 100%; padding: 15px; border: 3px solid var(--lego-border); border-radius: 12px; 
+  background: var(--lego-red); color: #fff; font-size: 18px; font-weight: 900; 
+  cursor: pointer; margin-top: 10px; box-shadow: 0 6px 0px var(--lego-border); transition: 0.1s;
 }
-.login-btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 12px 25px rgba(59, 145, 196, 0.4); }
-.error-msg { color: var(--danger-red); font-size: 13px; margin-top: 14px; display: none; font-weight: 700; animation: shake 0.4s ease; }
-@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-.warning-badge { font-size: 13px; color: var(--primary-brand); background: rgba(59, 145, 196, 0.12); padding: 8px 16px; border-radius: 20px; margin-bottom: 25px; display: inline-block; font-weight: 700; }
+.login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0px var(--lego-border); }
+.login-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--lego-border); }
+.error-msg { color: var(--lego-red); font-size: 14px; margin-top: 14px; display: none; font-weight: 900; background: #FFF; padding: 8px; border-radius: 8px; border: 2px solid var(--lego-red); }
+.warning-badge { font-size: 13px; color: #FFF; background: var(--lego-black); padding: 8px 14px; border-radius: 8px; margin-bottom: 20px; display: inline-block; font-weight: 900; border: 2px solid var(--lego-border); }
 
 #welcome-overlay { 
-  position: fixed; 
-  inset: 0; 
-  z-index: 10000; 
-  background: var(--bg-dark); 
-  display: none; 
-  flex-direction: column;
-  align-items: center; 
-  justify-content: center; 
-  gap: 20px;
-  opacity: 0; 
-  transition: 0.5s ease; 
+  position: fixed; inset: 0; z-index: 10000; background: var(--lego-black); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; opacity: 0; transition: 0.5s ease; 
 }
-.welcome-video {
-  max-width: 80%;
-  max-height: 65vh;
-  border-radius: 16px;
-  object-fit: contain;
-}
-.welcome-anim-text { font-size: 38px; font-weight: 900; color: var(--accent-light); animation: pulseScale 1s infinite alternate ease-in-out; text-shadow: 0 0 25px var(--glow-shadow); }
-@keyframes pulseScale { 0% { transform: scale(0.92); opacity: 0.8; } 100% { transform: scale(1.08); opacity: 1; } }
+.welcome-video { max-width: 80%; max-height: 65vh; border-radius: 16px; border: 5px solid var(--lego-yellow); box-shadow: 8px 8px 0px var(--lego-border); }
+.welcome-anim-text { font-size: 36px; font-weight: 900; color: var(--lego-yellow); text-shadow: 3px 3px 0px var(--lego-red); }
 
 /* === تخطيط لوحة التحكم === */
-#dashboard-screen { display: none; opacity: 0; transition: opacity 0.6s ease; padding: 30px 40px; }
+#dashboard-screen { display: none; opacity: 0; transition: opacity 0.5s ease; padding: 25px 35px; }
 #dashboard-screen.animate-enter { opacity: 1; }
 
-.page-view { transition: opacity 0.4s ease, transform 0.4s ease; }
-.page-view.active-view { animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-@keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.page-view { transition: opacity 0.3s ease; }
+.page-view.active-view { display: block !important; }
 
 .dashboard-banner {
-    background: linear-gradient(135deg, var(--primary-brand), #28688f);
-    border-radius: 22px;
-    padding: 22px 32px;
-    margin-bottom: 30px;
+    background: var(--lego-blue);
+    border-radius: 16px;
+    padding: 20px 28px;
+    margin-bottom: 25px;
     display: flex; align-items: center; gap: 18px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.25);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 4px solid var(--lego-border);
+    box-shadow: 6px 6px 0px var(--lego-border);
 }
-.banner-title { font-size: 25px; font-weight: 900; color: #fff; }
-.status-dot { width: 14px; height: 14px; background: var(--accent-mint); border-radius: 50%; box-shadow: 0 0 18px var(--accent-mint); animation: pulseDot 1.5s infinite ease-in-out; }
-@keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
+.banner-title { font-size: 26px; font-weight: 900; color: #FFF; text-shadow: 2px 2px 0px var(--lego-border); }
+.status-dot { width: 16px; height: 16px; background: var(--lego-yellow); border-radius: 50%; border: 2px solid var(--lego-border); box-shadow: 0 0 10px var(--lego-yellow); }
 
 /* التخطيط الثنائي */
-.main-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 30px; }
-@media(max-width: 992px) { .main-layout { grid-template-columns: 1fr; } #dashboard-screen { padding: 20px; } }
+.main-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 25px; }
+@media(max-width: 992px) { .main-layout { grid-template-columns: 1fr; } #dashboard-screen { padding: 15px; } }
 
-/* === الكروت والويدجات === */
+/* === الكروت والويدجات البريكس (Brick Box) === */
 .widget-box {
-    background: var(--card-bg);
-    border: 1px solid rgba(255,255,255,0.6);
-    border-radius: 24px;
-    padding: 25px;
-    color: var(--text-dark);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+    background: var(--lego-dark-card);
+    border: 4px solid var(--lego-border);
+    border-radius: 18px;
+    padding: 22px;
+    color: var(--text-light);
+    box-shadow: 6px 6px 0px var(--lego-border);
+    position: relative;
 }
-.widget-box:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.22); }
 
-/* عمود الحساسات (اليمين) */
-.sensors-stack { display: flex; flex-direction: column; gap: 16px; }
+/* مكعبات تفاعلية بارزة في أعلى الكروت */
+.widget-box::before {
+    content: '';
+    position: absolute;
+    top: -12px; left: 20px; right: 20px; height: 10px;
+    background-image: radial-gradient(circle, var(--lego-yellow) 40%, transparent 45%);
+    background-size: 20px 20px;
+}
+
+.widget-title { 
+  font-size: 20px; color: var(--lego-yellow); font-weight: 900; 
+  border-bottom: 3px solid var(--lego-gray); padding-bottom: 10px; margin-bottom: 18px; 
+}
+
+/* عمود الحساسات */
+.sensors-stack { display: flex; flex-direction: column; gap: 14px; }
 .sensor-card {
     display: flex; align-items: center; justify-content: space-between;
-    background: #ffffff; border: 1px solid rgba(0,0,0,0.05);
-    border-radius: 18px; padding: 18px 22px; transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    background: #111217; border: 3px solid var(--lego-border);
+    border-radius: 12px; padding: 14px 18px;
+    box-shadow: 3px 3px 0px var(--lego-border);
 }
-.sensor-card:hover { transform: translateX(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-.sensor-info h4 { font-size: 14px; color: #6c7280; font-weight: 700; margin-bottom: 5px; }
-.sensor-value { font-size: 26px; font-weight: 900; }
-.sensor-gauge { width: 110px; height: 8px; background: rgba(0,0,0,0.06); border-radius: 10px; overflow: hidden; }
-.gauge-fill { height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 10px; }
+.sensor-info h4 { font-size: 13px; color: #BBB; font-weight: 700; margin-bottom: 4px; }
+.sensor-value { font-size: 24px; font-weight: 900; }
+.sensor-gauge { width: 100px; height: 12px; background: var(--lego-gray); border-radius: 6px; border: 2px solid var(--lego-border); overflow: hidden; }
+.gauge-fill { height: 100%; width: 0%; transition: width 0.8s ease; }
 
-/* عمود المنحنيات (اليسار) */
-.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+/* عمود المنحنيات */
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 @media(max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
-.chart-container { height: 200px; width: 100%; margin-top: 15px; }
-.widget-title { font-size: 18px; color: var(--text-dark); font-weight: 900; border-bottom: 2px cubic-bezier(0.4,0,0.2,1) solid rgba(0,0,0,0.06); padding-bottom: 12px; margin-bottom: 18px; }
+.chart-container { height: 190px; width: 100%; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 10px; border: 2px solid var(--lego-gray); }
 
 /* === لوحة التحكم السفلية (Grid) === */
-.controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+.controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
 .control-item { display: flex; flex-direction: column; }
-.switch-row { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 16px 20px; border-radius: 18px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.04); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-.switch-label { font-size: 15px; font-weight: 800; color: var(--text-dark); }
+.switch-row { display: flex; justify-content: space-between; align-items: center; background: #111217; padding: 14px 18px; border-radius: 12px; margin-bottom: 12px; border: 3px solid var(--lego-border); }
+.switch-label { font-size: 15px; font-weight: 900; color: #FFF; }
 
-/* أزرار التشغيل (Toggle) */
-.switch { position: relative; display: inline-block; width: 54px; height: 30px; }
+/* أزرار التشغيل (Toggle LEGO Style) */
+.switch { position: relative; display: inline-block; width: 56px; height: 30px; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; inset: 0; background-color: #d1d5db; transition: 0.35s; border-radius: 30px; }
-.slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
-input:checked + .slider { background-color: var(--primary-brand); }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--lego-gray); transition: 0.2s; border-radius: 8px; border: 2px solid var(--lego-border); }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: var(--lego-yellow); transition: 0.2s; border-radius: 4px; border: 2px solid var(--lego-border); }
+input:checked + .slider { background-color: var(--lego-green); }
 input:checked + .slider:before { transform: translateX(24px); }
 
 /* المؤقتات */
-.timer-box { background: rgba(0,0,0,0.025); padding: 20px; border-radius: 18px; border: 1.5px dashed rgba(0,0,0,0.12); }
-.timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; direction: ltr; }
-.timer-inputs label { font-size: 11px; color: #6c7280; display: block; text-align: center; margin-bottom: 6px; font-weight: 700;}
-.timer-inputs input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.12); background: #ffffff; color: var(--text-dark); text-align: center; font-weight: 900; outline: none; font-size: 15px; transition: 0.3s; }
-.timer-inputs input:focus { border-color: var(--primary-brand); box-shadow: 0 0 0 3px rgba(59, 145, 196, 0.2); }
-.timer-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--primary-brand); color: #fff; font-weight: 800; cursor: pointer; transition: all 0.3s ease; font-size: 14px; box-shadow: 0 4px 12px rgba(59, 145, 196, 0.25); }
-.timer-btn:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 145, 196, 0.35); }
+.timer-box { background: #111217; padding: 16px; border-radius: 12px; border: 3px solid var(--lego-border); }
+.timer-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; direction: ltr; }
+.timer-inputs label { font-size: 11px; color: #AAA; display: block; text-align: center; margin-bottom: 4px; font-weight: 900;}
+.timer-inputs input { width: 100%; padding: 8px; border-radius: 8px; border: 2px solid var(--lego-border); background: #FFF; color: var(--text-dark); text-align: center; font-weight: 900; outline: none; font-size: 16px; }
+.timer-btn { width: 100%; padding: 10px; border: 2px solid var(--lego-border); border-radius: 8px; background: var(--lego-yellow); color: var(--lego-black); font-weight: 900; cursor: pointer; font-size: 14px; box-shadow: 0 4px 0px var(--lego-border); }
+.timer-btn:hover { background: var(--lego-yellow-hover); }
 
-.timer-active-container { display: none; flex-direction: column; align-items: center; gap: 14px; }
-.countdown-display { width: 100%; padding: 14px; background: rgba(59, 145, 196, 0.12); border: 2px solid var(--primary-brand); border-radius: 14px; text-align: center; font-family: monospace; font-size: 26px; color: var(--primary-brand); font-weight: 900; letter-spacing: 2px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); }
-.circle-actions { display: flex; gap: 15px; }
-.circle-btn { width: 44px; height: 44px; border-radius: 50%; border: none; font-size: 16px; cursor: pointer; background: #ffffff; color: var(--text-dark); box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.25s ease; }
-.circle-btn:hover { transform: scale(1.12); }
-.circle-btn.pause:hover { background: var(--accent-light); color: var(--primary-brand); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
-.circle-btn.reset:hover { background: var(--danger-red); color: #fff; box-shadow: 0 6px 15px rgba(216,44,13,0.3); }
+.timer-active-container { display: none; flex-direction: column; align-items: center; gap: 12px; }
+.countdown-display { width: 100%; padding: 10px; background: var(--lego-yellow); border: 3px solid var(--lego-border); border-radius: 10px; text-align: center; font-family: monospace; font-size: 24px; color: var(--lego-black); font-weight: 900; }
+.circle-actions { display: flex; gap: 12px; }
+.circle-btn { width: 42px; height: 42px; border-radius: 10px; border: 2px solid var(--lego-border); font-size: 16px; cursor: pointer; background: #FFF; color: var(--text-dark); box-shadow: 0 3px 0px var(--lego-border); }
 
-/* === تنسيقات صفحة Our Project الجديدة === */
-.project-container {
-    direction: ltr;
-    text-align: left;
-    max-width: 100%;
-    margin: 0 auto;
-}
-.project-section-title {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--primary-brand);
-    margin-top: 30px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.project-subtitle {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--accent-olive);
-    margin-bottom: 10px;
-}
-.project-text {
-    font-size: 15px;
-    color: #444;
-    line-height: 1.7;
-    margin-bottom: 15px;
-}
-.project-list {
-    list-style-type: none;
-    padding-left: 0;
-    margin-bottom: 20px;
-}
-.project-list li {
-    font-size: 15px;
-    color: #333;
-    margin-bottom: 10px;
-    line-height: 1.6;
-}
+/* === صفحة Our Project === */
+.project-container { direction: ltr; text-align: left; }
+.project-section-title { font-size: 24px; font-weight: 900; color: var(--lego-yellow); margin-top: 25px; margin-bottom: 10px; }
+.project-subtitle { font-size: 18px; font-weight: 700; color: var(--lego-cyan); margin-bottom: 8px; }
+.project-text { font-size: 15px; color: #DDD; line-height: 1.6; margin-bottom: 12px; }
+.project-list { list-style-type: none; padding-left: 0; margin-bottom: 18px; }
+.project-list li { font-size: 15px; color: #FFF; margin-bottom: 8px; line-height: 1.5; }
 
-/* تنسيقات كروت الصور والعناوين الكبيرة */
 .big-section-header {
-    font-size: 38px;
-    font-weight: 900;
-    color: var(--primary-brand);
-    text-align: center;
-    margin: 45px 0 25px 0;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    font-size: 36px; font-weight: 900; color: var(--lego-yellow); text-align: center;
+    margin: 35px 0 20px 0; letter-spacing: 2px; text-shadow: 3px 3px 0px var(--lego-border);
 }
-.project-gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-bottom: 40px;
-}
-@media(max-width: 768px) {
-    .project-gallery-grid {
-        grid-template-columns: 1fr;
-    }
-}
+.project-gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+@media(max-width: 768px) { .project-gallery-grid { grid-template-columns: 1fr; } }
 .project-img-card {
-    background: transparent;
-    border-radius: 18px;
-    padding: 0;
-    border: none;
-    box-shadow: none;
-    text-align: center;
-    transition: transform 0.3s ease;
+    background: #111217; border-radius: 14px; padding: 10px; border: 3px solid var(--lego-border);
+    box-shadow: 4px 4px 0px var(--lego-border); text-align: center;
 }
-.project-img-card:hover {
-    transform: translateY(-5px);
-}
-.project-img-card img {
-    width: 100%;
-    height: 320px;
-    object-fit: fill;
-    border-radius: 16px;
-    margin-bottom: 10px;
-}
-.img-label {
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--primary-brand);
-}
+.project-img-card img { width: 100%; height: 260px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; border: 2px solid var(--lego-border); }
+.img-label { font-size: 16px; font-weight: 900; color: var(--lego-yellow); }
 
-/* === عناصر صفحة About Us التصميم الاحترافي والجديد === */
+/* === صفحة About Us (طاقم الليجو) === */
 .section-subtitle {
-    font-size: 22px;
-    font-weight: 900;
-    color: var(--primary-brand);
-    margin: 35px 0 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px dashed rgba(59, 145, 196, 0.25);
-    text-align: right;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-size: 24px; font-weight: 900; color: var(--lego-yellow); margin: 30px 0 15px;
+    padding-bottom: 8px; border-bottom: 3px solid var(--lego-gray); text-align: right;
 }
-.section-subtitle::before {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 22px;
-    background: var(--primary-brand);
-    border-radius: 4px;
-}
-
-/* تقسيم الشبكة احترافياً: 3 كروت في الصف للشباب، و 2 كرت في الصف للبنات */
-.boys-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-    margin-top: 20px;
-}
-.girls-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 25px;
-    margin-top: 20px;
-}
-
-@media(max-width: 992px) {
-    .boys-grid, .girls-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-@media(max-width: 600px) {
-    .boys-grid, .girls-grid {
-        grid-template-columns: 1fr;
-    }
-}
+.boys-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 15px; }
+.girls-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 15px; }
+@media(max-width: 992px) { .boys-grid, .girls-grid { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 600px) { .boys-grid, .girls-grid { grid-template-columns: 1fr; } }
 
 .member-card {
-    background: #ffffff;
-    border-radius: 24px;
-    padding: 0 0 25px 0;
-    text-align: center;
-    border: 1px solid rgba(0,0,0,0.08);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
+    background: #111217; border-radius: 16px; padding: 0 0 20px 0; text-align: center;
+    border: 4px solid var(--lego-border); box-shadow: 6px 6px 0px var(--lego-border);
+    display: flex; flex-direction: column; align-items: center; overflow: hidden;
 }
-.member-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 18px 38px rgba(59, 145, 196, 0.22);
-    border-color: rgba(59, 145, 196, 0.4);
-}
-
-.card-banner-bg {
-    width: 100%;
-    height: 80px;
-    background: linear-gradient(135deg, var(--primary-brand), #1c1929);
-    margin-bottom: -50px;
-}
-
+.card-banner-bg { width: 100%; height: 70px; background: var(--lego-yellow); border-bottom: 3px solid var(--lego-border); margin-bottom: -40px; }
 .member-avatar {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 12px;
-    border: 4px solid #ffffff;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    position: relative;
-    z-index: 2;
-    transition: transform 0.4s ease;
+    width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px;
+    border: 4px solid var(--lego-border); box-shadow: 0 4px 0px var(--lego-border); position: relative; z-index: 2; background: #FFF;
 }
-.member-card:hover .member-avatar {
-    transform: scale(1.08);
-}
-
-.member-name {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--text-dark);
-    margin-bottom: 4px;
-    padding: 0 15px;
-}
-.member-role {
-    font-size: 13px;
-    color: var(--accent-olive);
-    font-weight: 700;
-    margin-bottom: 18px;
-}
+.member-name { font-size: 18px; font-weight: 900; color: #FFF; margin-bottom: 4px; padding: 0 10px; }
+.member-role { font-size: 13px; color: var(--lego-yellow); font-weight: 700; margin-bottom: 14px; }
 .linkedin-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    background: #0a66c2;
-    color: #ffffff;
-    border-radius: 50%;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(10, 102, 194, 0.3);
-}
-.linkedin-btn:hover {
-    transform: scale(1.18) rotate(6deg);
-    background: #004182;
-    box-shadow: 0 8px 20px rgba(10, 102, 194, 0.45);
+    display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px;
+    background: var(--lego-blue); color: #FFF; border-radius: 10px; border: 2px solid var(--lego-border);
+    text-decoration: none; box-shadow: 0 3px 0px var(--lego-border);
 }
 
-footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); }
-.author-footer { font-size: 14px; font-weight: 900; color: rgba(255,255,255,0.5); letter-spacing: 2px; }
+footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 3px solid var(--lego-gray); }
+.author-footer { font-size: 16px; font-weight: 900; color: var(--lego-yellow); letter-spacing: 2px; }
 </style>
 </head>
 <body>
 
-<div class="solar-environment">
-    <div class="energy-dots"></div>
-    <div class="sun-orb"></div>
-</div>
 <canvas id="eco-canvas"></canvas>
 
+<!-- شاشة تسجيل الدخول -->
 <div id="login-screen">
   <div class="login-card" id="loginCard">
     <div class="login-title">SILERGY LOGIN</div>
-    <div class="warning-badge">Only Silergy members have acces ⚠️</div>
+    <div class="warning-badge">Only Silergy members have access ⚠️</div>
     
     <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
       <div class="input-group">
@@ -486,20 +309,19 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   </div>
 </div>
 
+<!-- شاشة الترحيب بالفيديو -->
 <div id="welcome-overlay">
-  <!-- فيديو الترحيب -->
   <video src="welcome.mp4" class="welcome-video" autoplay muted loop playsinline></video>
-  
   <div class="welcome-anim-text">يتم دخول كبار الشخصيات...</div>
 </div>
 
+<!-- لوحة التحكم الرئيسية -->
 <div id="dashboard-screen">
   
   <div class="sticky-navbar">
-    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
       <div class="navbar-brand">SILERGY ⚡</div>
       
-      <!-- أزرار الصفحات الثلاثة -->
       <div class="main-nav-links">
         <button class="nav-tab-btn active" onclick="switchMainPage('dashboardView', this)">Dashboard</button>
         <button class="nav-tab-btn" onclick="switchMainPage('ourProjectView', this)">Our project</button>
@@ -524,8 +346,8 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     <div class="dashboard-banner">
         <div class="status-dot"></div>
         <div>
-            <div class="banner-title">لوحة التحكم ب سيلرجي</div>
-            <div style="font-size: 14px; color: rgba(255,255,255,0.85); margin-top: 6px; font-weight: 600;">جميع الحساسات تعمل بكفاءة ويتم تحديث البيانات لحظياً</div>
+            <div class="banner-title">لوحة التحكم ب سيلرجي (LEGO Environment)</div>
+            <div style="font-size: 14px; color: #FFF; margin-top: 4px; font-weight: 700;">جميع الحساسات تعمل بكفاءة ويتم تحديث البيانات لحظياً</div>
         </div>
     </div>
 
@@ -535,19 +357,19 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
             <div class="widget-title">📈 التحليل البياني اللحظي</div>
             <div class="charts-grid">
                 <div>
-                    <h4 style="font-size: 13px; color: #6c7280; margin-bottom: 8px; font-weight: 700;">الحرارة (°C)</h4>
+                    <h4 style="font-size: 13px; color: var(--lego-yellow); margin-bottom: 6px; font-weight: 900;">الحرارة (°C)</h4>
                     <div class="chart-container"><canvas id="tempChart"></canvas></div>
                 </div>
                 <div>
-                    <h4 style="font-size: 13px; color: #6c7280; margin-bottom: 8px; font-weight: 700;">الرطوبة (%)</h4>
+                    <h4 style="font-size: 13px; color: var(--lego-cyan); margin-bottom: 6px; font-weight: 900;">الرطوبة (%)</h4>
                     <div class="chart-container"><canvas id="humChart"></canvas></div>
                 </div>
                 <div>
-                    <h4 style="font-size: 13px; color: #6c7280; margin-bottom: 8px; font-weight: 700;">جودة الهواء</h4>
+                    <h4 style="font-size: 13px; color: #AAA; margin-bottom: 6px; font-weight: 900;">جودة الهواء</h4>
                     <div class="chart-container"><canvas id="gasChart"></canvas></div>
                 </div>
                 <div>
-                    <h4 style="font-size: 13px; color: #6c7280; margin-bottom: 8px; font-weight: 700;">مستوى الإضاءة</h4>
+                    <h4 style="font-size: 13px; color: var(--lego-yellow); margin-bottom: 6px; font-weight: 900;">مستوى الإضاءة</h4>
                     <div class="chart-container"><canvas id="ldrChart"></canvas></div>
                 </div>
             </div>
@@ -559,34 +381,34 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 <div class="sensor-card">
                     <div class="sensor-info">
                         <h4>درجة الحرارة</h4>
-                        <div id="temp" class="sensor-value" style="color: #d82c0d;">--</div>
+                        <div id="temp" class="sensor-value" style="color: var(--lego-red);">--</div>
                     </div>
                     <div class="sensor-gauge"><div id="tempGauge" class="gauge-fill"></div></div>
                 </div>
                 <div class="sensor-card">
                     <div class="sensor-info">
                         <h4>الرطوبة</h4>
-                        <div id="hum" class="sensor-value" style="color: #3b91c4;">--</div>
+                        <div id="hum" class="sensor-value" style="color: var(--lego-cyan);">--</div>
                     </div>
                     <div class="sensor-gauge"><div id="humGauge" class="gauge-fill"></div></div>
                 </div>
                 <div class="sensor-card">
                     <div class="sensor-info">
                         <h4>جودة الهواء (MQ-135)</h4>
-                        <div id="gas" class="sensor-value" style="color: #6c7280;">--</div>
+                        <div id="gas" class="sensor-value" style="color: #AAA;">--</div>
                     </div>
                     <div class="sensor-gauge"><div id="gasGauge" class="gauge-fill"></div></div>
                 </div>
                 <div class="sensor-card">
                     <div class="sensor-info">
                         <h4>الإضاءة (LDR)</h4>
-                        <div id="ldr" class="sensor-value" style="color: #80f2fe;">--</div>
+                        <div id="ldr" class="sensor-value" style="color: var(--lego-yellow);">--</div>
                     </div>
                     <div class="sensor-gauge"><div id="ldrGauge" class="gauge-fill"></div></div>
                 </div>
             </div>
             
-            <div style="margin-top: 25px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 20px;">
+            <div style="margin-top: 20px; border-top: 2px solid var(--lego-gray); padding-top: 15px;">
                 <div class="switch-row" style="background: transparent; border: none; padding: 5px 0;">
                     <span class="switch-label" style="font-size: 14px;">تشغيل BME280</span>
                     <label class="switch"><input type="checkbox" id="bmeSwitch" onchange="toggleControl('bmeEnabled')"><span class="slider"></span></label>
@@ -603,7 +425,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     <div class="controls-grid">
         
         <div class="widget-box control-item">
-            <div class="widget-title">🌀 Fan </div>
+            <div class="widget-title">🌀 Fan</div>
             <div class="switch-row">
                 <span class="switch-label">التشغيل اليدوي</span>
                 <label class="switch"><input type="checkbox" id="fanSwitch" onchange="toggleControl('fanEnabled')"><span class="slider"></span></label>
@@ -682,24 +504,21 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 
   <!-- الصفحة الثانية: Our Project -->
   <div id="ourProjectView" class="page-view" style="display: none;">
-    <div class="widget-box" style="margin-top: 10px; padding: 40px 30px;">
+    <div class="widget-box" style="margin-top: 10px; padding: 35px 25px;">
         
         <div class="project-container">
-            <!-- 🚀 Our Mission -->
             <div class="project-section-title">🚀 Our Mission</div>
             <div class="project-subtitle">Driven by Real Impact, Not Just Grades</div>
             <p class="project-text">
                 When we set out to build our project, we didn't want to create something routine just to pass. Instead, we focused on solving a real-world problem through smart technology.
             </p>
 
-            <!-- 🐛 The Challenge & Solution -->
             <div class="project-section-title">🐛 The Challenge & Solution</div>
             <div class="project-subtitle">Smart Environment for Silk Production</div>
             <p class="project-text">
                 Our country produces silk, which relies entirely on silkworms. These silkworms require very specific conditions to thrive. Our solution is an automated system that maintains the ideal environment for optimal silk production.
             </p>
 
-            <!-- 📡 Sensors & Climate Control -->
             <div class="project-section-title">📡 Sensors & Climate Control</div>
             <div class="project-subtitle">Precision Monitoring</div>
             <p class="project-text">
@@ -711,7 +530,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 <li>🍃 <strong>Air Purity</strong></li>
             </ul>
 
-            <!-- ☀️ Power & Sustainability -->
             <div class="project-section-title">☀️ Power & Sustainability</div>
             <div class="project-subtitle">Eco-Friendly & Continuous Energy</div>
             <p class="project-text">
@@ -722,7 +540,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 <li>🔋 <strong>Battery Backup:</strong> Guarantees continuous system operation during the night or overcast weather.</li>
             </ul>
 
-            <!-- قسم MPPT الكبيرة والصور 1، 2، 3 -->
             <div class="big-section-header">MPPT</div>
             <div class="project-gallery-grid">
                 <div class="project-img-card">
@@ -739,7 +556,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 </div>
             </div>
 
-            <!-- قسم SENSORS الكبيرة والصور 1، 2، 3 -->
             <div class="big-section-header">SENSORS</div>
             <div class="project-gallery-grid">
                 <div class="project-img-card">
@@ -763,16 +579,14 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
 
   <!-- الصفحة الثالثة: About Us -->
   <div id="aboutUsView" class="page-view" style="display: none;">
-    <div class="widget-box" style="margin-top: 10px; text-align: center; padding: 40px 20px;">
-        <h2 style="font-size: 32px; color: var(--primary-brand); font-weight: 900; margin-bottom: 10px;">About Us</h2>
-        <p style="font-size: 15px; color: #6c7280; max-width: 600px; margin: 0 auto 25px; line-height: 1.6;">
+    <div class="widget-box" style="margin-top: 10px; text-align: center; padding: 35px 20px;">
+        <h2 style="font-size: 32px; color: var(--lego-yellow); font-weight: 900; margin-bottom: 8px;">About Us</h2>
+        <p style="font-size: 15px; color: #BBB; max-width: 600px; margin: 0 auto 20px; line-height: 1.5;">
           Silergy members
         </p>
         
-        <!-- قسم الشباب (Boys) 6 أعضاء مرصوفين 3 فوق و 3 تحت -->
         <div class="section-subtitle">Boys</div>
         <div class="boys-grid">
-            <!-- Mohamed Elshabrawy -->
             <div class="member-card">
                 <div class="card-banner-bg"></div>
                 <img src="shabrawy.jpeg" alt="Mohamed Elshabrawy" class="member-avatar">
@@ -783,7 +597,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 </a>
             </div>
 
-            <!-- Abdou Badran -->
             <div class="member-card">
                 <div class="card-banner-bg"></div>
                 <img src="Abdou.png" alt="Abdou Badran" class="member-avatar">
@@ -794,7 +607,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 </a>
             </div>
 
-            <!-- Omar Yasser -->
             <div class="member-card">
                 <div class="card-banner-bg"></div>
                 <img src="omar.jpeg" alt="Omar yaseer" class="member-avatar">
@@ -805,7 +617,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 </a>
             </div>
 
-            <!-- Gamal Rajab -->
             <div class="member-card">
                 <div class="card-banner-bg"></div>
                 <img src="gamal.jpeg" alt="Gamal Rajab" class="member-avatar">
@@ -816,7 +627,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 </a>
             </div>
 
-            <!-- Anas Wafa -->
             <div class="member-card">
                 <div class="card-banner-bg"></div>
                 <img src="Anas.jpeg" alt="Anas Wafa" class="member-avatar">
@@ -827,7 +637,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 </a>
             </div>
 
-            <!-- Mohamed Fouda -->
             <div class="member-card">
                 <div class="card-banner-bg"></div>
                 <img src="fouda.jpeg" alt="Mohamed Fouda" class="member-avatar">
@@ -839,10 +648,8 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
             </div>
         </div>
 
-        <!-- قسم البنات (Girls) 4 عضوات مرصوفات 2 فوق و 2 تحت -->
         <div class="section-subtitle">Girls</div>
         <div class="girls-grid">
-            <!-- Haneen Yasser -->
             <div class="member-card">
                 <div class="card-banner-bg"></div>
                 <img src="haneen.jpeg" alt="Haneen Yasser" class="member-avatar">
@@ -851,10 +658,8 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                 <a href="https://www.linkedin.com/in/haneen-yasser-9a81003a8?utm_source=share_via&utm_content=profile&utm_medium=member_ios" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
-              
             </div>
 
-            <!-- Aya Ellaban -->
             <div class="member-card">
                 <div class="card-banner-bg"></div>
                 <img src="aya.jpeg" alt="Aya Ellaban" class="member-avatar">
@@ -863,10 +668,8 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                <a href="https://www.linkedin.com/in/aya-ellabban-839026378?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
-              
             </div>
 
-            <!-- Alaa Elshobakey -->
             <div class="member-card">
                 <div class="card-banner-bg"></div>
                 <img src="alaa.jpeg" alt="Alaa Elshobakey" class="member-avatar">
@@ -875,10 +678,8 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                <a href="https://www.linkedin.com/in/a-laa-elshobakey-21a997286?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
-              
             </div>
 
-            <!-- Mariam Ibrahim -->
             <div class="member-card">
                 <div class="card-banner-bg"></div>
                 <img src="mariam.jpeg" alt="Mariam Ibrahim" class="member-avatar">
@@ -887,14 +688,13 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
                <a href="https://www.linkedin.com/in/mariam-ibrahem-a29071376?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" class="linkedin-btn" title="LinkedIn Profile">
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.78a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24z"/></svg>
                 </a>
-            
-  </div>
+            </div>
         </div>
 
     </div>
   </div>
 
-  <footer><div class="author-footer">POWERED BY SILERGY</div></footer>
+  <footer><div class="author-footer">POWERED BY SILERGY LEGO EDITION ⚡</div></footer>
 </div>
 
 <script>
@@ -909,7 +709,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     const target = document.getElementById(pageId);
     if (target) {
       target.style.display = 'block';
-      // Re-trigger animation
       void target.offsetWidth;
       target.classList.add('active-view');
     }
@@ -932,7 +731,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     constructor() { 
       this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
       this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
-      this.radius = Math.random() * 1.5 + 1; this.history = [];
+      this.radius = Math.random() * 2 + 1; this.history = [];
     }
     update() {
       this.x += this.vx; this.y += this.vy;
@@ -947,9 +746,9 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
         let pt = this.history[i];
         if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
       }
-      ctx.strokeStyle = "rgba(128, 242, 254, 0.25)";
-      ctx.lineWidth = 1.5; ctx.stroke();
-      ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = "#80f2fe"; ctx.fill();
+      ctx.strokeStyle = "rgba(255, 213, 0, 0.3)";
+      ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fillStyle = "#FFD500"; ctx.fill();
     }
   }
 
@@ -961,7 +760,6 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   }
   renderEcoCanvas();
   
-  // إظهار كلمة المرور
   function togglePasswordVisibility() {
     const pwd = document.getElementById("passwordInput");
     pwd.type = pwd.type === "password" ? "text" : "password";
@@ -992,17 +790,17 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   
   const chartOptions = { 
     responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-    scales: { x: { display: false }, y: { min: 0, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#6c7280', font: { size: 10 } } } },
-    elements: { line: { tension: 0.4 } }
+    scales: { x: { display: false }, y: { min: 0, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#FFF', font: { size: 10 } } } },
+    elements: { line: { tension: 0.2 } }
   };
   function createChartConfig(color) {
-    return { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: color, backgroundColor: color.replace('1)', '0.15)'), borderWidth: 2, fill: true, pointRadius: 2 }] }, options: chartOptions };
+    return { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: color, backgroundColor: color.replace('1)', '0.2)'), borderWidth: 3, fill: true, pointRadius: 3 }] }, options: chartOptions };
   }
 
-  const tempChart = new Chart(document.getElementById('tempChart'), createChartConfig('rgba(216, 44, 13, 1)'));
-  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(59, 145, 196, 1)'));
-  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(108, 114, 128, 1)'));
-  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(128, 242, 254, 1)'));
+  const tempChart = new Chart(document.getElementById('tempChart'), createChartConfig('rgba(227, 0, 11, 1)'));
+  const humChart = new Chart(document.getElementById('humChart'), createChartConfig('rgba(0, 163, 218, 1)'));
+  const gasChart = new Chart(document.getElementById('gasChart'), createChartConfig('rgba(200, 200, 200, 1)'));
+  const ldrChart = new Chart(document.getElementById('ldrChart'), createChartConfig('rgba(255, 213, 0, 1)'));
   
   function addChartData(chart, rawValue) {
     const val = parseFloat(rawValue);
@@ -1020,8 +818,8 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
     if (allowedUsers[user] && allowedUsers[user] === pass) {
       document.getElementById("errorMsg").style.display = "none";
       localStorage.setItem("silergy_user", user);
-      document.getElementById("loginCard").classList.add("animate-exit");
-      setTimeout(() => { document.getElementById("login-screen").style.display = "none"; playWelcomeAnimation(user); }, 500);
+      document.getElementById("loginCard").style.transform = "scale(0.9)";
+      setTimeout(() => { document.getElementById("login-screen").style.display = "none"; playWelcomeAnimation(user); }, 300);
     } else { document.getElementById("errorMsg").style.display = "block"; }
   };
   
@@ -1101,13 +899,11 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
   window.togglePauseTimer = function(deviceKey, btnId) {
     if (!activeTimers[deviceKey].timerId) return;
     activeTimers[deviceKey].isPaused = !activeTimers[deviceKey].isPaused;
-    document.getElementById(btnId).textContent = activeTimers[deviceKey].isPaused ?
-    '▶️' : '⏸️';
+    document.getElementById(btnId).textContent = activeTimers[deviceKey].isPaused ? '▶️' : '⏸️';
   };
 
   window.resetDeviceTimer = function(deviceKey) {
-    if (activeTimers[deviceKey].timerId) { clearInterval(activeTimers[deviceKey].timerId); activeTimers[deviceKey].timerId = null;
-    }
+    if (activeTimers[deviceKey].timerId) { clearInterval(activeTimers[deviceKey].timerId); activeTimers[deviceKey].timerId = null; }
     activeTimers[deviceKey].remainingSecs = 0; activeTimers[deviceKey].isPaused = false;
     if (timerFbKeys[deviceKey]) set(ref(db, 'timers/' + timerFbKeys[deviceKey]), -1);
     document.getElementById(deviceKey + 'InputsBox').style.display = 'block';
@@ -1126,7 +922,7 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       if (data.temp !== undefined) {
         document.getElementById('temp').textContent = data.temp + ' °C';
         document.getElementById('tempGauge').style.width = Math.min((parseFloat(data.temp) / 50) * 100, 100) + '%';
-        document.getElementById('tempGauge').style.backgroundColor = '#d82c0d';
+        document.getElementById('tempGauge').style.backgroundColor = 'var(--lego-red)';
         addChartData(tempChart, data.temp);
         if (currentSystemMode === 'auto') {
           if (parseFloat(data.temp) > 31 && !currentFanStatus) set(ref(db, 'controls/fanEnabled'), true);
@@ -1136,19 +932,19 @@ footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1p
       if (data.humidity !== undefined) {
         document.getElementById('hum').textContent = data.humidity + ' %';
         document.getElementById('humGauge').style.width = Math.min(parseFloat(data.humidity), 100) + '%';
-        document.getElementById('humGauge').style.backgroundColor = '#3b91c4';
+        document.getElementById('humGauge').style.backgroundColor = 'var(--lego-cyan)';
         addChartData(humChart, data.humidity);
       }
       if (data.gas !== undefined) {
         document.getElementById('gas').textContent = data.gas;
         document.getElementById('gasGauge').style.width = Math.min((parseFloat(data.gas) / 1024) * 100, 100) + '%';
-        document.getElementById('gasGauge').style.backgroundColor = '#6c7280';
+        document.getElementById('gasGauge').style.backgroundColor = '#AAA';
         addChartData(gasChart, data.gas);
       }
       if (data.ldr !== undefined) {
         document.getElementById('ldr').textContent = data.ldr;
         document.getElementById('ldrGauge').style.width = Math.min((parseFloat(data.ldr) / 1024) * 100, 100) + '%';
-        document.getElementById('ldrGauge').style.backgroundColor = '#80f2fe';
+        document.getElementById('ldrGauge').style.backgroundColor = 'var(--lego-yellow)';
         addChartData(ldrChart, data.ldr);
       }
     }
